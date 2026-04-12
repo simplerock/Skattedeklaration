@@ -1,0 +1,2275 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inkomstdeklaration 2025</title>
+<!-- Inga externa script-beroenden — adressförslag via OpenStreetMap -->
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f4f6f9;
+  color: #1a1a2e;
+  min-height: 100vh;
+}
+
+.header {
+  background: #1a3a6b;
+  color: white;
+  padding: 20px 40px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.header-logo {
+  width: 40px; height: 40px;
+  background: #f6ca3c;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 800; color: #1a3a6b;
+  flex-shrink: 0;
+}
+.header h1 { font-size: 20px; font-weight: 600; }
+.header p { font-size: 13px; opacity: 0.75; margin-top: 2px; }
+
+.lang-selector {
+  display: flex; gap: 6px; margin-left: auto; align-items: center;
+}
+.lang-btn {
+  padding: 5px 11px; border-radius: 6px;
+  font-size: 12px; font-weight: 700; cursor: pointer;
+  border: 2px solid rgba(255,255,255,0.3);
+  background: transparent; color: rgba(255,255,255,0.7);
+  transition: all 0.15s; letter-spacing: 0.04em;
+}
+.lang-btn:hover { background: rgba(255,255,255,0.15); color: white; }
+.lang-btn.active { background: #f6ca3c; color: #1a3a6b; border-color: #f6ca3c; }
+
+.progress-bar { background: #e2e8f0; height: 4px; }
+.progress-fill {
+  background: #f6ca3c; height: 100%;
+  transition: width 0.4s ease;
+}
+
+.container {
+  max-width: 680px;
+  margin: 40px auto;
+  padding: 0 20px 60px;
+}
+
+.step { display: none; animation: fadeIn 0.3s ease; }
+.step.active { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.step-label {
+  font-size: 12px; font-weight: 600;
+  color: #1a3a6b; text-transform: uppercase;
+  letter-spacing: 0.08em; margin-bottom: 8px;
+}
+.step-title { font-size: 26px; font-weight: 700; color: #1a1a2e; margin-bottom: 8px; }
+.step-desc { font-size: 15px; color: #6b7280; margin-bottom: 32px; line-height: 1.6; }
+
+.card {
+  background: white; border-radius: 12px;
+  padding: 28px; margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.card-title {
+  font-size: 15px; font-weight: 700; color: #1a1a2e;
+  margin-bottom: 16px; padding-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.question-label { font-size: 15px; font-weight: 600; color: #1a1a2e; margin-bottom: 4px; }
+.required-star { color: #dc2626; margin-left: 3px; }
+.question-hint { font-size: 13px; color: #9ca3af; margin-bottom: 14px; line-height: 1.5; }
+
+.radio-group, .checkbox-group { display: flex; flex-direction: column; gap: 8px; }
+
+.radio-option, .checkbox-option {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; border: 2px solid #e5e7eb;
+  border-radius: 8px; cursor: pointer;
+  transition: all 0.15s; user-select: none;
+}
+.radio-option:hover, .checkbox-option:hover {
+  border-color: #1a3a6b; background: #f0f4ff;
+}
+.radio-option.selected, .checkbox-option.selected {
+  border-color: #1a3a6b; background: #f0f4ff;
+}
+.radio-option input, .checkbox-option input {
+  accent-color: #1a3a6b; width: 18px; height: 18px; flex-shrink: 0;
+}
+.radio-option span, .checkbox-option span { font-size: 14px; font-weight: 500; }
+
+.input-group { margin-top: 4px; }
+.input-group label {
+  display: block; font-size: 13px; font-weight: 600;
+  color: #374151; margin-bottom: 6px;
+}
+.input-group input, .input-group select, .input-group textarea {
+  width: 100%; padding: 11px 14px;
+  border: 2px solid #e5e7eb; border-radius: 8px;
+  font-size: 15px; color: #1a1a2e;
+  transition: border-color 0.15s;
+  font-family: inherit;
+}
+.input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+  outline: none; border-color: #1a3a6b;
+}
+.input-group input.error, .input-group select.error {
+  border-color: #dc2626;
+}
+
+.input-suffix {
+  display: flex; align-items: center;
+  border: 2px solid #e5e7eb; border-radius: 8px;
+  overflow: hidden; transition: border-color 0.15s;
+}
+.input-suffix:focus-within { border-color: #1a3a6b; }
+.input-suffix input { border: none !important; border-radius: 0; flex: 1; }
+.input-suffix input:focus { outline: none; }
+.suffix-label {
+  padding: 11px 14px; background: #f3f4f6;
+  font-size: 14px; color: #6b7280; white-space: nowrap;
+}
+
+.address-row {
+  display: flex; gap: 10px; align-items: flex-end;
+  margin-bottom: 8px;
+}
+.address-row .input-group { flex: 1; margin: 0; }
+.btn-calc {
+  padding: 11px 18px; background: #1a3a6b; color: white;
+  border: none; border-radius: 8px; font-size: 13px;
+  font-weight: 700; cursor: pointer; white-space: nowrap;
+  transition: all 0.15s; flex-shrink: 0;
+}
+.btn-calc:hover { background: #152e56; }
+.btn-calc:disabled { background: #9ca3af; cursor: not-allowed; }
+.distance-status {
+  font-size: 13px; color: #6b7280; margin-top: 8px;
+  min-height: 20px; padding: 6px 10px;
+  background: #f8fafc; border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+.distance-status.ok { color: #059669; background: #f0fdf4; border-color: #86efac; }
+.distance-status.err { color: #dc2626; background: #fef2f2; border-color: #fca5a5; }
+.distance-status.loading { color: #6b7280; }
+
+.sub-section {
+  background: #f8fafc; border-radius: 8px;
+  padding: 16px; margin-top: 14px;
+}
+.sub-section-title {
+  font-size: 13px; font-weight: 700; color: #1a3a6b;
+  text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px;
+}
+
+.info-box {
+  display: flex; gap: 10px;
+  background: #eff6ff; border: 1px solid #bfdbfe;
+  border-radius: 8px; padding: 12px 14px; margin-top: 12px;
+}
+.info-box .icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.info-box p { font-size: 13px; color: #1e40af; line-height: 1.6; }
+
+.warning-box {
+  display: flex; gap: 10px;
+  background: #fffbeb; border: 1px solid #fde68a;
+  border-radius: 8px; padding: 12px 14px; margin-top: 12px;
+}
+.warning-box .icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.warning-box p { font-size: 13px; color: #92400e; line-height: 1.6; }
+
+.success-box {
+  display: flex; gap: 10px;
+  background: #f0fdf4; border: 1px solid #86efac;
+  border-radius: 8px; padding: 12px 14px; margin-top: 12px;
+}
+.success-box .icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.success-box p { font-size: 13px; color: #166534; line-height: 1.6; }
+
+.error-banner {
+  background: #fef2f2; border: 1.5px solid #fca5a5;
+  border-radius: 8px; padding: 12px 16px;
+  font-size: 13px; color: #991b1b;
+  margin-bottom: 16px; display: none;
+}
+.error-banner.visible { display: block; }
+
+/* Ombud */
+.ombud-steps { display: flex; flex-direction: column; gap: 0; }
+.ombud-step {
+  display: flex; gap: 16px;
+  padding: 16px 0; border-bottom: 1px solid #f0f0f0;
+}
+.ombud-step:last-child { border-bottom: none; }
+.ombud-number {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: #1a3a6b; color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; flex-shrink: 0;
+}
+.ombud-text h4 { font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 4px; }
+.ombud-text p { font-size: 13px; color: #6b7280; line-height: 1.5; }
+.pnr-badge {
+  display: inline-block; background: #f6ca3c;
+  color: #1a1a2e; font-weight: 700; font-size: 15px;
+  padding: 6px 14px; border-radius: 6px; letter-spacing: 0.05em;
+  margin: 8px 0;
+}
+
+.divider { height: 1px; background: #f0f0f0; margin: 20px 0; }
+
+.nav-buttons {
+  display: flex; gap: 12px;
+  margin-top: 24px; justify-content: space-between;
+  align-items: center;
+}
+.btn-back {
+  padding: 12px 24px; border: 2px solid #e5e7eb;
+  background: white; border-radius: 8px;
+  font-size: 15px; font-weight: 600; color: #6b7280;
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-back:hover { border-color: #9ca3af; color: #374151; }
+.btn-next {
+  padding: 12px 32px; background: #1a3a6b;
+  color: white; border: none; border-radius: 8px;
+  font-size: 15px; font-weight: 600; cursor: pointer;
+  transition: all 0.15s; margin-left: auto;
+}
+.btn-next:hover { background: #152e56; }
+
+/* Summary */
+.total-box {
+  background: #1a3a6b; color: white;
+  border-radius: 12px; padding: 28px;
+  margin-bottom: 16px; text-align: center;
+}
+.total-box p { font-size: 14px; opacity: 0.8; margin-bottom: 6px; }
+.total-box h2 { font-size: 40px; font-weight: 800; color: #f6ca3c; }
+.total-box small { font-size: 12px; opacity: 0.6; margin-top: 6px; display: block; }
+
+.summary-section {
+  background: white; border-radius: 12px;
+  padding: 24px 28px; margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.summary-section h3 {
+  font-size: 12px; font-weight: 700; color: #1a3a6b;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  margin-bottom: 16px;
+}
+
+.deduction-item {
+  display: flex; justify-content: space-between;
+  align-items: center; padding: 12px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+.deduction-item:last-child { border-bottom: none; }
+.deduction-item .name { font-size: 14px; font-weight: 500; }
+.deduction-item .amount { font-size: 14px; font-weight: 700; color: #059669; }
+.badge {
+  font-size: 11px; padding: 2px 8px;
+  border-radius: 100px; font-weight: 600;
+}
+.badge-ready { background: #d1fae5; color: #065f46; }
+.badge-doc { background: #fef3c7; color: #92400e; }
+.badge-action { background: #dbeafe; color: #1e40af; }
+
+.summary-row {
+  display: flex; justify-content: space-between;
+  padding: 8px 0; border-bottom: 1px solid #f3f4f6;
+  font-size: 14px;
+}
+.summary-row:last-child { border-bottom: none; }
+.summary-row .key { color: #6b7280; }
+.summary-row .val { font-weight: 600; }
+
+.sru-preview {
+  background: #1e293b; color: #a3e635;
+  border-radius: 8px; padding: 16px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px; line-height: 1.8;
+  max-height: 200px; overflow-y: auto;
+  margin-top: 12px;
+}
+
+.btn-send {
+  width: 100%; padding: 16px 20px;
+  background: #f6ca3c; color: #1a1a2e;
+  border: none; border-radius: 8px;
+  font-size: 16px; font-weight: 800;
+  cursor: pointer; transition: all 0.15s;
+  text-align: center; margin-top: 20px;
+  letter-spacing: 0.02em;
+}
+.btn-send:hover { background: #eab308; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(246,202,60,0.4); }
+
+.hidden { display: none !important; }
+
+/* Adress-autocomplete dropdown (OpenStreetMap Nominatim) */
+.osm-dropdown {
+  position: absolute;
+  left: 0; right: 0;
+  top: 100%;
+  background: #fff;
+  border: 1.5px solid #1a3a6b;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  z-index: 99999;
+  margin-top: 2px;
+  overflow: hidden;
+  font-size: 14px;
+}
+.osm-item {
+  padding: 10px 14px;
+  cursor: pointer;
+  border-top: 1px solid #f0f0f0;
+  line-height: 1.4;
+  color: #1a1a2e;
+}
+.osm-item:first-child { border-top: none; }
+.osm-item:hover, .osm-item.active { background: #f0f4ff; }
+.osm-item strong { color: #1a3a6b; font-weight: 600; }
+.osm-item small { display: block; font-size: 11px; color: #6b7280; margin-top: 1px; }
+
+.address-maps-hint {
+  font-size: 11px; color: #9ca3af;
+  margin-top: 5px; display: flex; align-items: center; gap: 4px;
+}
+.address-maps-hint span { color: #22c55e; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">D</div>
+  <div>
+    <h1 data-i18n="headerTitle">Inkomstdeklaration 2025</h1>
+    <p data-i18n="headerSub">Svara på frågorna – vi hittar dina avdrag och skickar underlaget</p>
+  </div>
+  <div class="lang-selector">
+    <button class="lang-btn active" onclick="setLanguage('sv')">🇸🇪 SV</button>
+    <button class="lang-btn" onclick="setLanguage('en')">🇬🇧 EN</button>
+    <button class="lang-btn" onclick="setLanguage('zh')">🇨🇳 中文</button>
+  </div>
+</div>
+<div class="progress-bar">
+  <div class="progress-fill" id="progressFill" style="width:3%"></div>
+</div>
+
+<div class="container">
+
+<!-- ===== STEG 1: SEGMENTERING ===== -->
+<div class="step active" id="step-1">
+  <div class="step-label" data-i18n="step1Label">Steg 1 av 5</div>
+  <div class="step-title" data-i18n="step1Title">Din situation 2025</div>
+  <div class="step-desc" data-i18n="step1Desc">Tre korta frågor som styr vilka avdrag som är relevanta för dig.</div>
+  <div id="err-1" class="error-banner"></div>
+
+  <div class="card">
+    <div class="question-label" data-i18n="incomeTypeQ">Vad stämmer bäst in på din inkomstsituation under 2025?<span class="required-star">*</span></div>
+    <div class="question-hint" data-i18n="incomeTypeHint">Välj din huvudsakliga inkomstkälla under inkomståret 2025.</div>
+    <div class="radio-group">
+      <label class="radio-option"><input type="radio" name="incomeType" value="anstald"><span data-i18n="opt_anstald">Anställd – fast lön från arbetsgivare</span></label>
+      <label class="radio-option"><input type="radio" name="incomeType" value="enskild"><span data-i18n="opt_enskild">Egenföretagare – enskild firma (F-skatt)</span></label>
+      <label class="radio-option"><input type="radio" name="incomeType" value="ab"><span data-i18n="opt_ab">Äger aktiebolag – tar ut lön eller utdelning från eget AB</span></label>
+      <label class="radio-option"><input type="radio" name="incomeType" value="pensionar"><span data-i18n="opt_pensionar">Pensionär</span></label>
+      <label class="radio-option"><input type="radio" name="incomeType" value="student"><span data-i18n="opt_student">Student (med extrajobb eller stipendier)</span></label>
+      <label class="radio-option"><input type="radio" name="incomeType" value="kombination"><span data-i18n="opt_kombination">Kombination av flera ovanstående</span></label>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="question-label" data-i18n="capitalEventsQ">Har du gjort något av följande under 2025?</div>
+    <div class="question-hint" data-i18n="capitalEventsHint">Välj allt som stämmer.</div>
+    <div class="checkbox-group">
+      <label class="checkbox-option"><input type="checkbox" name="capitalEvents" value="bostad"><span data-i18n="opt_bostad">Sålt bostad (bostadsrätt eller villa)</span></label>
+      <label class="checkbox-option"><input type="checkbox" name="capitalEvents" value="aktier"><span data-i18n="opt_aktier">Sålt aktier, fonder eller kryptovaluta</span></label>
+      <label class="checkbox-option"><input type="checkbox" name="capitalEvents" value="uthyrning"><span data-i18n="opt_uthyrning">Hyrt ut din bostad eller ett rum</span></label>
+      <label class="checkbox-option"><input type="checkbox" name="capitalEvents" value="inget"><span data-i18n="opt_inget">Inget av ovanstående</span></label>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="question-label" data-i18n="housingQ">Äger du din bostad?<span class="required-star">*</span></div>
+    <div class="radio-group">
+      <label class="radio-option"><input type="radio" name="housing" value="ager_lan"><span data-i18n="opt_ager_lan">Ja, med bolån</span></label>
+      <label class="radio-option"><input type="radio" name="housing" value="ager_utan"><span data-i18n="opt_ager_utan">Ja, utan bolån</span></label>
+      <label class="radio-option"><input type="radio" name="housing" value="hyr"><span data-i18n="opt_hyr">Nej, jag hyr</span></label>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn-next" onclick="goToStep(2)" data-i18n="btnContinue">Fortsätt →</button>
+  </div>
+</div>
+
+<!-- ===== STEG 2: INKOMST & PENDLING ===== -->
+<div class="step" id="step-2">
+  <div class="step-label" data-i18n="step2Label">Steg 2 av 5</div>
+  <div class="step-title" data-i18n="step2Title">Inkomst & pendling</div>
+  <div class="step-desc" data-i18n="step2Desc">Dina uppgifter och pendlingsavdrag – det som ger störst skatteeffekt för de flesta.</div>
+  <div id="err-2" class="error-banner"></div>
+
+  <div class="card">
+    <div class="question-label" data-i18n="pnrQ">Personnummer<span class="required-star">*</span></div>
+    <div class="question-hint" data-i18n="pnrHint">Format: ÅÅÅÅMMDD-XXXX</div>
+    <div class="input-group">
+      <input type="text" id="personnummer" placeholder="19800101-1234" maxlength="13" required>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="question-label" data-i18n="nameQ">Namn<span class="required-star">*</span></div>
+    <div class="input-group" style="margin-bottom: 14px;">
+      <label data-i18n="labelFirstName">Förnamn</label>
+      <input type="text" id="fornamn" placeholder="Anna" required>
+    </div>
+    <div class="input-group">
+      <label data-i18n="labelLastName">Efternamn</label>
+      <input type="text" id="efternamn" placeholder="Svensson" required>
+    </div>
+    <div class="input-group">
+      <label>Postnummer</label>
+      <input type="text" id="postnummer" placeholder="123 45" maxlength="6" pattern="\d{3}\s?\d{2}" title="5-siffrigt postnummer">
+    </div>
+    <div class="input-group">
+      <label>Ort</label>
+      <input type="text" id="postort" placeholder="Stockholm">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="question-label" data-i18n="commuteQ">Daglig resa till jobbet<span class="required-star">*</span></div>
+    <div class="question-hint" data-i18n="commuteHint">Ange din hemadress och arbetsplatsadress – vi beräknar avståndet automatiskt.</div>
+
+    <div class="input-group" style="margin-bottom: 12px;">
+      <label data-i18n="labelHomeAddr">Hemadress</label>
+      <input type="text" id="homeAddress" placeholder="Storgatan 1, Stockholm" autocomplete="new-password">
+      <div class="address-maps-hint" id="homeAddrHint">
+        Powered by <span>OpenStreetMap</span> — adressförslag visas när du skriver
+      </div>
+    </div>
+    <div class="input-group" style="margin-bottom: 12px;">
+      <label data-i18n="labelWorkAddr">Arbetsplatsadress</label>
+      <input type="text" id="workAddress" placeholder="Kungsgatan 10, Stockholm" autocomplete="new-password">
+      <div class="address-maps-hint" id="workAddrHint">
+        Powered by <span>OpenStreetMap</span> — välj arbetsplats eller adress
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; align-items:center; margin-top: 4px;">
+      <button class="btn-calc" id="calcDistBtn" onclick="calcDistanceFromAddresses()" data-i18n="btnCalcDist">📍 Beräkna avstånd</button>
+      <div class="distance-status" id="distanceStatus" data-i18n="distStatusIdle">Välj adresser ovan – distansen beräknas automatiskt</div>
+    </div>
+
+    <div id="commuteManualSection" class="sub-section" style="margin-top:16px;">
+      <div class="sub-section-title" data-i18n="manualDistTitle">Avstånd (km)</div>
+      <div class="input-group" style="margin-bottom: 14px;">
+        <label data-i18n="labelDistKm">Enkel väg (km) – fylls i automatiskt eller ange manuellt</label>
+        <div class="input-suffix">
+          <input type="number" id="commuteKm" placeholder="t.ex. 28" oninput="calcCommute()">
+          <span class="suffix-label">km</span>
+        </div>
+      </div>
+      <div class="input-group" style="margin-bottom: 14px;">
+        <label data-i18n="labelTransport">Transportmedel</label>
+        <select id="commuteType" onchange="calcCommute()">
+          <option value="" data-i18n="optSelectTransport">Välj...</option>
+          <option value="bil" data-i18n="optCar">Bil (egna bilen)</option>
+          <option value="kollektivt" data-i18n="optPublic">Kollektivtrafik</option>
+          <option value="kombinerat" data-i18n="optCombined">Kombinerat bil + kollektivt</option>
+        </select>
+      </div>
+      <div class="input-group" style="margin-bottom: 8px;">
+        <label data-i18n="labelCommuteDays">Antal pendlingsdagar per år (standard: 220)</label>
+        <div class="input-suffix">
+          <input type="number" id="commuteDays" placeholder="220" value="220" oninput="calcCommute()">
+          <span class="suffix-label" data-i18n="suffixDays">dagar</span>
+        </div>
+      </div>
+      <div id="kollektivtKostnadSection" class="hidden" style="margin-top:12px;">
+        <div class="input-group">
+          <label data-i18n="labelTransitCost">Totalt betalt för periodkort / biljetter under 2025</label>
+          <div class="input-suffix">
+            <input type="number" id="kollektivtKr" placeholder="t.ex. 14 400" oninput="calcCommute()">
+            <span class="suffix-label" data-i18n="suffixKrYear">kr/år</span>
+          </div>
+        </div>
+      </div>
+      <div id="bilWarning" class="warning-box hidden">
+        <span class="icon">⚠️</span>
+        <p data-i18n="bilWarnText">Bilpendling är avdragsgill <strong>bara om</strong> du sparar minst 2 timmar per dag jämfört med kollektivtrafik, eller om kollektivtrafik saknas längs sträckan.</p>
+      </div>
+      <div id="commuteResult" class="info-box hidden">
+        <span class="icon">📊</span>
+        <p id="commuteResultText"></p>
+      </div>
+    </div>
+    <div class="info-box" style="margin-top:12px;">
+      <span class="icon">ℹ️</span>
+      <p data-i18n="commuteInfo">Pendlingsavdrag uppstår när kostnaden överstiger 11 000 kr/år. Spara underlag (biljetter, körjournal eller karta med avstånd).</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="question-label" data-i18n="unionQ">Betalar du fackavgift eller a-kassa?</div>
+    <div class="radio-group">
+      <label class="radio-option"><input type="radio" name="union" value="ja"><span data-i18n="optYes">Ja</span></label>
+      <label class="radio-option"><input type="radio" name="union" value="nej"><span data-i18n="optNo">Nej</span></label>
+    </div>
+    <div id="unionAmount" class="sub-section hidden">
+      <div class="input-group">
+        <label data-i18n="labelUnionKr">Totalt betalt i fackavgift + a-kassa under 2025</label>
+        <div class="input-suffix">
+          <input type="number" id="unionKr" placeholder="t.ex. 3 600">
+          <span class="suffix-label" data-i18n="suffixKr">kr</span>
+        </div>
+      </div>
+      <div class="info-box" style="margin-top: 10px;">
+        <span class="icon">ℹ️</span>
+        <p data-i18n="unionInfo">Fackavgiften är fullt avdragsgill. Ofta förifyllt – dubbelkolla att beloppet stämmer på kontrolluppgiften.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="question-label" data-i18n="workToolsQ">Köpte du arbetsverktyg eller facklitteratur som krävdes för jobbet?</div>
+    <div class="question-hint" data-i18n="workToolsHint">Gäller om arbetsgivaren INTE ersatte dig och kostnaden var nödvändig för tjänsteutövandet.</div>
+    <div class="radio-group">
+      <label class="radio-option"><input type="radio" name="workTools" value="ja"><span data-i18n="optYes">Ja</span></label>
+      <label class="radio-option"><input type="radio" name="workTools" value="nej"><span data-i18n="optNo">Nej</span></label>
+    </div>
+    <div id="workToolsAmount" class="sub-section hidden">
+      <div class="input-group">
+        <label data-i18n="labelWorkToolsKr">Belopp totalt</label>
+        <div class="input-suffix">
+          <input type="number" id="workToolsKr" placeholder="t.ex. 8 000">
+          <span class="suffix-label" data-i18n="suffixKr">kr</span>
+        </div>
+      </div>
+      <div class="info-box" style="margin-top: 10px;">
+        <span class="icon">ℹ️</span>
+        <p data-i18n="workToolsInfo">Avdraget ger effekt när kostnaden överstiger 5 000 kr. Spara kvitton och förbered en motivering.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn-back" onclick="goToStep(1)" data-i18n="btnBack">← Tillbaka</button>
+    <button class="btn-next" onclick="goToStep(3)" data-i18n="btnContinue">Fortsätt →</button>
+  </div>
+</div>
+
+<!-- ===== STEG 3: BOSTAD & ROT/RUT ===== -->
+<div class="step" id="step-3">
+  <div class="step-label" data-i18n="step3Label">Steg 3 av 5</div>
+  <div class="step-title" data-i18n="step3Title">Bostad & hushållstjänster</div>
+  <div class="step-desc" data-i18n="step3Desc">ROT och RUT ger direkta skattereduktioner – inte bara avdrag. Kontrollera att du utnyttjat dem fullt ut.</div>
+
+  <div class="card" id="mortgageCard">
+    <div class="question-label" data-i18n="interestQ">Räntekostnader 2025</div>
+    <div class="question-hint" data-i18n="interestHint">Ny regel 2025: Ränteavdrag för lån utan säkerhet (blancolån, privatlån) är bara 50% avdragsgill. Bolån och lån med säkerhet: full avdragsrätt som tidigare.</div>
+    <div class="input-group" style="margin-bottom: 14px;">
+      <label data-i18n="labelBolan">Räntekostnader – bolån och lån MED säkerhet</label>
+      <div class="input-suffix">
+        <input type="number" id="interestKr" placeholder="t.ex. 52 000">
+        <span class="suffix-label" data-i18n="suffixKr">kr</span>
+      </div>
+    </div>
+    <div class="input-group" style="margin-bottom: 14px;">
+      <label data-i18n="labelBlanko">Räntekostnader – lån UTAN säkerhet (blancolån, privatlån) <span style="color:#dc2626;font-size:11px;font-weight:700">NY 2025</span></label>
+      <div class="input-suffix">
+        <input type="number" id="interestUnsecured" placeholder="t.ex. 8 000" oninput="calcInterest()">
+        <span class="suffix-label" data-i18n="suffixKr">kr</span>
+      </div>
+    </div>
+    <div id="interestResult" class="info-box hidden">
+      <span class="icon">📊</span><p id="interestResultText"></p>
+    </div>
+    <div class="warning-box" style="margin-top: 12px;">
+      <span class="icon">⚠️</span>
+      <p data-i18n="interestWarn">Ny 2025-regel: Ränteutgifter på lån utan säkerhet är bara 50% avdragsgilla. Kontrollera att förifyllt belopp för bolånet stämmer – lån hos utländska banker fylls inte i automatiskt.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="question-label" data-i18n="rotQ">Anlitade du hantverkare för renovering eller ombyggnad 2025?</div>
+    <div class="question-hint" data-i18n="rotHint">ROT-avdrag: 30% skattereduktion på arbetskostnad. Max 50 000 kr per person och år.</div>
+    <div class="radio-group">
+      <label class="radio-option"><input type="radio" name="rot" value="ja"><span data-i18n="optYes">Ja</span></label>
+      <label class="radio-option"><input type="radio" name="rot" value="nej"><span data-i18n="optNo">Nej</span></label>
+    </div>
+    <div id="rotAmount" class="sub-section hidden">
+      <div class="input-group" style="margin-bottom: 8px;">
+        <label data-i18n="labelRotKr">Betald arbetskostnad (exkl. material) totalt</label>
+        <div class="input-suffix">
+          <input type="number" id="rotKr" placeholder="t.ex. 80 000" oninput="calcROT()">
+          <span class="suffix-label" data-i18n="suffixKr">kr</span>
+        </div>
+      </div>
+      <div id="rotResult" class="info-box hidden">
+        <span class="icon">📊</span><p id="rotResultText"></p>
+      </div>
+      <div class="info-box" style="margin-top: 8px;">
+        <span class="icon">ℹ️</span>
+        <p data-i18n="rotInfo">Avdraget ska framgå på fakturan – hantverkaren med F-skatt fakturerar hälften, Skatteverket betalar resten direkt till företaget. Bekräfta i deklarationen om det inte skett automatiskt.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="question-label" data-i18n="rutQ">Köpte du städhjälp, barnpassning, flytt-, IT- eller andra hushållstjänster?</div>
+    <div class="question-hint" data-i18n="rutHint">RUT-avdrag: 50% skattereduktion. Max 75 000 kr/år (150 000 kr om du fyllde 65 under 2025).</div>
+    <div class="radio-group">
+      <label class="radio-option"><input type="radio" name="rut" value="ja"><span data-i18n="optYes">Ja</span></label>
+      <label class="radio-option"><input type="radio" name="rut" value="nej"><span data-i18n="optNo">Nej</span></label>
+    </div>
+    <div id="rutAmount" class="sub-section hidden">
+      <div class="input-group" style="margin-bottom: 8px;">
+        <label data-i18n="labelRutKr">Betald arbetskostnad totalt</label>
+        <div class="input-suffix">
+          <input type="number" id="rutKr" placeholder="t.ex. 24 000" oninput="calcRUT()">
+          <span class="suffix-label" data-i18n="suffixKr">kr</span>
+        </div>
+      </div>
+      <div class="input-group" style="margin-bottom: 8px; margin-top: 12px;">
+        <label data-i18n="labelRut65">Fyllde du 65 år under 2025?</label>
+        <select id="rut65" onchange="calcRUT()">
+          <option value="nej" data-i18n="optNo">Nej</option>
+          <option value="ja" data-i18n="optRut65Yes">Ja – högre RUT-tak (150 000 kr)</option>
+        </select>
+      </div>
+      <div id="rutResult" class="info-box hidden">
+        <span class="icon">📊</span><p id="rutResultText"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn-back" onclick="goToStep(2)" data-i18n="btnBack">← Tillbaka</button>
+    <button class="btn-next" onclick="goToStep(4)" data-i18n="btnContinue">Fortsätt →</button>
+  </div>
+</div>
+
+<!-- ===== STEG 4: KAPITAL ===== -->
+<div class="step" id="step-4">
+  <div class="step-label" data-i18n="step4Label">Steg 4 av 5</div>
+  <div class="step-title" data-i18n="step4Title">Kapital & investeringar</div>
+  <div class="step-desc" data-i18n="step4Desc">Bostadsförsäljning, aktier och uthyrning – möjligheter och skattekonsekvenser.</div>
+
+  <div id="bostadSection" class="hidden">
+    <div class="card">
+      <div class="card-title" data-i18n="bostadTitle">Bostadsförsäljning 2025</div>
+      <div class="question-hint" data-i18n="bostadHint">22/30-regeln: 22% effektiv skatt på vinsten. Förbättringsutgifter och försäljningskostnader minskar vinsten.</div>
+      <div class="input-group" style="margin-bottom: 14px;">
+        <label data-i18n="labelSalePrice">Försäljningspris</label>
+        <div class="input-suffix">
+          <input type="number" id="salePrice" placeholder="t.ex. 3 200 000" oninput="calcBostad()">
+          <span class="suffix-label" data-i18n="suffixKr">kr</span>
+        </div>
+      </div>
+      <div class="input-group" style="margin-bottom: 14px;">
+        <label data-i18n="labelBuyPrice">Inköpspris (inkl. insats, lagfart, pantbrev)</label>
+        <div class="input-suffix">
+          <input type="number" id="buyPrice" placeholder="t.ex. 1 800 000" oninput="calcBostad()">
+          <span class="suffix-label" data-i18n="suffixKr">kr</span>
+        </div>
+      </div>
+      <div class="input-group" style="margin-bottom: 14px;">
+        <label data-i18n="labelImprovements">Förbättringsutgifter (renovering som höjde bostadens värde – med kvitton)</label>
+        <div class="input-suffix">
+          <input type="number" id="improvements" placeholder="t.ex. 180 000" oninput="calcBostad()">
+          <span class="suffix-label" data-i18n="suffixKr">kr</span>
+        </div>
+      </div>
+      <div class="input-group" style="margin-bottom: 14px;">
+        <label data-i18n="labelSaleCosts">Försäljningskostnader (mäklare, styling, fotografering etc.)</label>
+        <div class="input-suffix">
+          <input type="number" id="saleCosts" placeholder="t.ex. 80 000" oninput="calcBostad()">
+          <span class="suffix-label" data-i18n="suffixKr">kr</span>
+        </div>
+      </div>
+      <div id="bostadResult" class="info-box hidden">
+        <span class="icon">📊</span><p id="bostadResultText"></p>
+      </div>
+      <div class="input-group" style="margin-top: 14px;">
+        <label data-i18n="labelUppskov">Köpte du en ny bostad inom 12 månader efter försäljningen?</label>
+        <select id="uppskov">
+          <option value="" data-i18n="optSelect">Välj...</option>
+          <option value="ja" data-i18n="optUppskovJa">Ja – vill undersöka möjlighet till uppskov</option>
+          <option value="nej" data-i18n="optNo">Nej</option>
+        </select>
+      </div>
+      <div class="warning-box" style="margin-top: 12px;">
+        <span class="icon">⚠️</span>
+        <p data-i18n="bostadWarn">Förbättringsutgifter kräver kvitton. Spara ALLA fakturor – även äldre renoveringar räknas om de är dokumenterade.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="aktierSection" class="hidden">
+    <div class="card">
+      <div class="card-title" data-i18n="aktierTitle">Aktier, fonder &amp; kryptovaluta 2025</div>
+      <div class="input-group" style="margin-bottom: 14px;">
+        <label data-i18n="labelCapGain">Totala kapitalvinster 2025 (summa alla försäljningsvinster)</label>
+        <div class="input-suffix">
+          <input type="number" id="capitalGain" placeholder="t.ex. 45 000">
+          <span class="suffix-label" data-i18n="suffixKr">kr</span>
+        </div>
+      </div>
+      <div class="input-group" style="margin-bottom: 14px;">
+        <label data-i18n="labelCapLoss">Totala kapitalförluster 2025 (summa alla försäljningsförluster)</label>
+        <div class="input-suffix">
+          <input type="number" id="capitalLoss" placeholder="t.ex. 12 000">
+          <span class="suffix-label" data-i18n="suffixKr">kr</span>
+        </div>
+      </div>
+      <div class="input-group">
+        <label data-i18n="labelISK">Äger du ISK eller kapitalförsäkring?</label>
+        <select id="isk">
+          <option value="" data-i18n="optSelect">Välj...</option>
+          <option value="isk">ISK (investeringssparkonto)</option>
+          <option value="kf" data-i18n="optKF">Kapitalförsäkring</option>
+          <option value="bada" data-i18n="optBoth">Ja, båda</option>
+          <option value="nej" data-i18n="optNo">Nej</option>
+        </select>
+      </div>
+      <div class="info-box" style="margin-top: 12px;">
+        <span class="icon">ℹ️</span>
+        <p data-i18n="aktierInfo">Kapitalförluster kvittar mot kapitalvinster. Om nettoförlust kvarstår är 70% avdragsgill. Krypto: varje transaktion är en skattehändelse – K4-bilagan krävs.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="uthyrningSection" class="hidden">
+    <div class="card">
+      <div class="card-title" data-i18n="uthyrningTitle">Hyresintäkter 2025</div>
+
+      <!-- Bostadstyp — avgör schablonavdragets basbelopp -->
+      <div class="question-label">Vilken typ av bostad hyr du ut?</div>
+      <div class="radio-group" style="margin-bottom: 14px;">
+        <label class="radio-option"><input type="radio" name="rentalPropertyType" value="villa" onchange="calcRental()"><span>Villa / äganderätt</span></label>
+        <label class="radio-option"><input type="radio" name="rentalPropertyType" value="brf" onchange="calcRental()"><span>Bostadsrätt (BRF)</span></label>
+      </div>
+      <div id="brfMonthlyFeeSection" class="hidden input-group" style="margin-bottom: 14px;">
+        <label>Månadsavgift till föreningen (kr/mån)</label>
+        <div class="input-suffix">
+          <input type="number" id="brfMonthlyFee" placeholder="t.ex. 4 500" oninput="calcRental()">
+          <span class="suffix-label">kr/mån</span>
+        </div>
+        <small style="color:#6b7280;font-size:12px;margin-top:4px;display:block">Avdraget är det högsta av 4 000 kr/år eller din faktiska årsavgift.</small>
+      </div>
+
+      <div class="input-group" style="margin-bottom: 14px;">
+        <label data-i18n="labelRentalIncome">Totala hyresintäkter under 2025</label>
+        <div class="input-suffix">
+          <input type="number" id="rentalIncome" placeholder="t.ex. 84 000" oninput="calcRental()">
+          <span class="suffix-label" data-i18n="suffixKr">kr</span>
+        </div>
+      </div>
+      <div id="rentalResult" class="info-box hidden">
+        <span class="icon">📊</span><p id="rentalResultText"></p>
+      </div>
+      <div class="info-box" style="margin-top: 12px;">
+        <span class="icon">ℹ️</span>
+        <p>Villa/äganderätt: schablonavdrag 40 000 kr + 20% av hyresintäkten.<br>Bostadsrätt: schablonavdrag max(4 000 kr, årsavgiften) + 20% av hyresintäkten.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="noCapitalCard" class="card hidden">
+    <p style="color: #9ca3af; font-size: 14px;" data-i18n="noCapital">Inga kapitalrelaterade händelser valdes i steg 1. Gå vidare.</p>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn-back" onclick="goToStep(3)" data-i18n="btnBack">← Tillbaka</button>
+    <button class="btn-next" onclick="goToStep(5)" data-i18n="btnContinue">Fortsätt →</button>
+  </div>
+</div>
+
+<!-- ===== STEG 5: FÖRETAG ===== -->
+<div class="step" id="step-5">
+  <div class="step-label" data-i18n="step5Label">Steg 5 av 5</div>
+  <div class="step-title" data-i18n="step5Title">Företagsinkomst &amp; bolag</div>
+  <div class="step-desc" data-i18n="step5Desc">Frågor för egenföretagare och AB-ägare. Gå vidare om du bara är anställd.</div>
+
+  <div id="enskildSection" class="hidden">
+    <div class="card">
+      <div class="card-title" data-i18n="enskildTitle">Enskild firma 2025</div>
+      <div class="input-group" style="margin-bottom: 14px;">
+        <label data-i18n="labelFirmaNetto">Nettoinkomst från firman (efter avdrag, före egenavgifter)</label>
+        <div class="input-suffix">
+          <input type="number" id="firmaNetto" placeholder="t.ex. 480 000" oninput="calcPension()">
+          <span class="suffix-label" data-i18n="suffixKr">kr</span>
+        </div>
+      </div>
+      <div id="pensionResult" class="info-box hidden">
+        <span class="icon">💡</span><p id="pensionResultText"></p>
+      </div>
+      <div class="input-group" style="margin-top: 14px; margin-bottom: 14px;">
+        <label data-i18n="labelPension">Har du satt av till privat pension under 2025?</label>
+        <select id="pensionAvsatt">
+          <option value="" data-i18n="optSelect">Välj...</option>
+          <option value="ja" data-i18n="optYes">Ja</option>
+          <option value="nej" data-i18n="optNoPensionWant">Nej – men vill veta hur mycket jag kan dra av</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label data-i18n="labelFirmaBil">Använde du bilen i verksamheten?</label>
+        <select id="firmaBil">
+          <option value="" data-i18n="optSelect">Välj...</option>
+          <option value="privat_bil" data-i18n="optPrivatBil">Ja, privat bil (25 kr/mil)</option>
+          <option value="firmabil" data-i18n="optFirmabil">Ja, firmabil</option>
+          <option value="nej" data-i18n="optNo">Nej</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div id="abSection" class="hidden">
+    <div class="card">
+      <div class="card-title" data-i18n="abTitle">Aktiebolag / Fåmansbolag 2025</div>
+      <div class="input-group" style="margin-bottom: 14px;">
+        <label data-i18n="labelAbLon">Lön uttagen från bolaget under 2025</label>
+        <div class="input-suffix">
+          <input type="number" id="abLon" placeholder="t.ex. 600 000">
+          <span class="suffix-label" data-i18n="suffixKr">kr</span>
+        </div>
+      </div>
+      <div class="input-group" style="margin-bottom: 14px;">
+        <label data-i18n="labelAbUtdelning">Tog du utdelning under 2025?</label>
+        <select id="abUtdelning" onchange="toggleUtdelning()">
+          <option value="" data-i18n="optSelect">Välj...</option>
+          <option value="ja" data-i18n="optYes">Ja</option>
+          <option value="nej" data-i18n="optNo">Nej</option>
+        </select>
+      </div>
+      <div id="abUtdelningDetalj" class="sub-section hidden">
+        <div class="input-group">
+          <label data-i18n="labelAbUtdelningKr">Utdelningsbelopp</label>
+          <div class="input-suffix">
+            <input type="number" id="abUtdelningKr" placeholder="t.ex. 200 000">
+            <span class="suffix-label" data-i18n="suffixKr">kr</span>
+          </div>
+        </div>
+      </div>
+      <div class="input-group" style="margin-top: 14px;">
+        <label data-i18n="labelK10">Har du koll på ditt sparade utdelningsutrymme (K10)?</label>
+        <select id="k10Status">
+          <option value="" data-i18n="optSelect">Välj...</option>
+          <option value="ja" data-i18n="optK10Ja">Ja, jag vet beloppet</option>
+          <option value="nej" data-i18n="optK10Nej">Nej, behöver hjälp</option>
+          <option value="aldrig" data-i18n="optK10Aldrig">Har aldrig lämnat in K10</option>
+        </select>
+      </div>
+      <div class="warning-box" style="margin-top: 12px;">
+        <span class="icon">⚠️</span>
+        <p data-i18n="k10Warn">K10-blanketten ska lämnas <strong>varje år</strong> – oavsett om du tagit utdelning eller inte. Missat år innebär förlorat utdelningsutrymme.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="noBusinessCard" class="card hidden">
+    <p style="color: #9ca3af; font-size: 14px;" data-i18n="noBusiness">Inga företagsrelaterade frågor för din profil – gå vidare till sammanfattningen.</p>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn-back" onclick="goToStep(4)" data-i18n="btnBack">← Tillbaka</button>
+    <button class="btn-next" onclick="goToStep(6)" data-i18n="btnSummary">Se sammanfattning →</button>
+  </div>
+</div>
+
+<!-- ===== STEG 6: SAMMANFATTNING + OMBUD + SKICKA ===== -->
+<div class="step" id="step-6">
+  <div class="step-label" data-i18n="step6Label">Sammanfattning & skicka</div>
+  <div class="step-title" data-i18n="step6Title">Klar – granska och skicka</div>
+  <div class="step-desc" data-i18n="step6Desc">Kontrollera dina avdrag, utse ombud och skicka underlaget direkt till oss.</div>
+
+  <div class="total-box">
+    <p data-i18n="totalLabel">Beräknad skatteeffekt av identifierade avdrag &amp; reduktioner</p>
+    <h2 id="totalAmount">–</h2>
+    <small data-i18n="totalNote">Uppskattning baserad på dina svar. Exakt belopp fastställs i deklarationen.</small>
+  </div>
+
+  <div class="summary-section">
+    <h3 data-i18n="deductionsTitle">Identifierade avdrag &amp; reduktioner</h3>
+    <div id="deductionList"></div>
+  </div>
+
+  <div class="summary-section">
+    <h3 data-i18n="docsTitle">Underlag du behöver bifoga</h3>
+    <div id="documentsList" style="font-size:14px;color:#374151;line-height:2.2"></div>
+  </div>
+
+
+  <div class="summary-section">
+    <h3 data-i18n="summaryTitle">Dina uppgifter</h3>
+    <div id="summaryRows"></div>
+  </div>
+
+  <!-- OMBUD (sist) -->
+  <div class="summary-section">
+    <h3>Deklarationsombud</h3>
+    <p style="font-size:14px;color:#6b7280;margin-bottom:16px;">För att vi ska kunna lämna in din deklaration åt dig behöver du utse oss som deklarationsombud via Skatteverket. Det tar 3 minuter med BankID.</p>
+
+    <div style="text-align: center; padding: 8px 0 16px;">
+      <div class="pnr-badge">19830920-6731</div>
+      <p style="font-size: 13px; color: #6b7280; margin-top: 8px;" data-i18n="ombudPnrNote">Ange detta personnummer när du utser ombud på Skatteverket</p>
+    </div>
+
+    <div class="ombud-steps">
+      <div class="ombud-step">
+        <div class="ombud-number">1</div>
+        <div class="ombud-text">
+          <h4 data-i18n="ombudStep1H">Logga in på Skatteverket</h4>
+          <p data-i18n="ombudStep1P">Gå till <strong>skatteverket.se</strong> och logga in med BankID via "Mina sidor".</p>
+        </div>
+      </div>
+      <div class="ombud-step">
+        <div class="ombud-number">2</div>
+        <div class="ombud-text">
+          <h4 data-i18n="ombudStep2H">Välj Fullmakter och ombud</h4>
+          <p data-i18n="ombudStep2P">Inne på Mina sidor – välj <strong>"Fullmakter och ombud"</strong> → <strong>"Ge fullmakt till ombud"</strong>.</p>
+        </div>
+      </div>
+      <div class="ombud-step">
+        <div class="ombud-number">3</div>
+        <div class="ombud-text">
+          <h4 data-i18n="ombudStep3H">Ange personnummer</h4>
+          <p data-i18n="ombudStep3P">Fyll i <strong>19830920-6731</strong> och välj behörighet: <strong>"Inkomstdeklaration"</strong>.</p>
+        </div>
+      </div>
+      <div class="ombud-step">
+        <div class="ombud-number">4</div>
+        <div class="ombud-text">
+          <h4 data-i18n="ombudStep4H">Sätt giltighetstid</h4>
+          <p data-i18n="ombudStep4P">Rekommenderat: giltig till och med <strong>2026-06-30</strong> – täcker hela deklarationsperioden och eventuella kompletteringar.</p>
+        </div>
+      </div>
+      <div class="ombud-step">
+        <div class="ombud-number">5</div>
+        <div class="ombud-text">
+          <h4 data-i18n="ombudStep5H">Signera med BankID</h4>
+          <p data-i18n="ombudStep5P">Bekräfta med ditt BankID. Ombudet aktiveras normalt inom 1 bankdag.</p>
+        </div>
+      </div>
+    </div>
+    <div class="success-box" style="margin-top: 8px;">
+      <span class="icon">✅</span>
+      <p>När ombudet är registrerat kan vi se och hantera din deklaration direkt hos Skatteverket.</p>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <div class="question-label">Har du utsett deklarationsombud?<span class="required-star">*</span></div>
+      <div class="radio-group" style="margin-top:10px;">
+        <label class="radio-option"><input type="radio" name="ombudDone" value="ja"><span>Ja, deklarationsombudet är klart</span></label>
+        <label class="radio-option"><input type="radio" name="ombudDone" value="senare"><span>Jag gör det senare – fortsätter ändå</span></label>
+        <label class="radio-option"><input type="radio" name="ombudDone" value="hjalp"><span>Jag behöver hjälp med detta</span></label>
+      </div>
+      <div id="ombudHjalp" class="warning-box hidden">
+        <span class="icon">⚠️</span>
+        <p>Kontakta oss direkt på e-post eller ring Skatteverket på <strong>0771-567 567</strong> om du fastnar.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Betalningsinstruktioner -->
+  <div class="summary-section" style="border:2px solid #1e40af;border-radius:12px;padding:24px;background:#fff;margin-top:8px;">
+    <div style="font-size:11px;font-weight:700;color:#1e40af;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:16px;">Betalningsinstruktioner</div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #f3f4f6;">
+        <span style="font-size:13px;color:#6b7280;">Tjänst</span>
+        <span style="font-size:13px;font-weight:600;color:#111827;">Deklarationshjälp 2025</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #f3f4f6;">
+        <span style="font-size:13px;color:#6b7280;">Belopp</span>
+        <span style="font-size:22px;font-weight:800;color:#111827;letter-spacing:-0.02em;">1&thinsp;299 kr</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #f3f4f6;">
+        <span style="font-size:13px;color:#6b7280;">Swish</span>
+        <span style="font-size:18px;font-weight:700;color:#1e40af;font-family:monospace;">0739380200</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:13px;color:#6b7280;">Meddelande</span>
+        <span style="font-size:13px;font-weight:600;color:#111827;" id="betalningNamn">Ditt fullständiga namn</span>
+      </div>
+    </div>
+    <div style="margin-top:16px;padding:10px 14px;background:#eff6ff;border-radius:8px;font-size:12px;color:#1e40af;line-height:1.5;">
+      Ange ditt fullständiga namn som meddelande i Swish-betalningen så vi kan matcha din betalning.
+    </div>
+  </div>
+
+  <div id="err-6" class="error-banner"></div>
+
+  <button class="btn-send" onclick="sendToOmbud()" id="btnSkicka">Skicka till ombud</button>
+
+  <div class="nav-buttons" style="margin-top: 12px;">
+    <button class="btn-back" onclick="goToStep(5)" data-i18n="btnBack">← Tillbaka</button>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<!-- ===== KVITTENS-SKÄRM ===== -->
+<div id="kvittensScreen" style="display:none; position:fixed; inset:0; background:#f9fafb; z-index:100; overflow-y:auto; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <div style="max-width:520px; margin:60px auto; padding:0 24px 80px;">
+
+    <!-- Ikon + rubrik -->
+    <div style="text-align:center; margin-bottom:36px;">
+      <div style="width:64px;height:64px;background:#dcfce7;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:28px;">✓</div>
+      <h1 style="font-size:22px;font-weight:700;color:#111827;margin:0 0 8px;">Tack! Vi har tagit emot din deklaration.</h1>
+      <p style="color:#6b7280;font-size:14px;margin:0;">Ditt ärende behandlas av vårt team.</p>
+    </div>
+
+    <!-- Ref-box -->
+    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px 24px;margin-bottom:20px;">
+      <div style="font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Ditt referensnummer</div>
+      <div id="kvittensRef" style="font-size:20px;font-weight:700;color:#1e40af;font-family:monospace;letter-spacing:0.04em;">–</div>
+      <div style="font-size:12px;color:#9ca3af;margin-top:4px;">Spara detta nummer – du kan använda det om du behöver kontakta oss.</div>
+    </div>
+
+    <!-- Betalning -->
+    <div style="background:#fff;border:2px solid #1e40af;border-radius:12px;padding:24px;margin-bottom:20px;">
+      <div style="font-size:13px;font-weight:700;color:#1e40af;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:16px;">Betalningsinstruktioner</div>
+
+      <div style="display:grid;gap:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #f3f4f6;">
+          <span style="font-size:13px;color:#6b7280;">Tjänst</span>
+          <span style="font-size:13px;font-weight:600;color:#111827;">Deklarationshjälp 2025</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #f3f4f6;">
+          <span style="font-size:13px;color:#6b7280;">Belopp</span>
+          <span style="font-size:20px;font-weight:700;color:#111827;">1 299 kr</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #f3f4f6;">
+          <span style="font-size:13px;color:#6b7280;">Betalningsmetod</span>
+          <span style="font-size:13px;font-weight:600;color:#111827;">Swish</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #f3f4f6;">
+          <span style="font-size:13px;color:#6b7280;">Swish-nummer</span>
+          <span style="font-size:18px;font-weight:700;color:#1e40af;font-family:monospace;">0739380200</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:13px;color:#6b7280;">Meddelande</span>
+          <span id="kvittensNamn" style="font-size:14px;font-weight:700;color:#111827;text-align:right;max-width:60%;">–</span>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;padding:12px 16px;background:#eff6ff;border-radius:8px;font-size:12px;color:#1e40af;line-height:1.5;">
+        ℹ️ Ange ditt <strong>fullständiga namn</strong> som meddelande i Swish-betalningen så vi kan matcha din betalning mot ditt ärende.
+      </div>
+    </div>
+
+    <!-- Nästa steg -->
+    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px 24px;">
+      <div style="font-size:13px;font-weight:600;color:#374151;margin-bottom:12px;">Vad händer nu?</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:#6b7280;">
+          <span style="width:20px;height:20px;background:#f0fdf4;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#15803d;flex-shrink:0;">1</span>
+          Betala via Swish till <strong style="color:#111827;">0739380200</strong>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:#6b7280;">
+          <span style="width:20px;height:20px;background:#eff6ff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#1e40af;flex-shrink:0;">2</span>
+          Vi bekräftar mottagandet och börjar behandla ditt ärende
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:#6b7280;">
+          <span style="width:20px;height:20px;background:#fff7ed;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#9a3412;flex-shrink:0;">3</span>
+          Din deklaration lämnas in till Skatteverket – du meddelas när det är klart
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ===== CONFIG =====
+const OMBUD_PNR = '19830920-6731';
+const OMBUD_EMAIL = 'hiew.joey@gmail.com';
+const TOTAL_STEPS = 6;
+
+// ===== GEOAPIFY GEOCODING — skaffa gratis nyckel på geoapify.com (3000 req/dag) =====
+// 1. Gå till https://myprojects.geoapify.com → Create a project → kopiera API Key
+// 2. Klistra in nyckeln nedan
+const GEOAPIFY_KEY = '746bac01069c4f6aa6a34c2e4bf28d27';
+
+// ===== ADRESS-AUTOCOMPLETE =====
+
+let _homeLoc = null;  // { lat, lon, name }
+let _workLoc = null;
+let _autocompleteInitDone = false;
+
+// Skapar autocomplete-dropdown för ett adressfält
+function createAddressAutocomplete(inputId, onSelect) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+
+  // Säkerställ relativ positionering på föräldraelementet
+  const parent = input.parentElement;
+  parent.style.position = 'relative';
+
+  const dropdown = document.createElement('div');
+  dropdown.className = 'osm-dropdown';
+  dropdown.style.display = 'none';
+  parent.appendChild(dropdown);
+
+  let debounceTimer = null;
+  let activeIndex = -1;
+
+  input.setAttribute('autocomplete', 'off');
+
+  input.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    activeIndex = -1;
+    const q = input.value.trim();
+    if (q.length < 3) { dropdown.style.display = 'none'; return; }
+    debounceTimer = setTimeout(() => fetchSuggestions(q), 320);
+  });
+
+  input.addEventListener('keydown', (e) => {
+    const items = dropdown.querySelectorAll('.osm-item');
+    if (!items.length) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      activeIndex = Math.min(activeIndex + 1, items.length - 1);
+      items.forEach((el, i) => el.classList.toggle('active', i === activeIndex));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      activeIndex = Math.max(activeIndex - 1, 0);
+      items.forEach((el, i) => el.classList.toggle('active', i === activeIndex));
+    } else if (e.key === 'Enter' && activeIndex >= 0) {
+      e.preventDefault();
+      items[activeIndex].click();
+    } else if (e.key === 'Escape') {
+      dropdown.style.display = 'none';
+    }
+  });
+
+  input.addEventListener('blur', () => {
+    setTimeout(() => { dropdown.style.display = 'none'; }, 180);
+  });
+
+  async function fetchSuggestions(query) {
+    if (!GEOAPIFY_KEY) {
+      dropdown.innerHTML = '<div class="osm-item" style="color:#92400e;background:#fffbeb;padding:10px 14px;font-size:13px">⚙️ Lägg in din Geoapify API-nyckel i formulärkoden – se kommentaren längst upp i &lt;script&gt;</div>';
+      dropdown.style.display = 'block';
+      return;
+    }
+
+    dropdown.innerHTML = '<div class="osm-item" style="color:#6b7280;font-style:italic">Söker…</div>';
+    dropdown.style.display = 'block';
+
+    try {
+      const url = 'https://api.geoapify.com/v1/geocode/autocomplete'
+        + '?text=' + encodeURIComponent(query)
+        + '&filter=countrycode:se'
+        + '&format=json'
+        + '&lang=sv'
+        + '&limit=6'
+        + '&apiKey=' + GEOAPIFY_KEY;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const json = await res.json();
+      const results = json.results || [];
+      if (!results.length) {
+        dropdown.innerHTML = '<div class="osm-item" style="color:#6b7280">Inga adresser hittades</div>';
+        return;
+      }
+      renderDropdown(results);
+    } catch(e) {
+      dropdown.innerHTML = '<div class="osm-item" style="color:#dc2626">Fel: ' + (e.message || 'Kunde inte söka adresser') + '</div>';
+    }
+  }
+
+  function renderDropdown(results) {
+    dropdown.innerHTML = '';
+
+    results.forEach(r => {
+      // Geoapify-format: address_line1 = "Storgatan 1", address_line2 = "111 23 Stockholm"
+      const line1 = r.address_line1 || [r.street, r.housenumber].filter(Boolean).join(' ') || r.formatted?.split(',')[0] || '';
+      const line2 = r.address_line2 || [r.postcode, r.city].filter(Boolean).join(' ') || '';
+      if (!line1) return;
+
+      const item = document.createElement('div');
+      item.className = 'osm-item';
+      item.innerHTML = `<strong>${line1}</strong>${line2 ? `<small>${line2}</small>` : ''}`;
+      item.addEventListener('mousedown', e => {
+        e.preventDefault();
+        input.value = line1 + (line2 ? ', ' + line2 : '');
+        dropdown.style.display = 'none';
+        onSelect({ lat: r.lat, lon: r.lon, name: input.value });
+      });
+      dropdown.appendChild(item);
+    });
+
+    dropdown.style.display = dropdown.children.length ? 'block' : 'none';
+  }
+}
+
+function initAddressAutocomplete() {
+  createAddressAutocomplete('homeAddress', (loc) => {
+    _homeLoc = loc;
+    if (_workLoc) calcDistanceOSRM();
+  });
+  createAddressAutocomplete('workAddress', (loc) => {
+    _workLoc = loc;
+    if (_homeLoc) calcDistanceOSRM();
+  });
+
+  const statusEl = document.getElementById('distanceStatus');
+  if (statusEl && !statusEl.textContent) {
+    statusEl.textContent = 'Börja skriva en adress så visas förslag';
+    statusEl.className = 'distance-status';
+  }
+}
+
+// Inga externa beroenden att ladda — bara init direkt
+function loadGoogleMaps() {
+  // Kallas fortfarande från befintlig kod men behövs ej längre
+  // Autocomplete initieras när steg 2 visas
+}
+
+// ===== TRANSLATIONS =====
+const T = {
+  sv: {
+    headerTitle: 'Inkomstdeklaration 2025',
+    headerSub: 'Svara på frågorna – vi hittar dina avdrag och skickar underlaget',
+    step1Label: 'Steg 1 av 5', step1Title: 'Din situation 2025',
+    step1Desc: 'Tre korta frågor som styr vilka avdrag som är relevanta för dig.',
+    step2Label: 'Steg 2 av 5', step2Title: 'Inkomst & pendling',
+    step2Desc: 'Dina uppgifter och pendlingsavdrag – det som ger störst skatteeffekt för de flesta.',
+    step3Label: 'Steg 3 av 5', step3Title: 'Bostad & hushållstjänster',
+    step3Desc: 'ROT och RUT ger direkta skattereduktioner – inte bara avdrag. Kontrollera att du utnyttjat dem fullt ut.',
+    step4Label: 'Steg 4 av 5', step4Title: 'Kapital & investeringar',
+    step4Desc: 'Bostadsförsäljning, aktier och uthyrning – möjligheter och skattekonsekvenser.',
+    step5Label: 'Steg 5 av 5', step5Title: 'Företagsinkomst & bolag',
+    step5Desc: 'Frågor för egenföretagare och AB-ägare. Gå vidare om du bara är anställd.',
+    step6Label: 'Sammanfattning & skicka', step6Title: 'Klar – granska och skicka',
+    step6Desc: 'Kontrollera dina avdrag, utse ombud och skicka underlaget direkt till oss.',
+    incomeTypeQ: 'Vad stämmer bäst in på din inkomstsituation under 2025?',
+    incomeTypeHint: 'Välj din huvudsakliga inkomstkälla under inkomståret 2025.',
+    opt_anstald: 'Anställd – fast lön från arbetsgivare',
+    opt_enskild: 'Egenföretagare – enskild firma (F-skatt)',
+    opt_ab: 'Äger aktiebolag – tar ut lön eller utdelning från eget AB',
+    opt_pensionar: 'Pensionär',
+    opt_student: 'Student (med extrajobb eller stipendier)',
+    opt_kombination: 'Kombination av flera ovanstående',
+    capitalEventsQ: 'Har du gjort något av följande under 2025?',
+    capitalEventsHint: 'Välj allt som stämmer.',
+    opt_bostad: 'Sålt bostad (bostadsrätt eller villa)',
+    opt_aktier: 'Sålt aktier, fonder eller kryptovaluta',
+    opt_uthyrning: 'Hyrt ut din bostad eller ett rum',
+    opt_inget: 'Inget av ovanstående',
+    housingQ: 'Äger du din bostad?',
+    opt_ager_lan: 'Ja, med bolån',
+    opt_ager_utan: 'Ja, utan bolån',
+    opt_hyr: 'Nej, jag hyr',
+    btnContinue: 'Fortsätt →', btnBack: '← Tillbaka',
+    btnSummary: 'Se sammanfattning →',
+    btnSendOmbud: '✉ Skicka deklarationsunderlag till ombud',
+    btnCalcDist: '📍 Beräkna avstånd',
+    distStatusIdle: 'Ange adresserna ovan och klicka Beräkna',
+    distStatusLoading: 'Beräknar avstånd...',
+    distStatusOk: '✓ {km} km beräknat',
+    distStatusErr: 'Kunde inte beräkna – ange avstånd manuellt',
+    optYes: 'Ja', optNo: 'Nej', optSelect: 'Välj...',
+    errRequired: 'Vänligen fyll i alla obligatoriska fält (markerade med *).',
+    errStep1: 'Välj din inkomstsituation och om du äger din bostad.',
+    errStep2: 'Ange personnummer, förnamn och efternamn.',
+    errStep6: 'Ange om fullmakten är utfärdad.',
+    pnrQ: 'Personnummer', pnrHint: 'Format: ÅÅÅÅMMDD-XXXX',
+    nameQ: 'Namn', labelFirstName: 'Förnamn', labelLastName: 'Efternamn',
+    commuteQ: 'Daglig resa till jobbet',
+    commuteHint: 'Ange din hemadress och arbetsplatsadress – vi beräknar avståndet automatiskt.',
+    labelHomeAddr: 'Hemadress', labelWorkAddr: 'Arbetsplatsadress',
+    ombudSectionTitle: 'Utse deklarationsombud',
+    ombudSectionDesc: 'För att vi ska kunna lämna in din deklaration åt dig behöver du ge oss fullmakt via Skatteverket. Det tar 3 minuter med BankID.',
+    ombudStatusQ: 'Har du utfärdat fullmakten?',
+    ombudOptJa: 'Ja, fullmakten är klar',
+    ombudOptSenare: 'Jag gör det senare – fortsätter ändå',
+    ombudOptHjalp: 'Jag behöver hjälp med detta',
+    totalLabel: 'Beräknad skatteeffekt av identifierade avdrag & reduktioner',
+    totalNote: 'Uppskattning baserad på dina svar. Exakt belopp fastställs i deklarationen.',
+  },
+  en: {
+    headerTitle: 'Income Tax Declaration 2025',
+    headerSub: 'Answer the questions – we find your deductions and send the file',
+    step1Label: 'Step 1 of 5', step1Title: 'Your situation in 2025',
+    step1Desc: 'Three quick questions to determine which deductions apply to you.',
+    step2Label: 'Step 2 of 5', step2Title: 'Income & commuting',
+    step2Desc: 'Your details and commuting deductions – usually the biggest tax impact for most people.',
+    step3Label: 'Step 3 of 5', step3Title: 'Housing & household services',
+    step3Desc: 'ROT and RUT give direct tax reductions – not just deductions. Make sure you have used them fully.',
+    step4Label: 'Step 4 of 5', step4Title: 'Capital & investments',
+    step4Desc: 'Property sales, stocks and rental income – opportunities and tax implications.',
+    step5Label: 'Step 5 of 5', step5Title: 'Business income & company',
+    step5Desc: 'Questions for sole traders and company owners. Skip if you are only employed.',
+    step6Label: 'Summary & send', step6Title: 'Done – review and send',
+    step6Desc: 'Check your deductions, appoint a representative and send your filing directly to us.',
+    incomeTypeQ: 'What best describes your income situation in 2025?',
+    incomeTypeHint: 'Select your main source of income during tax year 2025.',
+    opt_anstald: 'Employed – fixed salary from employer',
+    opt_enskild: 'Sole trader – self-employed (F-tax)',
+    opt_ab: 'Own a limited company – drawing salary or dividends',
+    opt_pensionar: 'Retired / pensioner',
+    opt_student: 'Student (with part-time work or scholarships)',
+    opt_kombination: 'Combination of several of the above',
+    capitalEventsQ: 'Did you do any of the following in 2025?',
+    capitalEventsHint: 'Select all that apply.',
+    opt_bostad: 'Sold a property (apartment or house)',
+    opt_aktier: 'Sold stocks, funds or cryptocurrency',
+    opt_uthyrning: 'Rented out your home or a room',
+    opt_inget: 'None of the above',
+    housingQ: 'Do you own your home?',
+    opt_ager_lan: 'Yes, with a mortgage',
+    opt_ager_utan: 'Yes, without a mortgage',
+    opt_hyr: 'No, I rent',
+    btnContinue: 'Continue →', btnBack: '← Back',
+    btnSummary: 'See summary →',
+    btnSendOmbud: '✉ Send declaration to representative',
+    btnCalcDist: '📍 Calculate distance',
+    distStatusIdle: 'Enter the addresses above and click Calculate',
+    distStatusLoading: 'Calculating distance...',
+    distStatusOk: '✓ {km} km calculated',
+    distStatusErr: 'Could not calculate – enter distance manually',
+    optYes: 'Yes', optNo: 'No', optSelect: 'Select...',
+    errRequired: 'Please fill in all required fields (marked with *).',
+    errStep1: 'Select your income situation and whether you own your home.',
+    errStep2: 'Enter personal identity number, first name and last name.',
+    errStep6: 'Please indicate if the power of attorney has been granted.',
+    pnrQ: 'Personal identity number', pnrHint: 'Format: YYYYMMDD-XXXX',
+    nameQ: 'Name', labelFirstName: 'First name', labelLastName: 'Last name',
+    commuteQ: 'Daily journey to work',
+    commuteHint: 'Enter your home and workplace address – we calculate the distance automatically.',
+    labelHomeAddr: 'Home address', labelWorkAddr: 'Workplace address',
+    ombudSectionTitle: 'Appoint a tax representative',
+    ombudSectionDesc: 'To file your declaration on your behalf, you need to grant us power of attorney via the Swedish Tax Agency. Takes 3 minutes with BankID.',
+    ombudStatusQ: 'Have you granted the power of attorney?',
+    ombudOptJa: 'Yes, it is done',
+    ombudOptSenare: "I'll do it later – continuing anyway",
+    ombudOptHjalp: 'I need help with this',
+    totalLabel: 'Estimated tax effect of identified deductions & reductions',
+    totalNote: 'Estimate based on your answers. Exact amount determined in the declaration.',
+  },
+  zh: {
+    headerTitle: '2025年收入申报',
+    headerSub: '回答问题，我们帮您找出所有抵税项目并提交申报',
+    step1Label: '第1步 共5步', step1Title: '您的2025年情况',
+    step1Desc: '三个简短问题，确定哪些抵税项目与您相关。',
+    step2Label: '第2步 共5步', step2Title: '收入与通勤',
+    step2Desc: '您的个人信息和通勤抵扣——对大多数人来说税务影响最大的部分。',
+    step3Label: '第3步 共5步', step3Title: '住房与家政服务',
+    step3Desc: 'ROT和RUT提供直接税收减免，而不仅仅是抵扣。请确认您已充分利用。',
+    step4Label: '第4步 共5步', step4Title: '资本与投资',
+    step4Desc: '房产出售、股票和租金收入——机会与税务后果。',
+    step5Label: '第5步 共5步', step5Title: '业务收入与公司',
+    step5Desc: '针对个体经营者和有限公司所有人的问题。如果您只是受雇员工，可跳过。',
+    step6Label: '汇总与发送', step6Title: '完成 — 审核并发送',
+    step6Desc: '检查您的抵税项目，指定税务代理，并将申报材料直接发送给我们。',
+    incomeTypeQ: '您2025年的收入情况最符合哪一种？',
+    incomeTypeHint: '请选择2025年纳税年度的主要收入来源。',
+    opt_anstald: '受雇员工 — 雇主提供固定工资',
+    opt_enskild: '个体经营者 — 独资企业（F税）',
+    opt_ab: '拥有有限公司 — 从自己的公司领取工资或股息',
+    opt_pensionar: '退休人员',
+    opt_student: '学生（有兼职工作或奖学金）',
+    opt_kombination: '以上多种情况的组合',
+    capitalEventsQ: '您在2025年是否做过以下任何事情？',
+    capitalEventsHint: '选择所有适用项。',
+    opt_bostad: '出售了房产（公寓或别墅）',
+    opt_aktier: '出售了股票、基金或加密货币',
+    opt_uthyrning: '出租了您的住所或房间',
+    opt_inget: '以上均未涉及',
+    housingQ: '您是否拥有自己的住所？',
+    opt_ager_lan: '是，有房贷',
+    opt_ager_utan: '是，无房贷',
+    opt_hyr: '否，我租房',
+    btnContinue: '继续 →', btnBack: '← 返回',
+    btnSummary: '查看汇总 →',
+    btnSendOmbud: '✉ 发送申报材料给税务代理',
+    btnCalcDist: '📍 计算距离',
+    distStatusIdle: '请输入上方地址，然后点击计算',
+    distStatusLoading: '正在计算距离...',
+    distStatusOk: '✓ 已计算：{km} 公里',
+    distStatusErr: '无法自动计算，请手动输入距离',
+    optYes: '是', optNo: '否', optSelect: '请选择...',
+    errRequired: '请填写所有必填项（带 * 标记）。',
+    errStep1: '请选择您的收入类型以及是否拥有住所。',
+    errStep2: '请填写身份证号码、名字和姓氏。',
+    errStep6: '请说明是否已授权税务代理。',
+    pnrQ: '个人身份号码', pnrHint: '格式：YYYYMMDD-XXXX',
+    nameQ: '姓名', labelFirstName: '名字', labelLastName: '姓氏',
+    commuteQ: '每日上下班行程',
+    commuteHint: '输入您的家庭住址和工作地址——我们会自动计算距离。',
+    labelHomeAddr: '家庭住址', labelWorkAddr: '工作地址',
+    ombudSectionTitle: '指定税务代理',
+    ombudSectionDesc: '为了代您提交申报，您需要通过瑞典税务局网站用BankID授权，约需3分钟。',
+    ombudStatusQ: '您是否已授权税务代理？',
+    ombudOptJa: '是，已完成授权',
+    ombudOptSenare: '稍后再做 — 继续填写',
+    ombudOptHjalp: '我需要帮助',
+    totalLabel: '已识别抵税项目的预计税务效果',
+    totalNote: '根据您的回答估算。确切金额以最终申报为准。',
+  }
+};
+
+let currentLang = 'sv';
+function t(key) { return (T[currentLang] && T[currentLang][key]) || T.sv[key] || key; }
+function setLanguage(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach((b, i) => b.classList.toggle('active', ['sv','en','zh'][i] === lang));
+  document.documentElement.lang = lang === 'zh' ? 'zh-Hans' : lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.getAttribute('data-i18n');
+    const v = t(k);
+    if (v && v !== k) el.textContent = v;
+  });
+}
+
+// ===== STATE =====
+let currentStep = 1;
+
+// ===== NAVIGATION =====
+function goToStep(n) {
+  if (n > currentStep && !validateStep(currentStep)) return;
+  document.getElementById('step-' + currentStep).classList.remove('active');
+  currentStep = n;
+  document.getElementById('step-' + currentStep).classList.add('active');
+  document.getElementById('progressFill').style.width = (n / TOTAL_STEPS * 100) + '%';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Init adress-autocomplete första gången steg 2 visas
+  if (n === 2 && !_autocompleteInitDone) { _autocompleteInitDone = true; initAddressAutocomplete(); }
+  if (n === 4) setupStep4();
+  if (n === 5) setupStep5();
+  if (n === 6) {
+    buildSummary();
+    const namn = [getVal('fornamn'), getVal('efternamn')].filter(Boolean).join(' ');
+    const el = document.getElementById('betalningNamn');
+    if (el && namn) el.textContent = namn;
+  }
+}
+
+// ===== VALIDATION =====
+function validateStep(n) {
+  const err = document.getElementById('err-' + n);
+  if (!err) return true;
+
+  let msg = '';
+  if (n === 1) {
+    if (!getRadio('incomeType') || !getRadio('housing')) {
+      msg = t('errStep1');
+    }
+  }
+  if (n === 2) {
+    const pnr = getVal('personnummer').trim();
+    const fn = getVal('fornamn').trim();
+    const ln = getVal('efternamn').trim();
+    if (!pnr || !fn || !ln) {
+      msg = t('errStep2');
+      if (!pnr) document.getElementById('personnummer').classList.add('error');
+      if (!fn) document.getElementById('fornamn').classList.add('error');
+      if (!ln) document.getElementById('efternamn').classList.add('error');
+    }
+  }
+  if (n === 6) {
+    if (!getRadio('ombudDone')) {
+      msg = t('errStep6');
+    }
+  }
+
+  if (msg) {
+    err.textContent = msg;
+    err.classList.add('visible');
+    return false;
+  }
+  err.classList.remove('visible');
+  return true;
+}
+
+// Clear error on input
+document.addEventListener('input', e => {
+  if (e.target.closest('.card')) {
+    const errEl = document.getElementById('err-' + currentStep);
+    if (errEl) errEl.classList.remove('visible');
+    e.target.classList.remove('error');
+  }
+});
+
+// ===== EVENT DELEGATION =====
+document.addEventListener('change', function(e) {
+  if (e.target.type === 'radio') {
+    const name = e.target.name;
+    document.querySelectorAll(`input[name="${name}"]`).forEach(el =>
+      el.closest('.radio-option').classList.remove('selected'));
+    e.target.closest('.radio-option').classList.add('selected');
+    handleRadio(name, e.target.value);
+    const err = document.getElementById('err-' + currentStep);
+    if (err) err.classList.remove('visible');
+  }
+  if (e.target.type === 'checkbox') {
+    e.target.closest('.checkbox-option').classList.toggle('selected', e.target.checked);
+    if (e.target.value === 'inget' && e.target.checked) {
+      document.querySelectorAll('input[name="capitalEvents"]').forEach(cb => {
+        if (cb.value !== 'inget') { cb.checked = false; cb.closest('.checkbox-option').classList.remove('selected'); }
+      });
+    } else if (e.target.value !== 'inget' && e.target.checked) {
+      const ingetCb = document.querySelector('input[name="capitalEvents"][value="inget"]');
+      if (ingetCb) { ingetCb.checked = false; ingetCb.closest('.checkbox-option').classList.remove('selected'); }
+    }
+  }
+  if (e.target.id === 'commuteType') {
+    const type = e.target.value;
+    show('kollektivtKostnadSection', type === 'kollektivt' || type === 'kombinerat');
+    show('bilWarning', type === 'bil');
+    calcCommute();
+  }
+});
+
+function handleRadio(name, value) {
+  const map = {
+    union: () => show('unionAmount', value === 'ja'),
+    workTools: () => show('workToolsAmount', value === 'ja'),
+    rot: () => show('rotAmount', value === 'ja'),
+    rut: () => show('rutAmount', value === 'ja'),
+    housing: () => { const mc = document.getElementById('mortgageCard'); if (mc) mc.style.display = value === 'hyr' ? 'none' : 'block'; },
+    ombudDone: () => show('ombudHjalp', value === 'hjalp'),
+  };
+  if (map[name]) map[name]();
+}
+
+function toggleUtdelning() {
+  show('abUtdelningDetalj', document.getElementById('abUtdelning').value === 'ja');
+}
+
+// ===== HELPERS =====
+function show(id, visible) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('hidden', !visible);
+}
+function getRadio(name) {
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  return el ? el.value : '';
+}
+function getCheckboxes(name) {
+  return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(e => e.value);
+}
+function getVal(id) {
+  const el = document.getElementById(id);
+  return el ? (el.value || '') : '';
+}
+function setVal(id, v) {
+  const el = document.getElementById(id);
+  if (el) el.value = v;
+}
+function num(id) { return parseFloat(getVal(id)) || 0; }
+function fmt(n) { return Math.round(n).toLocaleString('sv-SE'); }
+
+// ===== STEP SETUPS =====
+function setupStep4() {
+  const events = getCheckboxes('capitalEvents');
+  show('bostadSection', events.includes('bostad'));
+  show('aktierSection', events.includes('aktier'));
+  show('uthyrningSection', events.includes('uthyrning'));
+  show('noCapitalCard', events.includes('inget') || events.length === 0);
+}
+function setupStep5() {
+  const type = getRadio('incomeType');
+  const isEnkild = ['enskild', 'kombination'].includes(type);
+  const isAB = ['ab', 'kombination'].includes(type);
+  show('enskildSection', isEnkild);
+  show('abSection', isAB);
+  show('noBusinessCard', !isEnkild && !isAB);
+}
+
+// ===== DISTANCE CALCULATION =====
+async function geocodeOSM(address) {
+  if (!GEOAPIFY_KEY) throw new Error('API-nyckel saknas – lägg in Geoapify-nyckeln i koden');
+
+  const url = 'https://api.geoapify.com/v1/geocode/search'
+    + '?text=' + encodeURIComponent(address)
+    + '&filter=countrycode:se'
+    + '&format=json'
+    + '&limit=1'
+    + '&apiKey=' + GEOAPIFY_KEY;
+
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Geocoding-fel: HTTP ' + res.status);
+  const data = await res.json();
+  if (!data.results || !data.results[0]) throw new Error('Adress hittades inte – kontrollera stavningen');
+  return { lat: data.results[0].lat, lon: data.results[0].lon };
+}
+
+
+// Beräkna vägavstånd via OSRM (Open Source Routing Machine — gratis, ingen API-nyckel)
+async function calcDistanceOSRM() {
+  const statusEl = document.getElementById('distanceStatus');
+  if (!_homeLoc || !_workLoc) return;
+
+  statusEl.textContent = 'Beräknar körväg...';
+  statusEl.className = 'distance-status loading';
+
+  try {
+    const url = `https://router.project-osrm.org/route/v1/driving/${_homeLoc.lon},${_homeLoc.lat};${_workLoc.lon},${_workLoc.lat}?overview=false`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (!data.routes || !data.routes[0]) throw new Error('Ingen rutt hittades');
+    const km = Math.round(data.routes[0].distance / 1000);
+    setVal('commuteKm', km);
+    statusEl.textContent = `✓ ${km} km körväg (OpenStreetMap)`;
+    statusEl.className = 'distance-status ok';
+    calcCommute();
+  } catch(e) {
+    // Fallback: luftlinjeavstånd × 1.3
+    const R = 6371;
+    const dLat = (_workLoc.lat - _homeLoc.lat) * Math.PI / 180;
+    const dLon = (_workLoc.lon - _homeLoc.lon) * Math.PI / 180;
+    const a = Math.sin(dLat/2)**2 + Math.cos(_homeLoc.lat*Math.PI/180)*Math.cos(_workLoc.lat*Math.PI/180)*Math.sin(dLon/2)**2;
+    const estKm = Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) * 1.3);
+    setVal('commuteKm', estKm);
+    statusEl.textContent = `~ ${estKm} km (uppskattad – ange exakt km manuellt vid behov)`;
+    statusEl.className = 'distance-status ok';
+    calcCommute();
+  }
+}
+
+// Manuell beräkning via knapp (om användaren skrivit adresser utan att välja från dropdown)
+async function calcDistanceFromAddresses() {
+  const homeAddr = document.getElementById('homeAddress').value.trim();
+  const workAddr = document.getElementById('workAddress').value.trim();
+  const statusEl = document.getElementById('distanceStatus');
+  const btn = document.getElementById('calcDistBtn');
+  if (!homeAddr || !workAddr) {
+    statusEl.textContent = 'Ange både hemadress och arbetsadress';
+    statusEl.className = 'distance-status';
+    return;
+  }
+  statusEl.textContent = 'Söker adresser...';
+  statusEl.className = 'distance-status loading';
+  if (btn) btn.disabled = true;
+  try {
+    const [home, work] = await Promise.all([geocodeOSM(homeAddr), geocodeOSM(workAddr)]);
+    _homeLoc = home; _workLoc = work;
+    await calcDistanceOSRM();
+  } catch(e) {
+    statusEl.textContent = e.message || 'Kunde inte hitta adresserna – kontrollera stavningen';
+    statusEl.className = 'distance-status err';
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+// Enter i adressfält triggar beräkning
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.target.id === 'homeAddress' || e.target.id === 'workAddress')) {
+    e.preventDefault();
+    calcDistanceFromAddresses();
+  }
+});
+
+// Adress-autocomplete initieras i goToStep(2) — inga externa scripts att ladda
+
+// ===== CALCULATIONS =====
+function calcCommute() {
+  const km = num('commuteKm');
+  const type = getVal('commuteType');
+  const days = num('commuteDays') || 220;
+  const kollektivtKr = num('kollektivtKr');
+  if (km <= 0 || !type) return;
+
+  let cost, method;
+  if (type === 'bil') {
+    cost = km * 2 * days * 2.50;
+    method = `${km} km × 2 × ${days} dagar × 2,50 kr/km`;
+  } else if (type === 'kollektivt' && kollektivtKr > 0) {
+    cost = kollektivtKr;
+    method = 'Faktisk kostnad kollektivtrafik';
+  } else {
+    cost = km * 2 * days * 1.20;
+    method = 'Uppskattad kostnad – ange faktisk biljettkostnad';
+  }
+
+  const deductible = Math.max(0, cost - 11000);
+  const taxEffect = Math.round(deductible * 0.32);
+  const txt = document.getElementById('commuteResultText');
+  if (deductible > 0) {
+    txt.innerHTML = `Pendlingskostnad: <strong>${fmt(cost)} kr</strong> (${method})<br>Avdragsgill del (överstiger 11 000 kr/år): <strong>${fmt(deductible)} kr</strong><br>Beräknad skatteeffekt: <strong>ca ${fmt(taxEffect)} kr</strong>`;
+  } else {
+    txt.innerHTML = `Pendlingskostnad (${fmt(cost)} kr) understiger gränsen på 11 000 kr/år. Inget avdrag uppstår.`;
+  }
+  show('commuteResult', true);
+}
+
+function calcROT() {
+  const kr = num('rotKr');
+  if (kr <= 0) return;
+  const deduction = Math.min(kr * 0.30, 50000);
+  document.getElementById('rotResultText').innerHTML =
+    `ROT-avdrag: <strong>${fmt(deduction)} kr</strong> (30% av ${fmt(kr)} kr, max 50 000 kr/år)`;
+  show('rotResult', true);
+}
+
+function calcRUT() {
+  const kr = num('rutKr');
+  if (kr <= 0) return;
+  const is65 = getVal('rut65') === 'ja';
+  const maxRut = is65 ? 150000 : 75000;
+  const deduction = Math.min(kr * 0.50, maxRut);
+  document.getElementById('rutResultText').innerHTML =
+    `RUT-avdrag: <strong>${fmt(deduction)} kr</strong> (50% av ${fmt(kr)} kr, max ${fmt(maxRut)} kr/år${is65 ? ' – 65+ tak' : ''})`;
+  show('rutResult', true);
+}
+
+function calcBostad() {
+  const sale = num('salePrice'), buy = num('buyPrice');
+  const imp = num('improvements'), costs = num('saleCosts');
+  if (sale <= 0 || buy <= 0) return;
+  const gain = sale - buy - imp - costs;
+  if (gain >= 0) {
+    const taxBase = gain * (22 / 30);
+    const tax = taxBase * 0.30;
+    document.getElementById('bostadResultText').innerHTML =
+      `Vinst: <strong>${fmt(gain)} kr</strong><br>Skattepliktig del (22/30): <strong>${fmt(taxBase)} kr</strong><br>Beräknad kapitalvinstskatt: <strong>${fmt(tax)} kr</strong> (effektiv skattesats: 22%)`;
+  } else {
+    const loss = Math.abs(gain);
+    document.getElementById('bostadResultText').innerHTML =
+      `Förlust: <strong>${fmt(loss)} kr</strong><br>Avdragsgill del i kapital: <strong>${fmt(loss * 0.50)} kr</strong> (50%)`;
+  }
+  show('bostadResult', true);
+}
+
+function rentalSchablon(income) {
+  // Returnerar schablonavdrag baserat på vald bostadstyp.
+  // Villa/äganderätt: 40 000 + 20% av hyresintäkt (IL 42:30)
+  // Bostadsrätt: max(4 000, årsavgift) + 20% av hyresintäkt (IL 42:31)
+  const propertyType = getRadio('rentalPropertyType');
+  if (propertyType === 'brf') {
+    show('brfMonthlyFeeSection', true);
+    const monthlyFee = num('brfMonthlyFee');
+    const annualFee = monthlyFee * 12;
+    const base = Math.max(4000, annualFee);
+    return base + income * 0.20;
+  }
+  show('brfMonthlyFeeSection', false);
+  return 40000 + income * 0.20; // villa / äganderätt
+}
+
+function calcRental() {
+  const income = num('rentalIncome');
+  // Kör alltid rentalSchablon för att visa/dölja BRF-månadsavgiftsfält vid radiobyte
+  const deduction = rentalSchablon(income || 0);
+  if (income <= 0) return;
+  const net = Math.max(0, income - deduction);
+  const tax = net * 0.30;
+  document.getElementById('rentalResultText').innerHTML =
+    `Hyresintäkter: ${fmt(income)} kr<br>Schablonavdrag: <strong>${fmt(deduction)} kr</strong><br>Skattepliktig netto: <strong>${fmt(net)} kr</strong> → Beräknad kapitalskatt: <strong>${fmt(tax)} kr</strong>`;
+  show('rentalResult', income > 0);
+}
+
+function calcInterest() {
+  const secured = num('interestKr'), unsecured = num('interestUnsecured');
+  if (secured <= 0 && unsecured <= 0) return;
+  const secEffect = Math.round(Math.min(secured, 100000) * 0.30 + Math.max(0, secured - 100000) * 0.21);
+  const unsEffect = Math.round(unsecured * 0.50 * 0.30);
+  document.getElementById('interestResultText').innerHTML =
+    `Bolån (${fmt(secured)} kr): skatteeffekt <strong>${fmt(secEffect)} kr</strong><br>Blancolån (${fmt(unsecured)} kr): skatteeffekt <strong>${fmt(unsEffect)} kr</strong> (50% regel 2025)<br>Total räntereduktion: <strong>${fmt(secEffect + unsEffect)} kr</strong>`;
+  show('interestResult', true);
+}
+
+function calcPension() {
+  const netto = num('firmaNetto');
+  if (netto <= 0) return;
+  const maxPension = Math.min(netto * 0.35, 590000);
+  document.getElementById('pensionResultText').innerHTML =
+    `Maximalt pensionsavdrag: <strong>${fmt(maxPension)} kr</strong> (35% av nettoinkomsten).<br>Utnyttjar du hela beloppet sparar du uppskattningsvis <strong>ca ${fmt(maxPension * 0.45)} kr</strong> i skatt.`;
+  show('pensionResult', true);
+}
+
+// ===== SUMMARY =====
+function buildSummary() {
+  const deductions = [], docs = [];
+  let totalEffect = 0;
+
+  const commuteKm = num('commuteKm'), commuteType = getVal('commuteType');
+  const commuteDays = num('commuteDays') || 220, kollektivtKr = num('kollektivtKr');
+  if (commuteKm > 0 && commuteType) {
+    let cost = commuteType === 'bil' ? commuteKm * 2 * commuteDays * 2.50
+      : kollektivtKr > 0 ? kollektivtKr : commuteKm * 2 * commuteDays * 1.20;
+    const ded = Math.max(0, cost - 11000);
+    if (ded > 0) {
+      const eff = Math.round(ded * 0.32);
+      totalEffect += eff;
+      deductions.push({ name: 'Pendlingsavdrag', amount: eff, badge: 'badge-doc', text: 'Kräver underlag' });
+      docs.push(commuteType === 'bil' ? '📎 Körjournal eller karta med avstånd' : '📎 Periodkort / biljettkvitton 2025');
+    }
+  }
+
+  const unionKr = num('unionKr');
+  const toolsKr = num('workToolsKr');
+  const ovrigaTotal = unionKr + toolsKr;
+  if (ovrigaTotal > 0) {
+    // Avdrag ges bara på belopp över 5 000 kr (Skatteverket drar av 5 000 automatiskt).
+    // Skatteeffekten är på överskjutande del × marginalskatt.
+    const avdragsgrundat = Math.max(0, ovrigaTotal - 5000);
+    const eff = Math.round(avdragsgrundat * 0.32);
+    // Alltid lista posten men visa 0 kr effekt om under tröskeln
+    const label = toolsKr > 0
+      ? `Fackavgift + arbetsverktyg (${fmt(ovrigaTotal)} kr, avdrag på ${fmt(avdragsgrundat)} kr)`
+      : `Fackavgift / a-kassa (${fmt(unionKr)} kr${avdragsgrundat === 0 ? ' – under 5 000-gränsen, inget avdrag' : ''})`;
+    if (eff > 0) totalEffect += eff;
+    deductions.push({ name: label, amount: eff, badge: avdragsgrundat > 0 ? 'badge-ready' : 'badge-action', text: avdragsgrundat > 0 ? 'Redo' : 'Under gräns' });
+    if (unionKr > 0) docs.push('📎 Kontrolluppgift från facket');
+    if (toolsKr > 0) docs.push('📎 Kvitton för arbetsverktyg / facklitteratur');
+  }
+
+  const interestKr = num('interestKr');
+  if (interestKr > 0) {
+    const eff = Math.round(Math.min(interestKr, 100000) * 0.30 + Math.max(0, interestKr - 100000) * 0.21);
+    totalEffect += eff;
+    deductions.push({ name: `Ränteavdrag bolån (${fmt(interestKr)} kr)`, amount: eff, badge: 'badge-ready', text: 'Kontrollera' });
+  }
+  const interestU = num('interestUnsecured');
+  if (interestU > 0) {
+    const eff = Math.round(interestU * 0.50 * 0.30);
+    totalEffect += eff;
+    deductions.push({ name: `Ränteavdrag blancolån × 50% (${fmt(interestU)} kr)`, amount: eff, badge: 'badge-doc', text: 'Ny regel 2025' });
+  }
+
+  const rotKr = num('rotKr');
+  if (rotKr > 0) {
+    const eff = Math.min(Math.round(rotKr * 0.30), 50000);
+    totalEffect += eff;
+    deductions.push({ name: 'ROT skattereduktion', amount: eff, badge: 'badge-doc', text: 'Kräver faktura' });
+    docs.push('📎 Faktura från hantverkare (F-skatt) – specificerad arbetskostnad');
+  }
+
+  const rutKr = num('rutKr');
+  if (rutKr > 0) {
+    const is65 = getVal('rut65') === 'ja';
+    const eff = Math.min(Math.round(rutKr * 0.50), is65 ? 150000 : 75000);
+    totalEffect += eff;
+    deductions.push({ name: 'RUT skattereduktion', amount: eff, badge: 'badge-doc', text: 'Kräver faktura' });
+    docs.push('📎 Faktura från hushållstjänstföretag (F-skatt)');
+  }
+
+  const gain = num('capitalGain'), loss = num('capitalLoss');
+  if (gain > 0 || loss > 0) {
+    deductions.push({ name: `Kapital: vinst ${fmt(gain)} kr / förlust ${fmt(loss)} kr`, amount: 0, badge: 'badge-action', text: 'Se beräkning' });
+    docs.push('📎 Kontrolluppgifter från mäklare, banker, kryptoplattformar');
+  }
+  if (num('salePrice') > 0) {
+    docs.push('📎 Köpeavtal, kvitton förbättringsutgifter, mäklarfaktura');
+  }
+
+  const firmaNetto = num('firmaNetto');
+  if (firmaNetto > 0 && getVal('pensionAvsatt') === 'nej') {
+    const maxP = Math.min(firmaNetto * 0.35, 590000);
+    deductions.push({ name: 'Pensionsavsättning – outnyttjad möjlighet', amount: Math.round(maxP * 0.45), badge: 'badge-action', text: 'Ännu ej gjord' });
+  }
+
+  document.getElementById('totalAmount').textContent = totalEffect > 0 ? `${fmt(totalEffect)} kr` : '–';
+
+  document.getElementById('deductionList').innerHTML = deductions.length === 0
+    ? '<div style="color:#9ca3af;font-size:14px;padding:16px 0">Inga avdrag beräknade – fyll i fler uppgifter.</div>'
+    : deductions.map(d => `
+      <div class="deduction-item">
+        <span class="name">${d.name}</span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="badge ${d.badge}">${d.text}</span>
+          ${d.amount > 0 ? `<span class="amount">+${fmt(d.amount)} kr</span>` : ''}
+        </div>
+      </div>`).join('');
+
+  const uniqueDocs = [...new Set(docs)];
+  document.getElementById('documentsList').innerHTML = uniqueDocs.length > 0
+    ? uniqueDocs.map(d => `<div style="padding:3px 0">${d}</div>`).join('')
+    : '<span style="color:#9ca3af;font-size:13px">Inga specifika underlag identifierade.</span>';
+
+  const rows = [
+    ['Personnummer', getVal('personnummer')],
+    ['Namn', [getVal('fornamn'), getVal('efternamn')].filter(Boolean).join(' ')],
+    ['Hemadress', getVal('homeAddress')],
+    ['Arbetsadress', getVal('workAddress')],
+    ['Inkomsttyp', formatIncomeType(getRadio('incomeType'))],
+    ['Boende', formatHousing(getRadio('housing'))],
+    ['Pendling', commuteKm > 0 ? `${commuteKm} km (${commuteType})` : null],
+    ['Ombud PNR', OMBUD_PNR],
+  ].filter(r => r[1]);
+
+  document.getElementById('summaryRows').innerHTML = rows.map(r =>
+    `<div class="summary-row"><span class="key">${r[0]}</span><span class="val">${r[1]}</span></div>`).join('');
+
+  document.getElementById('sruPreview').textContent = '=== INFO.SRU ===\n' + generateInfoSRU().replace(/\r\n/g, '\n') + '\n=== BLANKETTER.SRU ===\n' + generateBlanketterSRU().replace(/\r\n/g, '\n');
+}
+
+function formatIncomeType(v) {
+  return {anstald:'Anställd',enskild:'Enskild firma',ab:'Aktiebolag',pensionar:'Pensionär',student:'Student',kombination:'Kombination'}[v] || v;
+}
+function formatHousing(v) {
+  return {ager_lan:'Äger med bolån',ager_utan:'Äger utan bolån',hyr:'Hyr'}[v] || v;
+}
+
+// ===== SRU GENERATION =====
+function generateSRU() {
+  const pnr = getVal('personnummer') || 'XXXXXX-XXXX';
+  const namn = [getVal('efternamn'), getVal('fornamn')].filter(Boolean).join(', ');
+  const datum = new Date().toISOString().slice(0,10).replace(/-/g,'');
+  const L = [];
+
+  L.push('// SRU-FIL: INKOMSTDEKLARATION 1, INKOMSTÅR 2025');
+  L.push('// Fältkoder: Skatteverket 2025P4-specifikation (INK1_SKV2000-35-02-0025-02)');
+  L.push('// Genererad: ' + new Date().toLocaleString('sv-SE'));
+  L.push('');
+  L.push('#BLANKETT INK1');
+  L.push(`#IDENTITET ${pnr} ${datum}`);
+  L.push('#SYSTEMINFO Deklarationsformular 2025');
+  if (namn) L.push(`#NAMN ${namn}`);
+  L.push('');
+
+  const lon = num('abLon');
+  if (lon > 0) L.push(`#UPPGIFT 1000 ${Math.round(lon)}    // 1.1 Lön och förmåner`);
+
+  const commuteKm = num('commuteKm'), commuteType = getVal('commuteType');
+  const commuteDays = num('commuteDays') || 220, kollektivtKr = num('kollektivtKr');
+  if (commuteKm > 0 && commuteType) {
+    let cost = commuteType === 'bil' ? commuteKm * 2 * commuteDays * 2.50
+      : kollektivtKr > 0 ? kollektivtKr : commuteKm * 2 * commuteDays * 1.20;
+    const ded = Math.max(0, cost - 11000);
+    if (ded > 0) L.push(`#UPPGIFT 1070 ${Math.round(ded)}    // 2.1 Resor till/från arbetet`);
+  }
+
+  const fack = num('unionKr'), tools = num('workToolsKr');
+  const ovriga = fack + tools;
+  if (ovriga > 5000) L.push(`#UPPGIFT 1073 ${Math.round(ovriga)}    // 2.4 Övriga utgifter för arbetet`);
+
+  const rotKr = num('rotKr');
+  if (rotKr > 0) L.push(`#UPPGIFT 1583 ${Math.min(Math.round(rotKr * 0.30), 50000)}    // 4.1 ROT skattereduktion`);
+
+  const rutKr = num('rutKr');
+  if (rutKr > 0) L.push(`#UPPGIFT 1584 ${Math.min(Math.round(rutKr * 0.50), getVal('rut65')==='ja' ? 150000 : 75000)}    // 4.2 RUT skattereduktion`);
+
+  const rental = num('rentalIncome');
+  if (rental > 0) { const net = Math.max(0, rental - rentalSchablon(rental)); if (net > 0) L.push(`#UPPGIFT 1101 ${Math.round(net)}    // 7.3 Överskott uthyrning`); }
+
+  const gain = num('capitalGain');
+  if (gain > 0) L.push(`#UPPGIFT 1102 ${Math.round(gain)}    // 7.4 Vinst fondandelar`);
+
+  const sp = num('salePrice'), bp = num('buyPrice');
+  if (sp > 0 && bp > 0) {
+    const bg = sp - bp - num('improvements') - num('saleCosts');
+    if (bg > 0) L.push(`#UPPGIFT 1104 ${Math.round(bg)}    // 7.6 Vinst K5`);
+  }
+
+  const interest = num('interestKr');
+  if (interest > 0) L.push(`#UPPGIFT 1170 ${Math.round(interest)}    // 8.1 Ränteutgifter lån med säkerhet`);
+
+  const interestU = num('interestUnsecured');
+  if (interestU > 0) L.push(`#UPPGIFT 1177 ${Math.round(interestU)}    // 8.8 Ränteutgifter lån utan säkerhet (50% 2025)`);
+
+  const closs = num('capitalLoss');
+  if (closs > 0) L.push(`#UPPGIFT 1172 ${Math.round(closs)}    // 8.3 Förlust fondandelar`);
+
+  if (sp > 0 && bp > 0) {
+    const bl = bp + num('improvements') + num('saleCosts') - sp;
+    if (bl > 0) L.push(`#UPPGIFT 1174 ${Math.round(bl * 0.50)}    // 8.5 Förlust K5`);
+  }
+
+  L.push(''); L.push('#BLANKETTSLUT');
+
+  if (sp > 0 && bp > 0) {
+    L.push('');
+    L.push('#BLANKETT K5');
+    L.push(`#IDENTITET ${pnr} ${datum}`);
+    if (namn) L.push(`#NAMN ${namn}`);
+    L.push('');
+    L.push(`#UPPGIFT 3620 ${Math.round(sp)}    // 1. Försäljningspris`);
+    L.push(`#UPPGIFT 3621 ${Math.round(num('saleCosts'))}    // 2. Försäljningsutgifter`);
+    L.push(`#UPPGIFT 3622 ${Math.round(bp)}    // 3. Inköpspris`);
+    const imp = num('improvements');
+    if (imp > 0) L.push(`#UPPGIFT 3623 ${Math.round(imp)}    // 4. Förbättringsutgifter`);
+    const res = sp - bp - imp - num('saleCosts');
+    L.push(`#UPPGIFT 3625 ${Math.round(res)}    // 6. Vinst (+) eller förlust (-)`);
+    if (res > 0) L.push(`#UPPGIFT 3629 ${Math.round(res)}    // 9. Vinst → INK1 p.7.6`);
+    else L.push(`#UPPGIFT 3630 ${Math.round(Math.abs(res))}    // 10. Förlust → INK1 p.8.5`);
+    L.push(''); L.push('#BLANKETTSLUT');
+  }
+
+  L.push('#FIL_SLUT');
+  return L.join('\n');
+}
+
+// ===== SRU FILE GENERATION (Skatteverket-specifikation) =====
+// ===== SRU FILE GENERATION — Skatteverket SKV 269 =====
+// Filnamn: INFO.SRU + BLANKETTER.SRU (exakt, döp aldrig om)
+// Teckenkodning: ISO 8859-1. Radslut: LF (\n) enl. SKV 269 9.3.
+const SRU_EOL = '\n';
+
+// --- Blanketttyp-koder ---
+// Skatteverket avvisar sammansatta tokens som "INK1S-2025P4".
+// Använd bara typkoden: "#BLANKETT INK1", "#BLANKETT K4" etc.
+// Om Skatteverket i framtiden kräver period-suffix, uppdatera här.
+// Bekräftade koder från Skatteverkets officiella Filexempel.xlsx (2025P4-spec).
+// Format: <BlankettTyp>-<InkomstÅr>P<Periodnummer>
+// Exempel: INK1-2025P4 (ingen S-suffix på INK1)
+const BLANKETT_PERIOD_TOKENS = {
+  'INK1': 'INK1-2025P4',
+  'K4':   'K4-2025P4',
+  'K5':   'K5-2025P4',
+  'K10':  'K10-2025P4',
+  'NE':   'NE-2025P4',
+};
+
+function getBlankettPeriodToken(formType) {
+  const token = BLANKETT_PERIOD_TOKENS[formType];
+  if (!token) throw new Error(`Okänd blanketttyp: ${formType}. Lägg till i BLANKETT_PERIOD_TOKENS.`);
+  return token;
+}
+
+// --- Hjälpfunktioner ---
+function sruPnr12(raw) {
+  const digits = (raw || '').replace(/\D/g, '');
+  if (digits.length === 12) return digits; // already full 12-digit
+  if (digits.length === 10) {
+    // 2-digit century: born 2000+ have birth year 00–99 in first 2 digits
+    // Convention: if year <= current 2-digit year, assume 2000s; else 1900s
+    const yy = parseInt(digits.slice(0, 2), 10);
+    const currentYY = new Date().getFullYear() % 100;
+    return (yy <= currentYY ? '20' : '19') + digits;
+  }
+  return digits;
+}
+
+function sruNow() {
+  const now = new Date();
+  const d = now.toISOString().slice(0,10).replace(/-/g,'');
+  const t = now.toTimeString().slice(0,8).replace(/:/g,'');
+  return { date: d, time: t };
+}
+
+function serializeSruLines(lines) {
+  return lines.join(SRU_EOL) + SRU_EOL;
+}
+
+// --- Pre-export validering ---
+function validateSruInput() {
+  const errors = [];
+  const pnr = sruPnr12(getVal('personnummer'));
+  if (!pnr || pnr.length < 10) errors.push('Personnummer saknas eller är ogiltigt.');
+  const namn = [getVal('efternamn'), getVal('fornamn')].filter(Boolean).join(', ');
+  if (!namn) errors.push('Namn saknas (förnamn + efternamn).');
+  return errors;
+}
+
+// ===== INFO.SRU =====
+// Ordning enl. SKV 269 avsnitt 9.4.1 + filexempel sida 20.
+// #PRODUKT måste vara exakt "SRU". Ingen #PERIOD-rad.
+function generateInfoSRU() {
+  const pnr12 = sruPnr12(getVal('personnummer'));
+  const namn = [getVal('efternamn'), getVal('fornamn')].filter(Boolean).join(', ') || 'Okänt';
+  const { date, time } = sruNow();
+  const L = [];
+
+  // Databeskrivning
+  L.push('#DATABESKRIVNING_START');
+  L.push('#PRODUKT SRU');
+  L.push(`#SKAPAD ${date}`);  // YYYYMMDD — Skatteverket avvisar YYYYMMDDHHMMSS
+  L.push('#PROGRAM Deklarationsformularet 1.0');
+  L.push('#FILNAMN BLANKETTER.SRU');
+  L.push('#DATABESKRIVNING_SLUT');
+
+  // Medieleverantör
+  L.push('#MEDIELEV_START');
+  L.push(`#ORGNR ${pnr12}`);
+  L.push(`#NAMN ${namn}`);
+
+  // Adressfält — ta från hemadress om den finns
+  const homeAddr = getVal('homeAddress') || '';
+  const parts = homeAddr.split(',').map(s => s.trim()).filter(Boolean);
+  if (parts[0]) L.push(`#ADRESS ${parts[0]}`);
+
+  // Postnummer och postort — hämtas direkt från egna fält
+  const postnr = (getVal('postnummer') || '').replace(/\s/g, '');
+  const postort = (getVal('postort') || '').trim();
+
+  // #POSTNR är OBLIGATORISKT
+  if (!postnr || postnr === '00000') {
+    throw new Error('Postnummer saknas. Fyll i postnummerfältet.');
+  }
+  L.push(`#POSTNR ${postnr}`);
+
+  // #POSTORT är OBLIGATORISKT
+  if (!postort) {
+    throw new Error('Ort saknas. Fyll i ortfältet.');
+  }
+  L.push(`#POSTORT ${postort}`);
+
+  const kontakt = [getVal('fornamn'), getVal('efternamn')].filter(Boolean).join(' ');
+  if (kontakt) L.push(`#KONTAKT ${kontakt}`);
+
+  L.push('#MEDIELEV_SLUT');
+
+  return serializeSruLines(L);
+}
+
+// ===== BLANKETTER.SRU =====
+// Varje blankettblock: #BLANKETT <token> → #IDENTITET → #NAMN → #UPPGIFT:er → #BLANKETTSLUT
+// Filen avslutas med #FIL_SLUT
+function generateBlanketterSRU() {
+  const pnr12 = sruPnr12(getVal('personnummer'));
+  const namn = [getVal('efternamn'), getVal('fornamn')].filter(Boolean).join(', ');
+  const { date, time } = sruNow();
+  const L = [];
+
+  // --- INK1-blankettblock ---
+  L.push(`#BLANKETT ${getBlankettPeriodToken('INK1')}`);
+  L.push(`#IDENTITET ${pnr12} ${date} ${time}`);
+  if (namn) L.push(`#NAMN ${namn}`);
+
+  const lon = num('abLon'); if (lon > 0) L.push(`#UPPGIFT 1000 ${Math.round(lon)}`);
+
+  const commuteKm = num('commuteKm'), commuteType = getVal('commuteType');
+  const commuteDays = num('commuteDays') || 220, kollektivtKr = num('kollektivtKr');
+  if (commuteKm > 0 && commuteType) {
+    let cost = commuteType === 'bil' ? commuteKm * 2 * commuteDays * 2.50
+      : kollektivtKr > 0 ? kollektivtKr : commuteKm * 2 * commuteDays * 1.20;
+    const ded = Math.max(0, cost - 11000);
+    if (ded > 0) L.push(`#UPPGIFT 1070 ${Math.round(ded)}`);
+  }
+
+  const fack = num('unionKr'), tools = num('workToolsKr');
+  // Rapportera TOTALA beloppet om det överstiger 5 000 kr (Skatteverket drar av 5 000 på sin sida).
+  // Räkna alltid ihop fack + verktyg — tröskeln gäller summan, inte enskilda poster.
+  const ovriga = fack + tools;
+  if (ovriga > 5000) L.push(`#UPPGIFT 1073 ${Math.round(ovriga)}`);
+
+  const rotKr = num('rotKr'); if (rotKr > 0) L.push(`#UPPGIFT 1583 ${Math.min(Math.round(rotKr * 0.30), 50000)}`);
+  const rutKr = num('rutKr'); if (rutKr > 0) L.push(`#UPPGIFT 1584 ${Math.min(Math.round(rutKr * 0.50), getVal('rut65')==='ja'?150000:75000)}`);
+
+  const rental = num('rentalIncome');
+  if (rental > 0) { const net = Math.max(0, rental - rentalSchablon(rental)); if (net > 0) L.push(`#UPPGIFT 1101 ${Math.round(net)}`); }
+
+  const gain = num('capitalGain'); if (gain > 0) L.push(`#UPPGIFT 1102 ${Math.round(gain)}`);
+
+  const sp = num('salePrice'), bp = num('buyPrice');
+  if (sp > 0 && bp > 0) { const bg = sp - bp - num('improvements') - num('saleCosts'); if (bg > 0) L.push(`#UPPGIFT 1104 ${Math.round(bg)}`); }
+
+  const interest = num('interestKr'); if (interest > 0) L.push(`#UPPGIFT 1170 ${Math.round(interest)}`);
+  const iU = num('interestUnsecured'); if (iU > 0) L.push(`#UPPGIFT 1177 ${Math.round(iU)}`);
+  const closs = num('capitalLoss'); if (closs > 0) L.push(`#UPPGIFT 1172 ${Math.round(closs)}`);
+
+  if (sp > 0 && bp > 0) { const bl = bp + num('improvements') + num('saleCosts') - sp; if (bl > 0) L.push(`#UPPGIFT 1174 ${Math.round(bl * 0.50)}`); }
+
+  L.push('#BLANKETTSLUT');
+
+  // --- K5-blankettblock (bostadsförsäljning) ---
+  if (sp > 0 && bp > 0) {
+    L.push(`#BLANKETT ${getBlankettPeriodToken('K5')}`);
+    L.push(`#IDENTITET ${pnr12} ${date} ${time}`);
+    if (namn) L.push(`#NAMN ${namn}`);
+    L.push(`#UPPGIFT 3620 ${Math.round(sp)}`);
+    L.push(`#UPPGIFT 3621 ${Math.round(num('saleCosts'))}`);
+    L.push(`#UPPGIFT 3622 ${Math.round(bp)}`);
+    const imp = num('improvements'); if (imp > 0) L.push(`#UPPGIFT 3623 ${Math.round(imp)}`);
+    const res = sp - bp - imp - num('saleCosts');
+    L.push(`#UPPGIFT 3625 ${Math.round(res)}`);
+    if (res > 0) L.push(`#UPPGIFT 3629 ${Math.round(res)}`);
+    else L.push(`#UPPGIFT 3630 ${Math.round(Math.abs(res))}`);
+    L.push('#BLANKETTSLUT');
+  }
+
+  L.push('#FIL_SLUT');
+  return serializeSruLines(L);
+}
+
+// Bakåtkompatibilitet: generateSRU_clean returnerar BLANKETTER-innehållet
+function generateSRU_clean() { return generateBlanketterSRU(); }
+
+function _triggerDownload(content, filename) {
+  const blob = new Blob([content], { type: 'application/octet-stream' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function downloadSRU() {
+  const info = generateInfoSRU();
+  const blanketter = generateBlanketterSRU();
+  // Skatteverket kräver exakt dessa filnamn — döp ALDRIG om filerna
+  _triggerDownload(info, 'INFO.SRU');
+  setTimeout(() => _triggerDownload(blanketter, 'BLANKETTER.SRU'), 500);
+}
+
+async function sendToOmbud() {
+  if (!validateStep(6)) return;
+
+  const btn = document.getElementById('btnSkicka');
+  if (btn) { btn.disabled = true; btn.textContent = 'Skickar...'; }
+
+  const ombudDone = getRadio('ombudDone') || 'senare';
+  const poaMap = { ja: 'klar', senare: 'fortsatter', hjalp: 'behover_hjalp' };
+
+  const payload = {
+    personal_identity_number: getVal('personnummer'),
+    first_name:  getVal('fornamn'),
+    last_name:   getVal('efternamn'),
+    user_email:  getVal('email') || null,
+    user_phone:  getVal('telefon') || null,
+    income_year: 2025,
+    salary:            num('loneinkomst') || 0,
+    travel_deduction:  num('pendlingAvdrag') || 0,
+    rot_deduction:     num('rotArbetskostnad') || 0,
+    rut_deduction:     num('rutArbetskostnad') || 0,
+    interest_secured:  num('bolanerantaBetalad') || 0,
+    interest_unsecured: num('blancoPaidInterest') || 0,
+    rental_net:        num('rentalIncome') || 0,
+    power_of_attorney_status: poaMap[ombudDone] || 'fortsatter',
+  };
+
+  try {
+    const res = await fetch('/api/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const err = document.getElementById('err-6');
+      if (err) { err.textContent = data.message || 'Något gick fel. Försök igen.'; err.style.display = 'block'; }
+      if (btn) { btn.disabled = false; btn.textContent = 'Skicka till ombud'; }
+      return;
+    }
+
+    // Visa kvittens
+    const namn = [payload.first_name, payload.last_name].filter(Boolean).join(' ');
+    const refEl = document.getElementById('kvittensRef');
+    const namnEl = document.getElementById('kvittensNamn');
+    if (refEl) refEl.textContent = data.reference_number || '–';
+    if (namnEl) namnEl.textContent = namn || '–';
+
+    document.getElementById('kvittensScreen').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  } catch (e) {
+    const err = document.getElementById('err-6');
+    if (err) { err.textContent = 'Nätverksfel – kontrollera din anslutning och försök igen.'; err.style.display = 'block'; }
+    if (btn) { btn.disabled = false; btn.textContent = 'Skicka till ombud'; }
+  }
+}
+</script>
+</body>
+</html>
