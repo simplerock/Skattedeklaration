@@ -2213,7 +2213,11 @@ function buildSummary() {
   document.getElementById('summaryRows').innerHTML = rows.map(r =>
     `<div class="summary-row"><span class="key">${r[0]}</span><span class="val">${r[1]}</span></div>`).join('');
 
-  document.getElementById('sruPreview').textContent = '=== INFO.SRU ===\n' + generateInfoSRU().replace(/\r\n/g, '\n') + '\n=== BLANKETTER.SRU ===\n' + generateBlanketterSRU().replace(/\r\n/g, '\n');
+  try {
+    document.getElementById('sruPreview').textContent = '=== INFO.SRU ===\n' + generateInfoSRU().replace(/\r\n/g, '\n') + '\n=== BLANKETTER.SRU ===\n' + generateBlanketterSRU().replace(/\r\n/g, '\n');
+  } catch(e) {
+    document.getElementById('sruPreview').textContent = '(Fyll i postnummer och ort för att se SRU-förhandsvisning)';
+  }
 }
 
 function formatIncomeType(v) {
