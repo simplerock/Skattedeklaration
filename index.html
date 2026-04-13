@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Deklarationshjälp 2025</title>
+<title>Deqlara – Deklarationshjälp 2025</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --blue:   #1e40af;
-    --blue-l: #3b82f6;
-    --bg:     #f9fafb;
+    --navy:   #1a3a6b;
+    --gold:   #f6ca3c;
+    --bg:     #f4f6f9;
     --white:  #ffffff;
-    --text:   #111827;
+    --text:   #1a1a2e;
     --muted:  #6b7280;
     --border: #e5e7eb;
     --green:  #15803d;
@@ -30,38 +30,67 @@
   /* NAV */
   nav {
     position: sticky; top: 0; z-index: 50;
-    background: rgba(255,255,255,0.92);
+    background: rgba(255,255,255,0.94);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
     padding: 0 24px;
   }
   .nav-inner {
     max-width: 1080px; margin: 0 auto;
-    display: flex; align-items: center; height: 56px; gap: 8px;
+    display: flex; align-items: center; height: 56px; gap: 10px;
   }
   .logo {
-    font-weight: 800; font-size: 15px; color: var(--blue);
+    font-weight: 800; font-size: 16px; color: var(--navy);
     letter-spacing: -0.02em; text-decoration: none;
   }
-  .logo span { color: var(--text); }
+  .logo span { color: var(--gold); }
+  .nav-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
   .nav-cta {
-    margin-left: auto;
-    padding: 8px 18px; background: var(--blue); color: #fff;
+    padding: 8px 18px; background: var(--navy); color: #fff;
     border: none; border-radius: 8px; font-size: 13px; font-weight: 600;
     cursor: pointer; text-decoration: none; transition: background 0.15s;
   }
-  .nav-cta:hover { background: #1d3a9e; }
+  .nav-cta:hover { background: #122a52; }
+
+  /* LANGUAGE DROPDOWN */
+  .lang-dropdown { position: relative; }
+  .lang-toggle {
+    display: flex; align-items: center; gap: 5px;
+    padding: 6px 10px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 7px; color: var(--text);
+    cursor: pointer; font-size: 13px; font-weight: 500;
+    transition: border-color 0.15s;
+  }
+  .lang-toggle:hover { border-color: var(--navy); }
+  .lang-toggle svg { opacity: 0.6; }
+  .lang-menu {
+    position: absolute; top: calc(100% + 6px); right: 0;
+    background: white; border: 1px solid var(--border);
+    border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    min-width: 190px; z-index: 200; display: none; overflow: hidden;
+  }
+  .lang-menu.open { display: block; }
+  .lang-option {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; cursor: pointer;
+    font-size: 13px; color: var(--text);
+    transition: background 0.1s;
+  }
+  .lang-option:hover { background: var(--bg); }
+  .lang-option.active { color: var(--navy); font-weight: 700; background: #eef2f9; }
+  .lang-flag { font-size: 16px; line-height: 1; }
 
   /* HERO */
   .hero {
     padding: 80px 24px 72px;
-    background: linear-gradient(180deg, #eef4ff 0%, #ffffff 100%);
+    background: linear-gradient(160deg, #edf1f9 0%, #ffffff 60%);
     text-align: center;
   }
   .hero-badge {
     display: inline-flex; align-items: center; gap: 6px;
     padding: 5px 14px; border-radius: 20px;
-    background: #dbeafe; color: var(--blue);
+    background: #dde6f5; color: var(--navy);
     font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
     text-transform: uppercase; margin-bottom: 24px;
   }
@@ -70,26 +99,26 @@
     font-weight: 800; letter-spacing: -0.03em;
     color: var(--text); line-height: 1.12; margin-bottom: 20px;
   }
-  .hero h1 em { color: var(--blue); font-style: normal; }
+  .hero h1 em { color: var(--navy); font-style: normal; }
   .hero p {
     font-size: 18px; color: var(--muted);
-    max-width: 520px; margin: 0 auto 36px;
+    max-width: 520px; margin: 0 auto 32px;
     line-height: 1.65;
   }
   .hero-actions {
     display: flex; justify-content: center;
-    gap: 12px; flex-wrap: wrap;
+    gap: 12px; flex-wrap: wrap; margin-bottom: 28px;
   }
   .btn-primary {
     padding: 14px 32px;
-    background: var(--blue); color: #fff;
+    background: var(--navy); color: #fff;
     border: none; border-radius: 10px;
     font-size: 16px; font-weight: 700;
     cursor: pointer; text-decoration: none;
     transition: all 0.15s;
     display: inline-flex; align-items: center; gap: 8px;
   }
-  .btn-primary:hover { background: #1d3a9e; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(30,64,175,0.25); }
+  .btn-primary:hover { background: #122a52; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(26,58,107,0.25); }
   .btn-ghost {
     padding: 14px 24px;
     background: none; color: var(--muted);
@@ -99,28 +128,43 @@
     transition: all 0.15s;
   }
   .btn-ghost:hover { border-color: #9ca3af; color: var(--text); }
+
+  /* LANG SHOWCASE in hero */
+  .lang-showcase {
+    display: flex; justify-content: center; align-items: center;
+    gap: 6px; flex-wrap: wrap; margin-top: 4px;
+  }
+  .lang-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 20px;
+    background: white; border: 1px solid var(--border);
+    font-size: 12px; color: var(--muted);
+    cursor: pointer; transition: all 0.12s;
+  }
+  .lang-chip:hover { border-color: var(--navy); color: var(--navy); }
+
   .hero-trust {
-    margin-top: 36px; display: flex; justify-content: center;
+    margin-top: 32px; display: flex; justify-content: center;
     gap: 28px; flex-wrap: wrap;
   }
   .trust-item {
     display: flex; align-items: center; gap: 6px;
     font-size: 13px; color: var(--muted);
   }
-  .check-green { color: var(--green); font-weight: 700; }
+  .check-gold { color: var(--navy); font-weight: 700; }
 
   /* STATS */
   .stats-bar {
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
-    padding: 32px 24px;
+    padding: 32px 24px; background: var(--white);
   }
   .stats-inner {
     max-width: 900px; margin: 0 auto;
     display: grid; grid-template-columns: repeat(3, 1fr);
     gap: 24px; text-align: center;
   }
-  .stat-number { font-size: 30px; font-weight: 800; color: var(--blue); letter-spacing: -0.02em; }
+  .stat-number { font-size: 30px; font-weight: 800; color: var(--navy); letter-spacing: -0.02em; }
   .stat-label  { font-size: 13px; color: var(--muted); margin-top: 4px; }
 
   /* SECTIONS */
@@ -128,7 +172,7 @@
   .section-inner { max-width: 1000px; margin: 0 auto; }
   .section-tag {
     font-size: 11px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.08em; color: var(--blue); margin-bottom: 12px;
+    letter-spacing: 0.08em; color: var(--navy); margin-bottom: 12px;
   }
   .section-title {
     font-size: clamp(24px, 3.5vw, 36px);
@@ -149,7 +193,7 @@
   .step-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.07); }
   .step-num {
     width: 36px; height: 36px; border-radius: 10px;
-    background: #dbeafe; color: var(--blue);
+    background: var(--navy); color: #fff;
     font-size: 16px; font-weight: 800;
     display: flex; align-items: center; justify-content: center;
     margin-bottom: 16px;
@@ -175,23 +219,25 @@
   /* PRIS */
   .price-card {
     max-width: 420px; margin: 48px auto 0;
-    border: 2px solid var(--blue); border-radius: 16px;
+    border: 2px solid var(--navy); border-radius: 16px;
     padding: 40px 36px; text-align: center;
+    background: var(--white);
   }
   .price-tag { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
-  .price-amount { font-size: 54px; font-weight: 900; color: var(--text); letter-spacing: -0.03em; }
+  .price-amount { font-size: 54px; font-weight: 900; color: var(--navy); letter-spacing: -0.03em; }
   .price-amount span { font-size: 20px; font-weight: 500; color: var(--muted); }
   .price-note { font-size: 13px; color: var(--muted); margin: 8px 0 28px; }
   .price-includes { list-style: none; text-align: left; margin-bottom: 28px; display: flex; flex-direction: column; gap: 10px; }
   .price-includes li { font-size: 14px; color: var(--text); display: flex; align-items: center; gap: 10px; }
+  .check-mark { color: var(--navy); font-weight: 700; }
 
   /* CTA */
-  .cta-section { background: var(--blue); padding: 72px 24px; text-align: center; }
+  .cta-section { background: var(--navy); padding: 72px 24px; text-align: center; }
   .cta-section h2 { font-size: clamp(24px, 3.5vw, 36px); font-weight: 800; color: #fff; letter-spacing: -0.02em; margin-bottom: 12px; }
   .cta-section p { font-size: 16px; color: rgba(255,255,255,0.7); margin-bottom: 32px; }
   .btn-white {
     display: inline-flex; align-items: center; gap: 8px;
-    padding: 14px 32px; background: #fff; color: var(--blue);
+    padding: 14px 32px; background: var(--gold); color: var(--navy);
     border: none; border-radius: 10px; font-size: 16px; font-weight: 700;
     cursor: pointer; text-decoration: none; transition: all 0.15s;
   }
@@ -210,6 +256,7 @@
     .price-card { padding: 28px 20px; }
     .price-amount { font-size: 44px; }
     .hero-trust { gap: 16px; }
+    .lang-showcase { gap: 4px; }
   }
 </style>
 </head>
@@ -218,28 +265,58 @@
 <nav>
   <div class="nav-inner">
     <a href="index.html" class="logo">Deql<span>ara</span></a>
-    <a href="deklarationsformular.html" class="nav-cta">Starta nu &rarr;</a>
+    <div class="nav-right">
+      <!-- Language dropdown -->
+      <div class="lang-dropdown" id="langDropdown">
+        <button class="lang-toggle" onclick="toggleLangMenu()" aria-label="Välj språk">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span id="currentLangLabel">SV</span>
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M1 3l4 4 4-4"/></svg>
+        </button>
+        <div class="lang-menu" id="langMenu">
+          <div class="lang-option active" onclick="setLang('sv')"><span class="lang-flag">🇸🇪</span> Svenska</div>
+          <div class="lang-option" onclick="setLang('en')"><span class="lang-flag">🇬🇧</span> English</div>
+          <div class="lang-option" onclick="setLang('zh')"><span class="lang-flag">🇨🇳</span> 中文</div>
+          <div class="lang-option" onclick="setLang('th')"><span class="lang-flag">🇹🇭</span> ภาษาไทย</div>
+          <div class="lang-option" onclick="setLang('vi')"><span class="lang-flag">🇻🇳</span> Tiếng Việt</div>
+          <div class="lang-option" onclick="setLang('ar')"><span class="lang-flag">🇸🇦</span> العربية</div>
+          <div class="lang-option" onclick="setLang('tr')"><span class="lang-flag">🇹🇷</span> Türkçe</div>
+        </div>
+      </div>
+      <a href="deklarationsformular.html" class="nav-cta" data-i18n="navCta">Starta nu &rarr;</a>
+    </div>
   </div>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-badge">
-    Inkomstdeklaration 2025
-  </div>
-  <h1>Din deklaration,<br><em>hanterad</em></h1>
-  <p>Fyll i dina uppgifter. Vi räknar ut dina avdrag och lämnar in åt dig. Du signerar bara.</p>
+  <div class="hero-badge" data-i18n="heroBadge">Inkomstdeklaration 2025</div>
+  <h1>Din deklaration,<br><em data-i18n="heroH1em">hanterad</em></h1>
+  <p data-i18n="heroP">Fyll i dina uppgifter. Vi räknar ut dina avdrag och lämnar in åt dig. Du signerar bara.</p>
   <div class="hero-actions">
     <a href="deklarationsformular.html" class="btn-primary">
-      Starta deklarationen
+      <span data-i18n="heroCta">Starta deklarationen</span>
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
-    <a href="#hur-det-funkar" class="btn-ghost">Hur funkar det?</a>
+    <a href="#hur-det-funkar" class="btn-ghost" data-i18n="heroHow">Hur funkar det?</a>
   </div>
+
+  <!-- Language availability chips -->
+  <div class="lang-showcase">
+    <span style="font-size:11px;color:var(--muted);margin-right:4px;" data-i18n="langAvail">Tillgängligt på:</span>
+    <span class="lang-chip" onclick="setLang('sv')">🇸🇪 SV</span>
+    <span class="lang-chip" onclick="setLang('en')">🇬🇧 EN</span>
+    <span class="lang-chip" onclick="setLang('zh')">🇨🇳 中文</span>
+    <span class="lang-chip" onclick="setLang('th')">🇹🇭 ไทย</span>
+    <span class="lang-chip" onclick="setLang('vi')">🇻🇳 VI</span>
+    <span class="lang-chip" onclick="setLang('ar')">🇸🇦 عربي</span>
+    <span class="lang-chip" onclick="setLang('tr')">🇹🇷 TR</span>
+  </div>
+
   <div class="hero-trust">
-    <span class="trust-item"><span class="check-green">&#10003;</span> Fast pris 1&nbsp;299&nbsp;kr</span>
-    <span class="trust-item"><span class="check-green">&#10003;</span> Vi lämnar in åt dig</span>
-    <span class="trust-item"><span class="check-green">&#10003;</span> Du signerar bara</span>
+    <span class="trust-item"><span class="check-gold">&#10003;</span> <span data-i18n="trust1">Fast pris 1&nbsp;299&nbsp;kr</span></span>
+    <span class="trust-item"><span class="check-gold">&#10003;</span> <span data-i18n="trust2">Vi lämnar in åt dig</span></span>
+    <span class="trust-item"><span class="check-gold">&#10003;</span> <span data-i18n="trust3">Du signerar bara</span></span>
   </div>
 </section>
 
@@ -248,15 +325,15 @@
   <div class="stats-inner">
     <div>
       <div class="stat-number">8 avdrag</div>
-      <div class="stat-label">Typer vi kontrollerar åt dig</div>
+      <div class="stat-label" data-i18n="statLabel1">Typer vi kontrollerar åt dig</div>
     </div>
     <div>
       <div class="stat-number">5 min</div>
-      <div class="stat-label">Tid det tar att fylla i formuläret</div>
+      <div class="stat-label" data-i18n="statLabel2">Tid det tar att fylla i formuläret</div>
     </div>
     <div>
       <div class="stat-number">1&thinsp;299 kr</div>
-      <div class="stat-label">Fast pris &mdash; inga dolda avgifter</div>
+      <div class="stat-label" data-i18n="statLabel3">Fast pris &mdash; inga dolda avgifter</div>
     </div>
   </div>
 </div>
@@ -264,25 +341,24 @@
 <!-- HUR DET FUNKAR -->
 <section id="hur-det-funkar">
   <div class="section-inner">
-    <div class="section-tag">Så här fungerar det</div>
-    <h2 class="section-title">Tre steg</h2>
-    <p class="section-sub">Du fyller i, vi räknar och lämnar in. Du signerar med BankID &mdash; det är allt.</p>
-
+    <div class="section-tag" data-i18n="sectionTag1">Så här fungerar det</div>
+    <h2 class="section-title" data-i18n="sectionTitle1">Tre steg</h2>
+    <p class="section-sub" data-i18n="sectionSub1">Du fyller i, vi räknar och lämnar in. Du signerar med BankID &mdash; det är allt.</p>
     <div class="steps">
       <div class="step-card">
         <div class="step-num">1</div>
-        <h3>Fyll i</h3>
-        <p>Svara på frågor om lön, boende, resor och kostnader. Tar ca 5 minuter.</p>
+        <h3 data-i18n="step1h">Fyll i</h3>
+        <p data-i18n="step1p">Svara på frågor om lön, boende, resor och kostnader. Tar ca 5 minuter.</p>
       </div>
       <div class="step-card">
         <div class="step-num">2</div>
-        <h3>Vi räknar ut avdragen</h3>
-        <p>Alla avdrag du har rätt till beräknas automatiskt. Du ser summan innan du skickar.</p>
+        <h3 data-i18n="step2h">Vi räknar ut avdragen</h3>
+        <p data-i18n="step2p">Alla avdrag du har rätt till beräknas automatiskt. Du ser summan innan du skickar.</p>
       </div>
       <div class="step-card">
         <div class="step-num">3</div>
-        <h3>Vi lämnar in</h3>
-        <p>Du ger oss fullmakt via Skatteverket med BankID. Vi lämnar in och meddelar när det är klart.</p>
+        <h3 data-i18n="step3h">Vi lämnar in</h3>
+        <p data-i18n="step3p">Du ger oss fullmakt via Skatteverket med BankID. Vi lämnar in och meddelar när det är klart.</p>
       </div>
     </div>
   </div>
@@ -291,65 +367,40 @@
 <!-- AVDRAG -->
 <section class="deductions-bg">
   <div class="section-inner">
-    <div class="section-tag">Vad vi kontrollerar</div>
-    <h2 class="section-title">Avdrag vi går igenom</h2>
-    <p class="section-sub">Vi kontrollerar alla relevanta avdragstyper automatiskt utifrån dina svar.</p>
-
+    <div class="section-tag" data-i18n="dedTag">Vad vi kontrollerar</div>
+    <h2 class="section-title" data-i18n="dedTitle">Avdrag vi går igenom</h2>
+    <p class="section-sub" data-i18n="dedSub">Vi kontrollerar alla relevanta avdragstyper automatiskt utifrån dina svar.</p>
     <div class="deductions-grid">
       <div class="deduction-item">
-        <span class="deduction-icon">
-          <!-- Car / pendling -->
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#374151" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="16" height="8" rx="2"/><path d="M5 7l2-4h6l2 4"/><circle cx="6" cy="15" r="1.5"/><circle cx="14" cy="15" r="1.5"/></svg>
-        </span>
-        <div><div class="deduction-text">Resor till arbetet</div><div class="deduction-sub">Pendlingsavdrag</div></div>
+        <span class="deduction-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#374151" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="16" height="8" rx="2"/><path d="M5 7l2-4h6l2 4"/><circle cx="6" cy="15" r="1.5"/><circle cx="14" cy="15" r="1.5"/></svg></span>
+        <div><div class="deduction-text" data-i18n="ded1">Resor till arbetet</div><div class="deduction-sub">Pendlingsavdrag</div></div>
       </div>
       <div class="deduction-item">
-        <span class="deduction-icon">
-          <!-- Wrench / ROT -->
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#374151" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2.5a3.5 3.5 0 0 1 0 7 3.5 3.5 0 0 1-2.47-1.03L4 16.5 3.5 17l-.5-.5.5-.5L11.03 8a3.5 3.5 0 0 1 3.47-5.5z"/></svg>
-        </span>
+        <span class="deduction-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#374151" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2.5a3.5 3.5 0 0 1 0 7 3.5 3.5 0 0 1-2.47-1.03L4 16.5 3.5 17l-.5-.5.5-.5L11.03 8a3.5 3.5 0 0 1 3.47-5.5z"/></svg></span>
         <div><div class="deduction-text">ROT-avdrag</div><div class="deduction-sub">Bygg, el, VVS</div></div>
       </div>
       <div class="deduction-item">
-        <span class="deduction-icon">
-          <!-- Home clean / RUT -->
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#374151" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L10 3l7 6.5"/><path d="M5 9v8h10V9"/><path d="M8 13h4"/><path d="M8 16h4"/></svg>
-        </span>
+        <span class="deduction-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#374151" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L10 3l7 6.5"/><path d="M5 9v8h10V9"/><path d="M8 13h4"/><path d="M8 16h4"/></svg></span>
         <div><div class="deduction-text">RUT-avdrag</div><div class="deduction-sub">Städ, barnpassning</div></div>
       </div>
       <div class="deduction-item">
-        <span class="deduction-icon">
-          <!-- Percent / ränta -->
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#374151" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="2"/><circle cx="13" cy="13" r="2"/><path d="M5 15L15 5"/></svg>
-        </span>
+        <span class="deduction-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#374151" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="2"/><circle cx="13" cy="13" r="2"/><path d="M5 15L15 5"/></svg></span>
         <div><div class="deduction-text">Ränteavdrag</div><div class="deduction-sub">Bolån &amp; privatlån</div></div>
       </div>
       <div class="deduction-item">
-        <span class="deduction-icon">
-          <!-- Key / uthyrning -->
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#374151" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="4"/><path d="M14 14l3 3"/><path d="M11.5 10.5l3 3"/></svg>
-        </span>
+        <span class="deduction-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#374151" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="4"/><path d="M14 14l3 3"/><path d="M11.5 10.5l3 3"/></svg></span>
         <div><div class="deduction-text">Uthyrning</div><div class="deduction-sub">Villa eller bostadsrätt</div></div>
       </div>
       <div class="deduction-item">
-        <span class="deduction-icon">
-          <!-- Briefcase / fack -->
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#374151" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="16" height="10" rx="2"/><path d="M7 7V5a2 2 0 0 1 4 0v2"/><path d="M2 11h16"/></svg>
-        </span>
+        <span class="deduction-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#374151" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="16" height="10" rx="2"/><path d="M7 7V5a2 2 0 0 1 4 0v2"/><path d="M2 11h16"/></svg></span>
         <div><div class="deduction-text">Fackavgift &amp; verktyg</div><div class="deduction-sub">Yrkesrelaterade kostnader</div></div>
       </div>
       <div class="deduction-item">
-        <span class="deduction-icon">
-          <!-- Building / bostad -->
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#374151" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17V8.5L10 3l7 5.5V17"/><path d="M7 17v-5h6v5"/><path d="M3 17h14"/></svg>
-        </span>
+        <span class="deduction-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#374151" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17V8.5L10 3l7 5.5V17"/><path d="M7 17v-5h6v5"/><path d="M3 17h14"/></svg></span>
         <div><div class="deduction-text">Bostadsförsäljning</div><div class="deduction-sub">K5 / K6-blankett</div></div>
       </div>
       <div class="deduction-item">
-        <span class="deduction-icon">
-          <!-- Chart / aktier -->
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#374151" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,14 7,9 11,12 17,5"/><path d="M3 17h14"/></svg>
-        </span>
+        <span class="deduction-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#374151" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,14 7,9 11,12 17,5"/><path d="M3 17h14"/></svg></span>
         <div><div class="deduction-text">Aktier &amp; fonder</div><div class="deduction-sub">K4-blankett</div></div>
       </div>
     </div>
@@ -359,22 +410,21 @@
 <!-- PRIS -->
 <section>
   <div class="section-inner" style="text-align:center;">
-    <div class="section-tag">Pris</div>
-    <h2 class="section-title">Fast pris</h2>
-    <p class="section-sub" style="margin:0 auto;">Ett belopp oavsett hur deklarationen ser ut.</p>
-
+    <div class="section-tag" data-i18n="priceTag">Pris</div>
+    <h2 class="section-title" data-i18n="priceTitle">Fast pris</h2>
+    <p class="section-sub" style="margin:0 auto;" data-i18n="priceSub">Ett belopp oavsett hur deklarationen ser ut.</p>
     <div class="price-card">
-      <div class="price-tag">Deklarationshjälp 2025</div>
+      <div class="price-tag" data-i18n="priceCardTag">Deklarationshjälp 2025</div>
       <div class="price-amount">1&thinsp;299 <span>kr</span></div>
-      <div class="price-note">Engångspris &middot; Betalning via Swish</div>
+      <div class="price-note" data-i18n="priceNote">Engångspris &middot; Betalning via Swish</div>
       <ul class="price-includes">
-        <li><span class="check-green">&#10003;</span> Genomgång av alla avdrag</li>
-        <li><span class="check-green">&#10003;</span> Korrekt ifylld deklaration</li>
-        <li><span class="check-green">&#10003;</span> Inlämning till Skatteverket</li>
-        <li><span class="check-green">&#10003;</span> Bekräftelse och kvittens</li>
+        <li><span class="check-mark">&#10003;</span> <span data-i18n="priceInc1">Genomgång av alla avdrag</span></li>
+        <li><span class="check-mark">&#10003;</span> <span data-i18n="priceInc2">Korrekt ifylld deklaration</span></li>
+        <li><span class="check-mark">&#10003;</span> <span data-i18n="priceInc3">Inlämning till Skatteverket</span></li>
+        <li><span class="check-mark">&#10003;</span> <span data-i18n="priceInc4">Bekräftelse och kvittens</span></li>
       </ul>
       <a href="deklarationsformular.html" class="btn-primary" style="width:100%;justify-content:center;">
-        Starta deklarationen &rarr;
+        <span data-i18n="priceCta">Starta deklarationen</span> &rarr;
       </a>
     </div>
   </div>
@@ -382,18 +432,209 @@
 
 <!-- CTA -->
 <section class="cta-section">
-  <h2>Starta din deklaration</h2>
-  <p>Tar 5 minuter. Vi hanterar resten.</p>
+  <h2 data-i18n="ctaTitle">Starta din deklaration</h2>
+  <p data-i18n="ctaSub">Tar 5 minuter. Vi hanterar resten.</p>
   <a href="deklarationsformular.html" class="btn-white">
-    Kom igång
+    <span data-i18n="ctaBtn">Kom igång</span>
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </a>
 </section>
 
 <footer>
   <p>&copy; 2025 Deklara &middot; <a href="mailto:hiew.joey@gmail.com">hiew.joey@gmail.com</a></p>
-  <p style="margin-top:6px;font-size:12px;">Vi lämnar aldrig in utan din fullmakt. Alltid lagligt och korrekt enligt Skatteverkets regler.</p>
+  <p style="margin-top:6px;font-size:12px;" data-i18n="footerText">Vi lämnar aldrig in utan din fullmakt. Alltid lagligt och korrekt enligt Skatteverkets regler.</p>
 </footer>
 
+<script>
+const LANGS = {
+  sv: {
+    navCta:'Starta nu \u2192', heroBadge:'Inkomstdeklaration 2025',
+    heroH1em:'hanterad',
+    heroP:'Fyll i dina uppgifter. Vi r\u00e4knar ut dina avdrag och l\u00e4mnar in \u00e5t dig. Du signerar bara.',
+    heroCta:'Starta deklarationen', heroHow:'Hur funkar det?',
+    langAvail:'Tillg\u00e4ngligt p\u00e5:',
+    trust1:'Fast pris 1\u202f299\u00a0kr', trust2:'Vi l\u00e4mnar in \u00e5t dig', trust3:'Du signerar bara',
+    statLabel1:'Typer vi kontrollerar \u00e5t dig', statLabel2:'Tid det tar att fylla i formul\u00e4ret', statLabel3:'Fast pris \u2014 inga dolda avgifter',
+    sectionTag1:'S\u00e5 h\u00e4r fungerar det', sectionTitle1:'Tre steg', sectionSub1:'Du fyller i, vi r\u00e4knar och l\u00e4mnar in. Du signerar med BankID \u2014 det \u00e4r allt.',
+    step1h:'Fyll i', step1p:'Svara p\u00e5 fr\u00e5gor om l\u00f6n, boende, resor och kostnader. Tar ca 5 minuter.',
+    step2h:'Vi r\u00e4knar ut avdragen', step2p:'Alla avdrag du har r\u00e4tt till ber\u00e4knas automatiskt. Du ser summan innan du skickar.',
+    step3h:'Vi l\u00e4mnar in', step3p:'Du ger oss fullmakt via Skatteverket med BankID. Vi l\u00e4mnar in och meddelar n\u00e4r det \u00e4r klart.',
+    dedTag:'Vad vi kontrollerar', dedTitle:'Avdrag vi g\u00e5r igenom', dedSub:'Vi kontrollerar alla relevanta avdragstyper automatiskt utifr\u00e5n dina svar.',
+    priceTag:'Pris', priceTitle:'Fast pris', priceSub:'Ett belopp oavsett hur deklarationen ser ut.',
+    priceCardTag:'Deklarationshj\u00e4lp 2025', priceNote:'Eng\u00e5ngspris \u00b7 Betalning via Swish',
+    priceInc1:'Genomg\u00e5ng av alla avdrag', priceInc2:'Korrekt ifylld deklaration', priceInc3:'Inl\u00e4mning till Skatteverket', priceInc4:'Bekr\u00e4ftelse och kvittens',
+    priceCta:'Starta deklarationen',
+    ctaTitle:'Starta din deklaration', ctaSub:'Tar 5 minuter. Vi hanterar resten.', ctaBtn:'Kom ig\u00e5ng',
+    footerText:'Vi l\u00e4mnar aldrig in utan din fullmakt. Alltid lagligt och korrekt enligt Skatteverkets regler.',
+    ded1:'Resor till arbetet', currentLangLabel:'SV'
+  },
+  en: {
+    navCta:'Start now \u2192', heroBadge:'Income Tax Declaration 2025',
+    heroH1em:'handled',
+    heroP:'Fill in your details. We calculate your deductions and file for you. You just sign.',
+    heroCta:'Start declaration', heroHow:'How does it work?',
+    langAvail:'Available in:',
+    trust1:'Fixed price 1\u202f299\u00a0kr', trust2:'We file for you', trust3:'You just sign',
+    statLabel1:'Deduction types we check', statLabel2:'Time to fill in the form', statLabel3:'Fixed price \u2014 no hidden fees',
+    sectionTag1:'How it works', sectionTitle1:'Three steps', sectionSub1:'You fill in, we calculate and file. You sign with BankID \u2014 that\'s it.',
+    step1h:'Fill in', step1p:'Answer questions about salary, housing, travel and costs. Takes about 5 minutes.',
+    step2h:'We calculate deductions', step2p:'All deductions you qualify for are calculated automatically. You see the total before sending.',
+    step3h:'We file', step3p:'You grant us power of attorney via the Swedish Tax Agency with BankID. We file and notify you when done.',
+    dedTag:'What we check', dedTitle:'Deductions we review', dedSub:'We automatically check all relevant deduction types based on your answers.',
+    priceTag:'Pricing', priceTitle:'Fixed price', priceSub:'One amount regardless of what your declaration looks like.',
+    priceCardTag:'Tax Return Help 2025', priceNote:'One-time fee \u00b7 Payment via Swish',
+    priceInc1:'Review of all deductions', priceInc2:'Correctly completed declaration', priceInc3:'Filing to the Swedish Tax Agency', priceInc4:'Confirmation and receipt',
+    priceCta:'Start declaration',
+    ctaTitle:'Start your declaration', ctaSub:'Takes 5 minutes. We handle the rest.', ctaBtn:'Get started',
+    footerText:'We never file without your power of attorney. Always legal and correct per the Tax Agency\'s rules.',
+    ded1:'Travel to work', currentLangLabel:'EN'
+  },
+  zh: {
+    navCta:'\u7acb\u5373\u5f00\u59cb \u2192', heroBadge:'2025\u5e74\u6536\u5165\u7533\u62a5',
+    heroH1em:'\u7531\u6211\u4eec\u5904\u7406',
+    heroP:'\u586b\u5199\u60a8\u7684\u4fe1\u606f\u3002\u6211\u4eec\u8ba1\u7b97\u60a8\u7684\u6293\u7a0e\u9879\u76ee\u5e76\u4ee3\u60a8\u7533\u62a5\u3002\u60a8\u53ea\u9700\u7b7e\u540d\u3002',
+    heroCta:'\u5f00\u59cb\u7533\u62a5', heroHow:'\u5982\u4f55\u8fd0\u4f5c\uff1f',
+    langAvail:'\u652f\u6301\u8bed\u8a00\uff1a',
+    trust1:'\u56fa\u5b9a\u4ef71\u202f299\u514b\u6717', trust2:'\u6211\u4eec\u4ee3\u60a8\u7533\u62a5', trust3:'\u60a8\u53ea\u9700\u7b7e\u540d',
+    statLabel1:'\u6211\u4eec\u68c0\u67e5\u7684\u6293\u7a0e\u7c7b\u578b', statLabel2:'\u586b\u5199\u8868\u683c\u6240\u9700\u65f6\u95f4', statLabel3:'\u56fa\u5b9a\u4ef7\u683c \u2014 \u65e0\u9690\u85cf\u8d39\u7528',
+    sectionTag1:'\u8fd0\u4f5c\u65b9\u5f0f', sectionTitle1:'\u4e09\u4e2a\u6b65\u9aa4', sectionSub1:'\u60a8\u586b\u5199\uff0c\u6211\u4eec\u8ba1\u7b97\u5e76\u7533\u62a5\u3002\u60a8\u7528BankID\u7b7e\u540d\u2014\u5c31\u8fd9\u4e48\u7b80\u5355\u3002',
+    step1h:'\u586b\u5199', step1p:'\u56de\u7b54\u5173\u4e8e\u5de5\u8d44\u3001\u4f4f\u623f\u3001\u51fa\u884c\u548c\u8d39\u7528\u7684\u95ee\u9898\u3002\u5927\u7ea6\u9700\u89815\u5206\u949f\u3002',
+    step2h:'\u6211\u4eec\u8ba1\u7b97\u6293\u7a0e', step2p:'\u60a8\u6709\u6743\u4eab\u53d7\u7684\u6240\u6709\u6293\u7a0e\u9879\u76ee\u5c06\u81ea\u52a8\u8ba1\u7b97\u3002\u53d1\u9001\u524d\u60a8\u53ef\u67e5\u770b\u603b\u989d\u3002',
+    step3h:'\u6211\u4eec\u7533\u62a5', step3p:'\u60a8\u901a\u8fc7BankID\u6388\u6743\u745e\u5178\u7a0e\u52a1\u5c40\u3002\u6211\u4eec\u7533\u62a5\u5e76\u5728\u5b8c\u6210\u540e\u901a\u77e5\u60a8\u3002',
+    dedTag:'\u6211\u4eec\u68c0\u67e5\u7684\u5185\u5bb9', dedTitle:'\u6211\u4eec\u5ba1\u67e5\u7684\u6293\u7a0e\u9879\u76ee', dedSub:'\u6211\u4eec\u6839\u636e\u60a8\u7684\u56de\u7b54\u81ea\u52a8\u68c0\u67e5\u6240\u6709\u76f8\u5173\u6293\u7a0e\u7c7b\u578b\u3002',
+    priceTag:'\u4ef7\u683c', priceTitle:'\u56fa\u5b9a\u4ef7\u683c', priceSub:'\u65e0\u8bba\u7533\u62a5\u5185\u5bb9\u5982\u4f55\uff0c\u53ea\u6536\u4e00\u4e2a\u4ef7\u683c\u3002',
+    priceCardTag:'\u7533\u62a5\u5e2e\u52a9 2025', priceNote:'\u4e00\u6b21\u6027\u8d39\u7528 \u00b7 \u901a\u8fc7Swish\u652f\u4ed8',
+    priceInc1:'\u5168\u9762\u5ba1\u67e5\u6240\u6709\u6293\u7a0e\u9879\u76ee', priceInc2:'\u6b63\u786e\u586b\u5199\u7684\u7533\u62a5\u8868', priceInc3:'\u63d0\u4ea4\u81f3\u745e\u5178\u7a0e\u52a1\u5c40', priceInc4:'\u786e\u8ba4\u548c\u6536\u636e',
+    priceCta:'\u5f00\u59cb\u7533\u62a5',
+    ctaTitle:'\u5f00\u59cb\u60a8\u7684\u7533\u62a5', ctaSub:'\u4ec5\u9700\u89815\u5206\u949f\u3002\u5176\u4f59\u7531\u6211\u4eec\u5904\u7406\u3002', ctaBtn:'\u7acb\u5373\u5f00\u59cb',
+    footerText:'\u672a\u7ecf\u60a8\u7684\u6388\u6743\uff0c\u6211\u4eec\u7edd\u4e0d\u63d0\u4ea4\u7533\u62a5\u3002\u59cb\u7ec8\u5408\u6cd5\u5408\u89c4\uff0c\u7b26\u5408\u7a0e\u52a1\u5c40\u89c4\u5b9a\u3002',
+    ded1:'\u4ea4\u901a\u4e0a\u4e0b\u73ed', currentLangLabel:'\u4e2d\u6587'
+  },
+  th: {
+    navCta:'\u0e40\u0e23\u0e34\u0e48\u0e21\u0e15\u0e49\u0e19 \u2192', heroBadge:'\u0e41\u0e1a\u0e1a\u0e41\u0e2a\u0e14\u0e07\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23\u0e20\u0e32\u0e29\u0e35\u0e40\u0e07\u0e34\u0e19\u0e44\u0e14\u0e49 2025',
+    heroH1em:'\u0e40\u0e23\u0e32\u0e08\u0e31\u0e14\u0e01\u0e32\u0e23\u0e43\u0e2b\u0e49',
+    heroP:'\u0e01\u0e23\u0e2d\u0e01\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e02\u0e2d\u0e07\u0e04\u0e38\u0e13 \u0e40\u0e23\u0e32\u0e04\u0e33\u0e19\u0e27\u0e13\u0e01\u0e32\u0e23\u0e2b\u0e31\u0e01\u0e25\u0e14\u0e2b\u0e22\u0e48\u0e2d\u0e19\u0e41\u0e25\u0e30\u0e22\u0e37\u0e48\u0e19\u0e41\u0e1a\u0e1a\u0e43\u0e2b\u0e49 \u0e04\u0e38\u0e13\u0e40\u0e1e\u0e35\u0e22\u0e07\u0e41\u0e04\u0e48\u0e40\u0e0b\u0e47\u0e19\u0e0a\u0e37\u0e48\u0e2d',
+    heroCta:'\u0e40\u0e23\u0e34\u0e48\u0e21\u0e22\u0e37\u0e48\u0e19\u0e41\u0e1a\u0e1a', heroHow:'\u0e17\u0e33\u0e07\u0e32\u0e19\u0e2d\u0e22\u0e48\u0e32\u0e07\u0e44\u0e23?',
+    langAvail:'\u0e23\u0e2d\u0e07\u0e23\u0e31\u0e1a\u0e20\u0e32\u0e29\u0e32:',
+    trust1:'\u0e23\u0e32\u0e04\u0e32\u0e04\u0e07\u0e17\u0e35\u0e48 1\u202f299 \u0e42\u0e04\u0e23\u0e19', trust2:'\u0e40\u0e23\u0e32\u0e22\u0e37\u0e48\u0e19\u0e41\u0e1a\u0e1a\u0e43\u0e2b\u0e49\u0e04\u0e38\u0e13', trust3:'\u0e04\u0e38\u0e13\u0e40\u0e1e\u0e35\u0e22\u0e07\u0e41\u0e04\u0e48\u0e40\u0e0b\u0e47\u0e19\u0e0a\u0e37\u0e48\u0e2d',
+    statLabel1:'\u0e1b\u0e23\u0e30\u0e40\u0e20\u0e17\u0e01\u0e32\u0e23\u0e2b\u0e31\u0e01\u0e17\u0e35\u0e48\u0e40\u0e23\u0e32\u0e15\u0e23\u0e27\u0e08\u0e2a\u0e2d\u0e1a', statLabel2:'\u0e40\u0e27\u0e25\u0e32\u0e17\u0e35\u0e48\u0e43\u0e0a\u0e49\u0e01\u0e23\u0e2d\u0e01\u0e41\u0e1a\u0e1a\u0e1f\u0e2d\u0e23\u0e4c\u0e21', statLabel3:'\u0e23\u0e32\u0e04\u0e32\u0e04\u0e07\u0e17\u0e35\u0e48 \u2014 \u0e44\u0e21\u0e48\u0e21\u0e35\u0e04\u0e48\u0e32\u0e18\u0e23\u0e23\u0e21\u0e40\u0e19\u0e35\u0e22\u0e21\u0e0b\u0e48\u0e2d\u0e19\u0e40\u0e23\u0e49\u0e19',
+    sectionTag1:'\u0e27\u0e34\u0e18\u0e35\u0e01\u0e32\u0e23\u0e17\u0e33\u0e07\u0e32\u0e19', sectionTitle1:'\u0e2a\u0e32\u0e21\u0e02\u0e31\u0e49\u0e19\u0e15\u0e2d\u0e19', sectionSub1:'\u0e04\u0e38\u0e13\u0e01\u0e23\u0e2d\u0e01 \u0e40\u0e23\u0e32\u0e04\u0e33\u0e19\u0e27\u0e13\u0e41\u0e25\u0e30\u0e22\u0e37\u0e48\u0e19 \u0e04\u0e38\u0e13\u0e40\u0e0b\u0e47\u0e19\u0e14\u0e49\u0e27\u0e22 BankID \u2014 \u0e41\u0e04\u0e48\u0e19\u0e31\u0e49\u0e19\u0e40\u0e2d\u0e07',
+    step1h:'\u0e01\u0e23\u0e2d\u0e01\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25', step1p:'\u0e15\u0e2d\u0e1a\u0e04\u0e33\u0e16\u0e32\u0e21\u0e40\u0e01\u0e35\u0e48\u0e22\u0e27\u0e01\u0e31\u0e1a\u0e40\u0e07\u0e34\u0e19\u0e40\u0e14\u0e37\u0e2d\u0e19 \u0e17\u0e35\u0e48\u0e2d\u0e22\u0e39\u0e48\u0e2d\u0e32\u0e28\u0e31\u0e22 \u0e01\u0e32\u0e23\u0e40\u0e14\u0e34\u0e19\u0e17\u0e32\u0e07 \u0e41\u0e25\u0e30\u0e04\u0e48\u0e32\u0e43\u0e0a\u0e49\u0e08\u0e48\u0e32\u0e22 \u0e43\u0e0a\u0e49\u0e40\u0e27\u0e25\u0e32\u0e1b\u0e23\u0e30\u0e21\u0e32\u0e13 5 \u0e19\u0e32\u0e17\u0e35',
+    step2h:'\u0e40\u0e23\u0e32\u0e04\u0e33\u0e19\u0e27\u0e13\u0e01\u0e32\u0e23\u0e2b\u0e31\u0e01\u0e25\u0e14\u0e2b\u0e22\u0e48\u0e2d\u0e19', step2p:'\u0e01\u0e32\u0e23\u0e2b\u0e31\u0e01\u0e25\u0e14\u0e2b\u0e22\u0e48\u0e2d\u0e19\u0e17\u0e31\u0e49\u0e07\u0e2b\u0e21\u0e14\u0e17\u0e35\u0e48\u0e04\u0e38\u0e13\u0e21\u0e35\u0e2a\u0e34\u0e17\u0e18\u0e34\u0e4c\u0e08\u0e30\u0e16\u0e39\u0e01\u0e04\u0e33\u0e19\u0e27\u0e13\u0e2d\u0e31\u0e15\u0e42\u0e19\u0e21\u0e31\u0e15\u0e34 \u0e04\u0e38\u0e13\u0e40\u0e2b\u0e47\u0e19\u0e22\u0e2d\u0e14\u0e23\u0e27\u0e21\u0e01\u0e48\u0e2d\u0e19\u0e2a\u0e48\u0e07',
+    step3h:'\u0e40\u0e23\u0e32\u0e22\u0e37\u0e48\u0e19\u0e41\u0e1a\u0e1a', step3p:'\u0e04\u0e38\u0e13\u0e21\u0e2d\u0e1a\u0e2d\u0e33\u0e19\u0e32\u0e08\u0e1c\u0e48\u0e32\u0e19\u0e01\u0e23\u0e21\u0e2a\u0e23\u0e23\u0e1e\u0e32\u0e01\u0e23\u0e2a\u0e27\u0e35\u0e40\u0e14\u0e19\u0e14\u0e49\u0e27\u0e22 BankID \u0e40\u0e23\u0e32\u0e22\u0e37\u0e48\u0e19\u0e41\u0e25\u0e30\u0e41\u0e08\u0e49\u0e07\u0e40\u0e21\u0e37\u0e48\u0e2d\u0e40\u0e2a\u0e23\u0e47\u0e08',
+    dedTag:'\u0e2a\u0e34\u0e48\u0e07\u0e17\u0e35\u0e48\u0e40\u0e23\u0e32\u0e15\u0e23\u0e27\u0e08\u0e2a\u0e2d\u0e1a', dedTitle:'\u0e01\u0e32\u0e23\u0e2b\u0e31\u0e01\u0e25\u0e14\u0e2b\u0e22\u0e48\u0e2d\u0e19\u0e17\u0e35\u0e48\u0e40\u0e23\u0e32\u0e15\u0e23\u0e27\u0e08\u0e2a\u0e2d\u0e1a', dedSub:'\u0e40\u0e23\u0e32\u0e15\u0e23\u0e27\u0e08\u0e2a\u0e2d\u0e1a\u0e1b\u0e23\u0e30\u0e40\u0e20\u0e17\u0e01\u0e32\u0e23\u0e2b\u0e31\u0e01\u0e25\u0e14\u0e2b\u0e22\u0e48\u0e2d\u0e19\u0e17\u0e35\u0e48\u0e40\u0e01\u0e35\u0e48\u0e22\u0e27\u0e02\u0e49\u0e2d\u0e07\u0e17\u0e31\u0e49\u0e07\u0e2b\u0e21\u0e14\u0e42\u0e14\u0e22\u0e2d\u0e31\u0e15\u0e42\u0e19\u0e21\u0e31\u0e15\u0e34\u0e15\u0e32\u0e21\u0e04\u0e33\u0e15\u0e2d\u0e1a\u0e02\u0e2d\u0e07\u0e04\u0e38\u0e13',
+    priceTag:'\u0e23\u0e32\u0e04\u0e32', priceTitle:'\u0e23\u0e32\u0e04\u0e32\u0e04\u0e07\u0e17\u0e35\u0e48', priceSub:'\u0e23\u0e32\u0e04\u0e32\u0e40\u0e14\u0e35\u0e22\u0e27\u0e44\u0e21\u0e48\u0e27\u0e48\u0e32\u0e41\u0e1a\u0e1a\u0e41\u0e2a\u0e14\u0e07\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23\u0e08\u0e30\u0e40\u0e1b\u0e47\u0e19\u0e2d\u0e22\u0e48\u0e32\u0e07\u0e44\u0e23',
+    priceCardTag:'\u0e04\u0e27\u0e32\u0e21\u0e0a\u0e48\u0e27\u0e22\u0e40\u0e2b\u0e25\u0e37\u0e2d\u0e01\u0e32\u0e23\u0e22\u0e37\u0e48\u0e19\u0e41\u0e1a\u0e1a 2025', priceNote:'\u0e04\u0e48\u0e32\u0e18\u0e23\u0e23\u0e21\u0e40\u0e19\u0e35\u0e22\u0e21\u0e04\u0e23\u0e31\u0e49\u0e07\u0e40\u0e14\u0e35\u0e22\u0e27 \u00b7 \u0e0a\u0e33\u0e23\u0e30\u0e1c\u0e48\u0e32\u0e19 Swish',
+    priceInc1:'\u0e15\u0e23\u0e27\u0e08\u0e2a\u0e2d\u0e1a\u0e01\u0e32\u0e23\u0e2b\u0e31\u0e01\u0e25\u0e14\u0e2b\u0e22\u0e48\u0e2d\u0e19\u0e17\u0e31\u0e49\u0e07\u0e2b\u0e21\u0e14', priceInc2:'\u0e41\u0e1a\u0e1a\u0e41\u0e2a\u0e14\u0e07\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23\u0e17\u0e35\u0e48\u0e01\u0e23\u0e2d\u0e01\u0e16\u0e39\u0e01\u0e15\u0e49\u0e2d\u0e07', priceInc3:'\u0e22\u0e37\u0e48\u0e19\u0e15\u0e48\u0e2d\u0e01\u0e23\u0e21\u0e2a\u0e23\u0e23\u0e1e\u0e32\u0e01\u0e23\u0e2a\u0e27\u0e35\u0e40\u0e14\u0e19', priceInc4:'\u0e01\u0e32\u0e23\u0e22\u0e37\u0e19\u0e22\u0e31\u0e19\u0e41\u0e25\u0e30\u0e43\u0e1a\u0e40\u0e2a\u0e23\u0e47\u0e08',
+    priceCta:'\u0e40\u0e23\u0e34\u0e48\u0e21\u0e22\u0e37\u0e48\u0e19\u0e41\u0e1a\u0e1a',
+    ctaTitle:'\u0e40\u0e23\u0e34\u0e48\u0e21\u0e01\u0e32\u0e23\u0e22\u0e37\u0e48\u0e19\u0e41\u0e1a\u0e1a\u0e02\u0e2d\u0e07\u0e04\u0e38\u0e13', ctaSub:'\u0e43\u0e0a\u0e49\u0e40\u0e27\u0e25\u0e32 5 \u0e19\u0e32\u0e17\u0e35 \u0e40\u0e23\u0e32\u0e08\u0e31\u0e14\u0e01\u0e32\u0e23\u0e2a\u0e48\u0e27\u0e19\u0e17\u0e35\u0e48\u0e40\u0e2b\u0e25\u0e37\u0e2d', ctaBtn:'\u0e40\u0e23\u0e34\u0e48\u0e21\u0e15\u0e49\u0e19',
+    footerText:'\u0e40\u0e23\u0e32\u0e08\u0e30\u0e44\u0e21\u0e48\u0e22\u0e37\u0e48\u0e19\u0e41\u0e1a\u0e1a\u0e42\u0e14\u0e22\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49\u0e23\u0e31\u0e1a\u0e21\u0e2d\u0e1a\u0e2d\u0e33\u0e19\u0e32\u0e08\u0e08\u0e32\u0e01\u0e04\u0e38\u0e13 \u0e16\u0e39\u0e01\u0e01\u0e0e\u0e2b\u0e21\u0e32\u0e22\u0e40\u0e2a\u0e21\u0e2d\u0e15\u0e32\u0e21\u0e01\u0e0e\u0e02\u0e2d\u0e07\u0e01\u0e23\u0e21\u0e2a\u0e23\u0e23\u0e1e\u0e32\u0e01\u0e23',
+    ded1:'\u0e01\u0e32\u0e23\u0e40\u0e14\u0e34\u0e19\u0e17\u0e32\u0e07\u0e44\u0e1b\u0e17\u0e33\u0e07\u0e32\u0e19', currentLangLabel:'\u0e44\u0e17\u0e22'
+  },
+  vi: {
+    navCta:'B\u1eaft \u0111\u1ea7u \u2192', heroBadge:'Khai b\u00e1o thu\u1ebf thu nh\u1eadp 2025',
+    heroH1em:'ch\u00fang t\u00f4i lo',
+    heroP:'Nh\u1eadp th\u00f4ng tin c\u1ee7a b\u1ea1n. Ch\u00fang t\u00f4i t\u00ednh c\u00e1c kho\u1ea3n kh\u1ea5u tr\u1eeb v\u00e0 n\u1ed9p h\u1ed3 s\u01a1 cho b\u1ea1n. B\u1ea1n ch\u1ec9 c\u1ea7n k\u00fd.',
+    heroCta:'B\u1eaft \u0111\u1ea7u khai b\u00e1o', heroHow:'Ho\u1ea1t \u0111\u1ed9ng nh\u01b0 th\u1ebf n\u00e0o?',
+    langAvail:'C\u00f3 s\u1eb5n b\u1eb1ng:',
+    trust1:'Gi\u00e1 c\u1ed1 \u0111\u1ecbnh 1\u202f299\u00a0kr', trust2:'Ch\u00fang t\u00f4i n\u1ed9p h\u1ed9 b\u1ea1n', trust3:'B\u1ea1n ch\u1ec9 c\u1ea7n k\u00fd',
+    statLabel1:'Lo\u1ea1i kh\u1ea5u tr\u1eeb ch\u00fang t\u00f4i ki\u1ec3m tra', statLabel2:'Th\u1eddi gian \u0111i\u1ec1n bi\u1ec3u m\u1eabu', statLabel3:'Gi\u00e1 c\u1ed1 \u0111\u1ecbnh \u2014 kh\u00f4ng ph\u00ed \u1ea9n',
+    sectionTag1:'C\u00e1ch th\u1ee9c ho\u1ea1t \u0111\u1ed9ng', sectionTitle1:'Ba b\u01b0\u1edbc', sectionSub1:'B\u1ea1n \u0111i\u1ec1n, ch\u00fang t\u00f4i t\u00ednh v\u00e0 n\u1ed9p. B\u1ea1n k\u00fd b\u1eb1ng BankID \u2014 \u0111\u01a1n gi\u1ea3n v\u1eady th\u00f4i.',
+    step1h:'\u0110i\u1ec1n th\u00f4ng tin', step1p:'Tr\u1ea3 l\u1eddi c\u00e2u h\u1ecfi v\u1ec1 l\u01b0\u01a1ng, nh\u00e0 \u1edf, \u0111i l\u1ea1i v\u00e0 chi ph\u00ed. Kho\u1ea3ng 5 ph\u00fat.',
+    step2h:'Ch\u00fang t\u00f4i t\u00ednh kh\u1ea5u tr\u1eeb', step2p:'T\u1ea5t c\u1ea3 c\u00e1c kho\u1ea3n kh\u1ea5u tr\u1eeb b\u1ea1n \u0111\u01b0\u1ee3c h\u01b0\u1edfng s\u1ebd t\u1ef1 \u0111\u1ed9ng t\u00ednh to\u00e1n. B\u1ea1n th\u1ea5y t\u1ed5ng tr\u01b0\u1edbc khi g\u1eedi.',
+    step3h:'Ch\u00fang t\u00f4i n\u1ed9p', step3p:'B\u1ea1n u\u1ef7 quy\u1ec1n qua C\u01a1 quan Thu\u1ebf Th\u1ee5y \u0110i\u1ec3n b\u1eb1ng BankID. Ch\u00fang t\u00f4i n\u1ed9p v\u00e0 th\u00f4ng b\u00e1o khi xong.',
+    dedTag:'Nh\u1eefng g\u00ec ch\u00fang t\u00f4i ki\u1ec3m tra', dedTitle:'C\u00e1c kho\u1ea3n kh\u1ea5u tr\u1eeb ch\u00fang t\u00f4i xem x\u00e9t', dedSub:'Ch\u00fang t\u00f4i t\u1ef1 \u0111\u1ed9ng ki\u1ec3m tra t\u1ea5t c\u1ea3 c\u00e1c lo\u1ea1i kh\u1ea5u tr\u1eeb li\u00ean quan d\u1ef1a tr\u00ean c\u00e2u tr\u1ea3 l\u1eddi c\u1ee7a b\u1ea1n.',
+    priceTag:'Gi\u00e1 c\u1ea3', priceTitle:'Gi\u00e1 c\u1ed1 \u0111\u1ecbnh', priceSub:'M\u1ed9t m\u1ee9c gi\u00e1 b\u1ea5t k\u1ec3 t\u1edd khai nh\u01b0 th\u1ebf n\u00e0o.',
+    priceCardTag:'H\u1ed7 tr\u1ee3 khai b\u00e1o thu\u1ebf 2025', priceNote:'Ph\u00ed m\u1ed9t l\u1ea7n \u00b7 Thanh to\u00e1n qua Swish',
+    priceInc1:'Xem x\u00e9t t\u1ea5t c\u1ea3 c\u00e1c kho\u1ea3n kh\u1ea5u tr\u1eeb', priceInc2:'T\u1edd khai \u0111i\u1ec1n \u0111\u00fang', priceInc3:'N\u1ed9p cho C\u01a1 quan Thu\u1ebf Th\u1ee5y \u0110i\u1ec3n', priceInc4:'X\u00e1c nh\u1eadn v\u00e0 bi\u00ean lai',
+    priceCta:'B\u1eaft \u0111\u1ea7u khai b\u00e1o',
+    ctaTitle:'B\u1eaft \u0111\u1ea7u khai b\u00e1o thu\u1ebf c\u1ee7a b\u1ea1n', ctaSub:'M\u1ea5t 5 ph\u00fat. Ch\u00fang t\u00f4i x\u1eed l\u00fd ph\u1ea7n c\u00f2n l\u1ea1i.', ctaBtn:'B\u1eaft \u0111\u1ea7u ngay',
+    footerText:'Ch\u00fang t\u00f4i kh\u00f4ng bao gi\u1edd n\u1ed9p m\u00e0 kh\u00f4ng c\u00f3 u\u1ef7 quy\u1ec1n c\u1ee7a b\u1ea1n. Lu\u00f4n h\u1ee3p ph\u00e1p theo quy \u0111\u1ecbnh c\u1ee7a C\u01a1 quan Thu\u1ebf.',
+    ded1:'Giao th\u00f4ng \u0111i l\u00e0m', currentLangLabel:'VI'
+  },
+  ar: {
+    navCta:'\u0627\u0628\u062f\u0623 \u0627\u0644\u0622\u0646 \u2190', heroBadge:'\u0625\u0642\u0631\u0627\u0631 \u0636\u0631\u064a\u0628\u0629 \u0627\u0644\u062f\u062e\u0644 2025',
+    heroH1em:'\u0646\u062d\u0646 \u0646\u062a\u0648\u0644\u0649 \u0627\u0644\u0623\u0645\u0631',
+    heroP:'\u0623\u062f\u062e\u0644 \u0628\u064a\u0627\u0646\u0627\u062a\u0643. \u0646\u062d\u0633\u0628 \u062e\u0635\u0648\u0645\u0627\u062a\u0643 \u0648\u0646\u0642\u062f\u0645 \u0627\u0644\u0625\u0642\u0631\u0627\u0631 \u0646\u064a\u0627\u0628\u0629\u064b \u0639\u0646\u0643. \u0643\u0644 \u0645\u0627 \u0639\u0644\u064a\u0643 \u0647\u0648 \u0627\u0644\u062a\u0648\u0642\u064a\u0639.',
+    heroCta:'\u0627\u0628\u062f\u0623 \u0627\u0644\u0625\u0642\u0631\u0627\u0631', heroHow:'\u0643\u064a\u0641 \u064a\u0639\u0645\u0644\u061f',
+    langAvail:'\u0645\u062a\u0627\u062d \u0628\u0627\u0644\u0644\u063a\u0627\u062a:',
+    trust1:'\u0633\u0639\u0631 \u062b\u0627\u0628\u062a 1\u202f299 \u0643\u0631\u0648\u0646', trust2:'\u0646\u0642\u062f\u0645 \u0646\u064a\u0627\u0628\u0629\u064b \u0639\u0646\u0643', trust3:'\u0643\u0644 \u0645\u0627 \u0639\u0644\u064a\u0643 \u0627\u0644\u062a\u0648\u0642\u064a\u0639',
+    statLabel1:'\u0623\u0646\u0648\u0627\u0639 \u0627\u0644\u062e\u0635\u0648\u0645\u0627\u062a \u0627\u0644\u062a\u064a \u0646\u0641\u062d\u0635\u0647\u0627', statLabel2:'\u0648\u0642\u062a \u0645\u0644\u0621 \u0627\u0644\u0646\u0645\u0648\u0630\u062c', statLabel3:'\u0633\u0639\u0631 \u062b\u0627\u0628\u062a \u2014 \u0644\u0627 \u0631\u0633\u0648\u0645 \u062e\u0641\u064a\u0629',
+    sectionTag1:'\u0643\u064a\u0641 \u064a\u0639\u0645\u0644', sectionTitle1:'\u062b\u0644\u0627\u062b \u062e\u0637\u0648\u0627\u062a', sectionSub1:'\u0623\u0646\u062a \u062a\u0645\u0644\u0623\u060c \u0646\u062d\u0646 \u0646\u062d\u0633\u0628 \u0648\u0646\u0642\u062f\u0645. \u062a\u0648\u0642\u0651\u0639 \u0628\u0640 BankID \u2014 \u0647\u0630\u0627 \u0643\u0644 \u0634\u064a\u0621.',
+    step1h:'\u0623\u062f\u062e\u0644 \u0627\u0644\u0628\u064a\u0627\u0646\u0627\u062a', step1p:'\u0623\u062c\u0628 \u0639\u0644\u0649 \u0623\u0633\u0626\u0644\u0629 \u062d\u0648\u0644 \u0627\u0644\u0631\u0627\u062a\u0628 \u0648\u0627\u0644\u0633\u0643\u0646 \u0648\u0627\u0644\u062a\u0646\u0642\u0644 \u0648\u0627\u0644\u0645\u0635\u0627\u0631\u064a\u0641. \u064a\u0633\u062a\u063a\u0631\u0642 \u062d\u0648\u0627\u0644\u064a 5 \u062f\u0642\u0627\u0626\u0642.',
+    step2h:'\u0646\u062d\u0633\u0628 \u0627\u0644\u062e\u0635\u0648\u0645\u0627\u062a', step2p:'\u062a\u064f\u062d\u0633\u0628 \u062a\u0644\u0642\u0627\u0626\u064a\u0627\u064b \u062c\u0645\u064a\u0639 \u0627\u0644\u062e\u0635\u0648\u0645\u0627\u062a \u0627\u0644\u062a\u064a \u062a\u0633\u062a\u062d\u0642\u0647\u0627. \u062a\u0631\u0649 \u0627\u0644\u0645\u062c\u0645\u0648\u0639 \u0642\u0628\u0644 \u0627\u0644\u0625\u0631\u0633\u0627\u0644.',
+    step3h:'\u0646\u0642\u062f\u0645 \u0627\u0644\u0625\u0642\u0631\u0627\u0631', step3p:'\u062a\u0645\u0646\u062d\u0646\u0627 \u062a\u0648\u0643\u064a\u0644\u0627\u064b \u0639\u0628\u0631 \u062f\u0627\u0626\u0631\u0629 \u0627\u0644\u0636\u0631\u0627\u0626\u0628 \u0628\u0640 BankID. \u0646\u0642\u062f\u0645 \u0648\u0646\u0628\u0644\u063a\u0643 \u0639\u0646\u062f \u0627\u0644\u0627\u0646\u062a\u0647\u0627\u0621.',
+    dedTag:'\u0645\u0627 \u0646\u0641\u062d\u0635\u0647', dedTitle:'\u0627\u0644\u062e\u0635\u0648\u0645\u0627\u062a \u0627\u0644\u062a\u064a \u0646\u0631\u0627\u062c\u0639\u0647\u0627', dedSub:'\u0646\u0641\u062d\u0635 \u062a\u0644\u0642\u0627\u0626\u064a\u0627\u064b \u062c\u0645\u064a\u0639 \u0623\u0646\u0648\u0627\u0639 \u0627\u0644\u062e\u0635\u0648\u0645\u0627\u062a \u0630\u0627\u062a \u0627\u0644\u0635\u0644\u0629 \u0628\u0646\u0627\u0621\u064b \u0639\u0644\u0649 \u0625\u062c\u0627\u0628\u0627\u062a\u0643.',
+    priceTag:'\u0627\u0644\u0633\u0639\u0631', priceTitle:'\u0633\u0639\u0631 \u062b\u0627\u0628\u062a', priceSub:'\u0645\u0628\u0644\u063a \u0648\u0627\u062d\u062f \u0628\u063a\u0636 \u0627\u0644\u0646\u0638\u0631 \u0639\u0646 \u0634\u0643\u0644 \u0627\u0644\u0625\u0642\u0631\u0627\u0631.',
+    priceCardTag:'\u0645\u0633\u0627\u0639\u062f\u0629 \u0641\u064a \u0627\u0644\u0625\u0642\u0631\u0627\u0631 \u0627\u0644\u0636\u0631\u064a\u0628\u064a 2025', priceNote:'\u0631\u0633\u0645 \u0644\u0645\u0631\u0629 \u0648\u0627\u062d\u062f\u0629 \u00b7 \u0627\u0644\u062f\u0641\u0639 \u0639\u0628\u0631 Swish',
+    priceInc1:'\u0645\u0631\u0627\u062c\u0639\u0629 \u062c\u0645\u064a\u0639 \u0627\u0644\u062e\u0635\u0648\u0645\u0627\u062a', priceInc2:'\u0625\u0642\u0631\u0627\u0631 \u0645\u0643\u062a\u0645\u0644 \u0628\u0634\u0643\u0644 \u0635\u062d\u064a\u062d', priceInc3:'\u062a\u0642\u062f\u064a\u0645 \u0625\u0644\u0649 \u062f\u0627\u0626\u0631\u0629 \u0627\u0644\u0636\u0631\u0627\u0626\u0628 \u0627\u0644\u0633\u0648\u064a\u062f\u064a\u0629', priceInc4:'\u062a\u0623\u0643\u064a\u062f \u0648\u0625\u064a\u0635\u0627\u0644',
+    priceCta:'\u0627\u0628\u062f\u0623 \u0627\u0644\u0625\u0642\u0631\u0627\u0631',
+    ctaTitle:'\u0627\u0628\u062f\u0623 \u0625\u0642\u0631\u0627\u0631\u0643 \u0627\u0644\u0636\u0631\u064a\u0628\u064a', ctaSub:'\u064a\u0633\u062a\u063a\u0631\u0642 5 \u062f\u0642\u0627\u0626\u0642. \u0646\u062d\u0646 \u0646\u062a\u0648\u0644\u0649 \u0627\u0644\u0628\u0627\u0642\u064a.', ctaBtn:'\u0627\u0628\u062f\u0623 \u0627\u0644\u0622\u0646',
+    footerText:'\u0644\u0646 \u0646\u0642\u062f\u0645 \u0623\u064a \u0625\u0642\u0631\u0627\u0631 \u0628\u062f\u0648\u0646 \u062a\u0648\u0643\u064a\u0644\u0643. \u062f\u0627\u0626\u0645\u0627\u064b \u0642\u0627\u0646\u0648\u0646\u064a \u0648\u0635\u062d\u064a\u062d \u0648\u0641\u0642 \u0642\u0648\u0627\u0639\u062f \u062f\u0627\u0626\u0631\u0629 \u0627\u0644\u0636\u0631\u0627\u0626\u0628.',
+    ded1:'\u0627\u0644\u062a\u0646\u0642\u0644 \u0625\u0644\u0649 \u0627\u0644\u0639\u0645\u0644', currentLangLabel:'\u0639\u0631\u0628\u064a'
+  },
+  tr: {
+    navCta:'Ba\u015fla \u2192', heroBadge:'Gelir Vergisi Beyannamesi 2025',
+    heroH1em:'biz hallederiz',
+    heroP:'Bilgilerinizi girin. Kesintilerinizi hesapl\u0131yoruz ve sizin ad\u0131n\u0131za beyan ediyoruz. Sadece imzalaman\u0131z yeterli.',
+    heroCta:'Beyannameye ba\u015fla', heroHow:'Nas\u0131l \u00e7al\u0131\u015f\u0131r?',
+    langAvail:'Mevcut diller:',
+    trust1:'Sabit fiyat 1\u202f299\u00a0kr', trust2:'Sizin ad\u0131n\u0131za beyan ediyoruz', trust3:'Sadece imzalaman\u0131z yeterli',
+    statLabel1:'Kontrol etti\u011fimiz kesinti t\u00fcrleri', statLabel2:'Formu doldurmak i\u00e7in s\u00fcre', statLabel3:'Sabit fiyat \u2014 gizli \u00fccret yok',
+    sectionTag1:'Nas\u0131l \u00e7al\u0131\u015f\u0131r', sectionTitle1:'\u00dc\u00e7 ad\u0131m', sectionSub1:'Siz doldurursunuz, biz hesaplar ve beyan ederiz. BankID ile imzalars\u0131n\u0131z \u2014 hepsi bu kadar.',
+    step1h:'Doldurun', step1p:'Maa\u015f, konut, seyahat ve giderler hakk\u0131ndaki sorular\u0131 yan\u0131tlay\u0131n. Yakla\u015f\u0131k 5 dakika s\u00fcrer.',
+    step2h:'Kesintileri hesapl\u0131yoruz', step2p:'Hak kazand\u0131\u011f\u0131n\u0131z t\u00fcm kesintiler otomatik olarak hesaplan\u0131r. G\u00f6ndermeden \u00f6nce toplam\u0131 g\u00f6r\u00fcrs\u00fcn\u00fcz.',
+    step3h:'Beyan ediyoruz', step3p:'BankID ile \u0130sve\u00e7 Vergi Dairesi arac\u0131l\u0131\u011f\u0131yla vek\u00e2let verirsiniz. Beyan ederiz ve bitince bildiririz.',
+    dedTag:'Kontrol ettiklerimiz', dedTitle:'\u0130nceledi\u011fimiz kesintiler', dedSub:'Cevaplar\u0131n\u0131za g\u00f6re ilgili t\u00fcm kesinti t\u00fcrlerini otomatik olarak kontrol ederiz.',
+    priceTag:'Fiyat', priceTitle:'Sabit fiyat', priceSub:'Beyannameniz nas\u0131l olursa olsun tek bir \u00fccret.',
+    priceCardTag:'Vergi Beyannamesi Yard\u0131m\u0131 2025', priceNote:'Tek seferlik \u00fccret \u00b7 Swish ile \u00f6deme',
+    priceInc1:'T\u00fcm kesintilerin incelenmesi', priceInc2:'Do\u011fru doldurulmu\u015f beyanname', priceInc3:'\u0130sve\u00e7 Vergi Dairesi\'ne teslim', priceInc4:'Onay ve makbuz',
+    priceCta:'Beyannameye ba\u015fla',
+    ctaTitle:'Beyannamenize ba\u015flay\u0131n', ctaSub:'5 dakika s\u00fcrer. Gerisini biz hallederiz.', ctaBtn:'Ba\u015flay\u0131n',
+    footerText:'Vek\u00e2letiniz olmadan asla beyan etmeyiz. Her zaman yasal ve Vergi Dairesi kurallar\u0131na uygun.',
+    ded1:'\u0130\u015fe gidi\u015f', currentLangLabel:'TR'
+  }
+};
+
+const LANG_SHORT = {sv:'SV',en:'EN',zh:'中文',th:'ไทย',vi:'VI',ar:'عربي',tr:'TR'};
+let currentLang = localStorage.getItem('deqlara_lang') || 'sv';
+
+function toggleLangMenu() {
+  document.getElementById('langMenu').classList.toggle('open');
+}
+document.addEventListener('click', function(e) {
+  if (!document.getElementById('langDropdown').contains(e.target)) {
+    document.getElementById('langMenu').classList.remove('open');
+  }
+});
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('deqlara_lang', lang);
+  document.getElementById('langMenu').classList.remove('open');
+  document.getElementById('currentLangLabel').textContent = LANG_SHORT[lang] || lang.toUpperCase();
+
+  // Update active option
+  document.querySelectorAll('.lang-option').forEach(el => {
+    el.classList.toggle('active', el.getAttribute('onclick') === "setLang('" + lang + "')");
+  });
+
+  // RTL for Arabic
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.lang = lang === 'zh' ? 'zh-Hans' : lang;
+
+  // Apply translations
+  const T = LANGS[lang] || LANGS.sv;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.getAttribute('data-i18n');
+    if (T[k] !== undefined) el.textContent = T[k];
+  });
+}
+
+// Init on load
+(function() {
+  setLang(currentLang);
+})();
+</script>
 </body>
 </html>
