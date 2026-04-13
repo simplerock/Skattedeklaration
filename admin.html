@@ -496,11 +496,13 @@ function sruPnr12(raw) {
 }
 
 function toISO88591Blob(text) {
-  const bytes = new Uint8Array(text.length);
-  for (let i = 0; i < text.length; i++) {
-    const code = text.charCodeAt(i);
-    bytes[i] = code <= 0xFF ? code : 0x3F;
-  }
+  // Konvertera Unicode → ISO 8859-1 korrekt
+  // JS charCodeAt ger Unicode code point; för ISO 8859-1 är U+0000–U+00FF identiska.
+  // Tecken utanför ISO 8859-1 (>0xFF) ersätts med '?' (0x3F).
+  const bytes = new Uint8Array([...text].map(ch => {
+    const cp = ch.codePointAt(0);
+    return cp <= 0xFF ? cp : 0x3F;
+  }));
   return new Blob([bytes], { type: 'text/plain;charset=iso-8859-1' });
 }
 
@@ -564,9 +566,9 @@ function downloadSRU(id) {
   const r = allData.find(x => x.id === id);
   if (!r) return;
   if (!r.postnummer) { alert('Postnummer saknas – kan inte generera SRU.'); return; }
-  const prefix = (r.reference_number || r.personal_identity_number || 'sru').replace(/[^a-zA-Z0-9]/g,'_');
-  triggerDownload(buildInfoSRU(r), `INFO_${prefix}.SRU`);
-  setTimeout(() => triggerDownload(buildBlanketterSRU(r), `BLANKETTER_${prefix}.SRU`), 500);
+  // Skatteverket kräver exakt dessa filnamn — döp ALDRIG om dem
+  triggerDownload(buildInfoSRU(r), 'INFO.SRU');
+  setTimeout(() => triggerDownload(buildBlanketterSRU(r), 'BLANKETTER.SRU'), 500);
 }
 </script>
 </body>
