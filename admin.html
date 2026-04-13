@@ -274,6 +274,7 @@
   </div>
 </div>
 
+<script src="sru-core.js"></script>
 <script>
 // ===== CONFIG =====
 // Samma värden som i formuläret
@@ -476,110 +477,73 @@ async function confirmDelete() {
   renderTable();
 }
 
-// ===== SRU GENERATION =====
-// Bekräftat av Skatteverket: #BLANKETT kräver period-token, t.ex. INK1-2025P4
-// Plain typkod (INK1) avvisas — "tillhör en period som inte är öppen för inlämning"
-const BLANKETT_TOKENS = {
-  'INK1': 'INK1-2025P4',
-  'K4':   'K4-2025P4',
-  'K5':   'K5-2025P4',
-  'K10':  'K10-2025P4',
-  'NE':   'NE-2025P4',
-};
-
-function sruNow() {
-  const now = new Date();
-  const d = now.toISOString().slice(0,10).replace(/-/g,'');
-  const t = now.toTimeString().slice(0,8).replace(/:/g,'');
-  return { date: d, time: t };
-}
-
-function sruPnr12(raw) {
-  const digits = (raw || '').replace(/\D/g, '');
-  if (digits.length === 12) return digits;
-  if (digits.length === 10) {
-    const yy = parseInt(digits.slice(0,2), 10);
-    const currentYY = new Date().getFullYear() % 100;
-    return (yy <= currentYY ? '20' : '19') + digits;
-  }
-  return digits;
-}
-
-function toISO88591Blob(text) {
-  // Konvertera Unicode → ISO 8859-1 korrekt
-  // JS charCodeAt ger Unicode code point; för ISO 8859-1 är U+0000–U+00FF identiska.
-  // Tecken utanför ISO 8859-1 (>0xFF) ersätts med '?' (0x3F).
-  const bytes = new Uint8Array([...text].map(ch => {
-    const cp = ch.codePointAt(0);
-    return cp <= 0xFF ? cp : 0x3F;
-  }));
-  return new Blob([bytes], { type: 'text/plain;charset=iso-8859-1' });
-}
-
-function triggerDownload(content, filename) {
-  const blob = toISO88591Blob(content);
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
+// ===== SRU GENERATION — uses shared SruCore (public/sru-core.js) =====
 
 function buildInfoSRU(r) {
-  const pnr = sruPnr12(r.personal_identity_number);
+  const pnr = SruCore.sruPnr12(r.personal_identity_number);
   const namn = [r.last_name, r.first_name].filter(Boolean).join(', ') || 'Okänt';
-  const { date } = sruNow();
-  const lines = [
-    '#DATABESKRIVNING_START',
-    '#PRODUKT SRU',
-    `#SKAPAD ${date}`,
-    '#PROGRAM Deqlara Admin 1.0',
-    '#FILNAMN BLANKETTER.SRU',
-    '#DATABESKRIVNING_SLUT',
-    '#MEDIELEV_START',
-    `#ORGNR ${pnr}`,
-    `#NAMN ${namn}`,
-  ];
-  if (r.address) lines.push(`#ADRESS ${r.address.split(',')[0].trim()}`);
-  lines.push(`#POSTNR ${r.postnummer}`);
-  if (r.postort) lines.push(`#POSTORT ${r.postort}`);
-  lines.push(`#KONTAKT ${[r.first_name, r.last_name].filter(Boolean).join(' ')}`);
-  lines.push('#MEDIELEV_SLUT');
-  return lines.join('\n') + '\n';
+  const address = r.address ? r.address.split(',')[0].trim() : '';
+  const kontakt = [r.first_name, r.last_name].filter(Boolean).join(' ');
+  return SruCore.buildInfoSru({
+    pnr, namn, address, postnummer: r.postnummer, postort: r.postort,
+    kontakt, programName: 'Deqlara Admin 1.0',
+  });
 }
 
 function buildBlanketterSRU(r) {
-  const pnr = sruPnr12(r.personal_identity_number);
+  const pnr = SruCore.sruPnr12(r.personal_identity_number);
   const namn = [r.last_name, r.first_name].filter(Boolean).join(', ');
-  const { date, time } = sruNow();
-  const lines = [
-    `#BLANKETT ${BLANKETT_TOKENS['INK1']}`,
-    `#IDENTITET ${pnr} ${date} ${time}`,
+  const { date, time } = SruCore.sruNow();
+  const id = { pnr, namn, date, time };
+  const blanketter = [];
+
+  // --- INK1 ---
+  const sp = r.housing_sale_price || 0;
+  const bp = r.housing_buy_price || 0;
+  const imp = r.housing_improvements || 0;
+  const sc = r.housing_sale_costs || 0;
+  const housingGain = (sp > 0 && bp > 0) ? Math.max(0, sp - bp - imp - sc) : 0;
+  const housingLoss = (sp > 0 && bp > 0) ? Math.max(0, bp + imp + sc - sp) * 0.50 : 0;
+
+  const ink1Fields = [
+    [1000, r.salary || 0],
+    [1070, r.travel_deduction || 0],
+    [1073, r.other_work_expenses || 0],
+    [1583, r.rot_deduction || 0],
+    [1584, r.rut_deduction || 0],
+    [1101, r.rental_net || 0],
+    [1102, r.capital_gain_funds || 0],
+    [1104, housingGain],
+    [1170, r.interest_secured || 0],
+    [1177, r.interest_unsecured || 0],
+    [1172, r.capital_loss_funds || 0],
+    [1174, housingLoss],
   ];
-  if (namn) lines.push(`#NAMN ${namn}`);
+  blanketter.push(SruCore.buildBlankett('INK1', id, ink1Fields));
 
-  if (r.salary > 0)           lines.push(`#UPPGIFT 1000 ${Math.round(r.salary)}`);
-  if (r.travel_deduction > 0) lines.push(`#UPPGIFT 1070 ${Math.round(r.travel_deduction)}`);
-  // 1583/1584 = underlag (arbets­kostnad) — Skatteverket beräknar 30%/50% av underlaget
-  if (r.rot_deduction > 0)    lines.push(`#UPPGIFT 1583 ${Math.round(r.rot_deduction)}`);
-  if (r.rut_deduction > 0)    lines.push(`#UPPGIFT 1584 ${Math.round(r.rut_deduction)}`);
-  if (r.interest_secured > 0) lines.push(`#UPPGIFT 1170 ${Math.round(r.interest_secured)}`);
-  if (r.interest_unsecured > 0) lines.push(`#UPPGIFT 1177 ${Math.round(r.interest_unsecured)}`);
-  if (r.rental_net > 0)       lines.push(`#UPPGIFT 1101 ${Math.round(r.rental_net)}`);
+  // --- K5 (bostadsförsäljning) ---
+  if (sp > 0 && bp > 0) {
+    const res = sp - bp - imp - sc;
+    const k5Fields = [
+      [3620, sp],
+      [3621, sc],
+      [3622, bp],
+      [3623, imp],
+      [3625, res],
+      [res > 0 ? 3629 : 3630, Math.abs(res)],
+    ];
+    blanketter.push(SruCore.buildBlankett('K5', id, k5Fields));
+  }
 
-  lines.push('#BLANKETTSLUT');
-  lines.push('#FIL_SLUT');
-  return lines.join('\n') + '\n';
+  return SruCore.buildBlanketterSru(blanketter);
 }
 
 function downloadSRU(id) {
   const r = allData.find(x => x.id === id);
   if (!r) return;
   if (!r.postnummer) { alert('Postnummer saknas – kan inte generera SRU.'); return; }
-  // Skatteverket kräver exakt dessa filnamn — döp ALDRIG om dem
-  triggerDownload(buildInfoSRU(r), 'INFO.SRU');
-  setTimeout(() => triggerDownload(buildBlanketterSRU(r), 'BLANKETTER.SRU'), 500);
+  SruCore.triggerDownload(buildInfoSRU(r), 'INFO.SRU');
+  setTimeout(() => SruCore.triggerDownload(buildBlanketterSRU(r), 'BLANKETTER.SRU'), 500);
 }
 </script>
 </body>
