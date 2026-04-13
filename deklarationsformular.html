@@ -2323,14 +2323,14 @@ function generateSRU() {
 const SRU_EOL = '\n';
 
 // --- Blanketttyp-koder ---
-// Skatteverket godkänner BARA plain typkoder: INK1, K4, K5, K10, NE.
-// Sammansatta tokens (t.ex. INK1-2025P4, INK1S-2025P4) avvisas.
+// Bekräftat av Skatteverket: period-token krävs, t.ex. INK1-2025P4
+// Plain typkod (INK1) avvisas — "tillhör en period som inte är öppen för inlämning"
 const BLANKETT_PERIOD_TOKENS = {
-  'INK1': 'INK1',
-  'K4':   'K4',
-  'K5':   'K5',
-  'K10':  'K10',
-  'NE':   'NE',
+  'INK1': 'INK1-2025P4',
+  'K4':   'K4-2025P4',
+  'K5':   'K5-2025P4',
+  'K10':  'K10-2025P4',
+  'NE':   'NE-2025P4',
 };
 
 function getBlankettPeriodToken(formType) {

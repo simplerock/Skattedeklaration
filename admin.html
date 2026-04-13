@@ -477,6 +477,16 @@ async function confirmDelete() {
 }
 
 // ===== SRU GENERATION =====
+// Bekräftat av Skatteverket: #BLANKETT kräver period-token, t.ex. INK1-2025P4
+// Plain typkod (INK1) avvisas — "tillhör en period som inte är öppen för inlämning"
+const BLANKETT_TOKENS = {
+  'INK1': 'INK1-2025P4',
+  'K4':   'K4-2025P4',
+  'K5':   'K5-2025P4',
+  'K10':  'K10-2025P4',
+  'NE':   'NE-2025P4',
+};
+
 function sruNow() {
   const now = new Date();
   const d = now.toISOString().slice(0,10).replace(/-/g,'');
@@ -544,7 +554,7 @@ function buildBlanketterSRU(r) {
   const namn = [r.last_name, r.first_name].filter(Boolean).join(', ');
   const { date, time } = sruNow();
   const lines = [
-    '#BLANKETT INK1',
+    `#BLANKETT ${BLANKETT_TOKENS['INK1']}`,
     `#IDENTITET ${pnr} ${date} ${time}`,
   ];
   if (namn) lines.push(`#NAMN ${namn}`);
