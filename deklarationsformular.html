@@ -34,18 +34,32 @@ body {
 .header h1 { font-size: 20px; font-weight: 600; }
 .header p { font-size: 13px; opacity: 0.75; margin-top: 2px; }
 
-.lang-selector {
-  display: flex; gap: 6px; margin-left: auto; align-items: center;
+.lang-selector { margin-left: auto; display: flex; align-items: center; }
+.lang-dropdown-form { position: relative; }
+.lang-toggle-form {
+  display: flex; align-items: center; gap: 5px;
+  padding: 6px 10px;
+  background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 7px; color: rgba(255,255,255,0.9);
+  cursor: pointer; font-size: 12px; font-weight: 600;
+  transition: background 0.15s; letter-spacing: 0.04em;
 }
-.lang-btn {
-  padding: 5px 11px; border-radius: 6px;
-  font-size: 12px; font-weight: 700; cursor: pointer;
-  border: 2px solid rgba(255,255,255,0.3);
-  background: transparent; color: rgba(255,255,255,0.7);
-  transition: all 0.15s; letter-spacing: 0.04em;
+.lang-toggle-form:hover { background: rgba(255,255,255,0.22); }
+.lang-menu-form {
+  position: absolute; top: calc(100% + 6px); right: 0;
+  background: white; border: 1px solid #e5e7eb;
+  border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  min-width: 190px; z-index: 200; display: none; overflow: hidden;
 }
-.lang-btn:hover { background: rgba(255,255,255,0.15); color: white; }
-.lang-btn.active { background: #f6ca3c; color: #1a3a6b; border-color: #f6ca3c; }
+.lang-menu-form.open { display: block; }
+.lang-opt {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; cursor: pointer;
+  font-size: 13px; color: #1a1a2e;
+  transition: background 0.1s;
+}
+.lang-opt:hover { background: #f4f6f9; }
+.lang-opt.active { color: #1a3a6b; font-weight: 700; background: #eef2f9; }
 
 .progress-bar { background: #e2e8f0; height: 4px; }
 .progress-fill {
@@ -359,9 +373,22 @@ body {
     <p data-i18n="headerSub">Svara på frågorna – vi hittar dina avdrag och skickar underlaget</p>
   </div>
   <div class="lang-selector">
-    <button class="lang-btn active" onclick="setLanguage('sv')">🇸🇪 SV</button>
-    <button class="lang-btn" onclick="setLanguage('en')">🇬🇧 EN</button>
-    <button class="lang-btn" onclick="setLanguage('zh')">🇨🇳 中文</button>
+    <div class="lang-dropdown-form" id="formLangDropdown">
+      <button class="lang-toggle-form" onclick="toggleFormLangMenu()" aria-label="Välj språk">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <span id="formLangLabel">SV</span>
+        <svg width="9" height="9" viewBox="0 0 10 10" fill="currentColor"><path d="M1 3l4 4 4-4"/></svg>
+      </button>
+      <div class="lang-menu-form" id="formLangMenu">
+        <div class="lang-opt active" onclick="setLanguage('sv')">🇸🇪 Svenska</div>
+        <div class="lang-opt" onclick="setLanguage('en')">🇬🇧 English</div>
+        <div class="lang-opt" onclick="setLanguage('zh')">🇨🇳 中文</div>
+        <div class="lang-opt" onclick="setLanguage('th')">🇹🇭 ภาษาไทย</div>
+        <div class="lang-opt" onclick="setLanguage('vi')">🇻🇳 Tiếng Việt</div>
+        <div class="lang-opt" onclick="setLanguage('ar')">🇸🇦 العربية</div>
+        <div class="lang-opt" onclick="setLanguage('tr')">🇹🇷 Türkçe</div>
+      </div>
+    </div>
   </div>
 </div>
 <div class="progress-bar">
@@ -920,8 +947,8 @@ body {
 
   <!-- OMBUD (sist) -->
   <div class="summary-section">
-    <h3 data-i18n="ombudSectionTitle">Utse deklarationsombud</h3>
-    <p style="font-size:14px;color:#6b7280;margin-bottom:16px;" data-i18n="ombudSectionDesc">För att vi ska kunna lämna in din deklaration åt dig behöver du ge oss fullmakt via Skatteverket. Det tar 3 minuter med BankID.</p>
+    <h3>Deklarationsombud</h3>
+    <p style="font-size:14px;color:#6b7280;margin-bottom:16px;">För att vi ska kunna lämna in din deklaration åt dig behöver du utse oss som deklarationsombud via Skatteverket. Det tar 3 minuter med BankID.</p>
 
     <div style="text-align: center; padding: 8px 0 16px;">
       <div class="pnr-badge">19830920-6731</div>
@@ -967,13 +994,13 @@ body {
     </div>
     <div class="success-box" style="margin-top: 8px;">
       <span class="icon">✅</span>
-      <p data-i18n="ombudDoneInfo">När fullmakten är registrerad kan vi se och hantera din deklaration direkt hos Skatteverket.</p>
+      <p>När ombudet är registrerat kan vi se och hantera din deklaration direkt hos Skatteverket.</p>
     </div>
 
     <div style="margin-top: 20px;">
-      <div class="question-label">Har du utfärdat fullmakten?<span class="required-star">*</span></div>
+      <div class="question-label">Har du utsett deklarationsombud?<span class="required-star">*</span></div>
       <div class="radio-group" style="margin-top:10px;">
-        <label class="radio-option"><input type="radio" name="ombudDone" value="ja"><span>Ja, fullmakten är klar</span></label>
+        <label class="radio-option"><input type="radio" name="ombudDone" value="ja"><span>Ja, deklarationsombudet är klart</span></label>
         <label class="radio-option"><input type="radio" name="ombudDone" value="senare"><span>Jag gör det senare – fortsätter ändå</span></label>
         <label class="radio-option"><input type="radio" name="ombudDone" value="hjalp"><span>Jag behöver hjälp med detta</span></label>
       </div>
@@ -982,15 +1009,31 @@ body {
         <p>Kontakta oss direkt på e-post eller ring Skatteverket på <strong>0771-567 567</strong> om du fastnar.</p>
       </div>
     </div>
+  </div>
 
-    <!-- BankID-bekräftelse -->
-    <div style="margin-top:20px; padding:16px; background:#f0f7ff; border:1px solid #bfdbfe; border-radius:10px;">
-      <label style="display:flex; align-items:flex-start; gap:12px; cursor:pointer;">
-        <input type="checkbox" id="bankidConfirm" style="width:18px;height:18px;margin-top:2px;accent-color:#1e40af;flex-shrink:0;">
-        <span style="font-size:14px;color:#1e3a6e;font-weight:500;line-height:1.5;">
-          Jag har signerat med BankID och godkänner att mina uppgifter behandlas för att lämna in min deklaration
-        </span>
-      </label>
+  <!-- Betalningsinstruktioner -->
+  <div class="summary-section" style="border:2px solid #1e40af;border-radius:12px;padding:24px;background:#fff;margin-top:8px;">
+    <div style="font-size:11px;font-weight:700;color:#1e40af;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:16px;">Betalningsinstruktioner</div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #f3f4f6;">
+        <span style="font-size:13px;color:#6b7280;">Tjänst</span>
+        <span style="font-size:13px;font-weight:600;color:#111827;">Deklarationshjälp 2025</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #f3f4f6;">
+        <span style="font-size:13px;color:#6b7280;">Belopp</span>
+        <span style="font-size:22px;font-weight:800;color:#111827;letter-spacing:-0.02em;">1&thinsp;299 kr</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #f3f4f6;">
+        <span style="font-size:13px;color:#6b7280;">Swish</span>
+        <span style="font-size:18px;font-weight:700;color:#1e40af;font-family:monospace;">0739380200</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:13px;color:#6b7280;">Meddelande</span>
+        <span style="font-size:13px;font-weight:600;color:#111827;" id="betalningNamn">Ditt fullständiga namn</span>
+      </div>
+    </div>
+    <div style="margin-top:16px;padding:10px 14px;background:#eff6ff;border-radius:8px;font-size:12px;color:#1e40af;line-height:1.5;">
+      Ange ditt fullständiga namn som meddelande i Swish-betalningen så vi kan matcha din betalning.
     </div>
   </div>
 
@@ -1405,21 +1448,298 @@ const T = {
     ombudOptHjalp: '我需要帮助',
     totalLabel: '已识别抵税项目的预计税务效果',
     totalNote: '根据您的回答估算。确切金额以最终申报为准。',
+  },
+  th: {
+    headerTitle: 'แบบแสดงรายการภาษีเงินได้ 2025',
+    headerSub: 'ตอบคำถาม – เราค้นหาการหักลดหย่อนของคุณและส่งข้อมูล',
+    step1Label: 'ขั้นตอนที่ 1 จาก 5', step1Title: 'สถานการณ์ของคุณในปี 2025',
+    step1Desc: 'สามคำถามสั้นๆ เพื่อกำหนดการหักลดหย่อนที่เกี่ยวข้องกับคุณ',
+    step2Label: 'ขั้นตอนที่ 2 จาก 5', step2Title: 'รายได้และการเดินทาง',
+    step2Desc: 'ข้อมูลของคุณและการหักค่าเดินทาง – มีผลต่อภาษีมากที่สุดสำหรับคนส่วนใหญ่',
+    step3Label: 'ขั้นตอนที่ 3 จาก 5', step3Title: 'ที่อยู่อาศัยและบริการในครัวเรือน',
+    step3Desc: 'ROT และ RUT ให้การลดหย่อนภาษีโดยตรง ตรวจสอบให้แน่ใจว่าคุณใช้สิทธิ์ครบแล้ว',
+    step4Label: 'ขั้นตอนที่ 4 จาก 5', step4Title: 'ทุนและการลงทุน',
+    step4Desc: 'การขายอสังหาริมทรัพย์ หุ้น และรายได้จากการเช่า – โอกาสและผลทางภาษี',
+    step5Label: 'ขั้นตอนที่ 5 จาก 5', step5Title: 'รายได้จากธุรกิจและบริษัท',
+    step5Desc: 'คำถามสำหรับผู้ประกอบการอิสระและเจ้าของบริษัท ข้ามหากคุณเป็นพนักงานเท่านั้น',
+    step6Label: 'สรุปและส่ง', step6Title: 'เสร็จแล้ว – ตรวจสอบและส่ง',
+    step6Desc: 'ตรวจสอบการหักลดหย่อนของคุณ แต่งตั้งตัวแทน และส่งข้อมูลโดยตรงถึงเรา',
+    incomeTypeQ: 'อะไรที่อธิบายสถานการณ์รายได้ของคุณในปี 2025 ได้ดีที่สุด?',
+    incomeTypeHint: 'เลือกแหล่งรายได้หลักของคุณในปีภาษี 2025',
+    opt_anstald: 'พนักงาน – เงินเดือนประจำจากนายจ้าง',
+    opt_enskild: 'ผู้ประกอบการอิสระ – ธุรกิจส่วนตัว (F-tax)',
+    opt_ab: 'เจ้าของบริษัทจำกัด – รับเงินเดือนหรือเงินปันผลจากบริษัทตัวเอง',
+    opt_pensionar: 'ผู้เกษียณอายุ',
+    opt_student: 'นักศึกษา (มีงานพาร์ทไทม์หรือทุนการศึกษา)',
+    opt_kombination: 'รวมหลายข้อข้างต้น',
+    capitalEventsQ: 'คุณทำสิ่งต่อไปนี้ในปี 2025 หรือไม่?',
+    capitalEventsHint: 'เลือกทุกข้อที่ใช้ได้',
+    opt_bostad: 'ขายอสังหาริมทรัพย์ (อพาร์ทเมนต์หรือบ้าน)',
+    opt_aktier: 'ขายหุ้น กองทุน หรือสกุลเงินดิจิทัล',
+    opt_uthyrning: 'ให้เช่าบ้านหรือห้องของคุณ',
+    opt_inget: 'ไม่มีข้อใดข้างต้น',
+    housingQ: 'คุณเป็นเจ้าของที่อยู่อาศัยหรือไม่?',
+    opt_ager_lan: 'ใช่ มีสินเชื่อบ้าน',
+    opt_ager_utan: 'ใช่ ไม่มีสินเชื่อบ้าน',
+    opt_hyr: 'ไม่ ฉันเช่า',
+    btnContinue: 'ดำเนินการต่อ →', btnBack: '← กลับ',
+    btnSummary: 'ดูสรุป →',
+    btnSendOmbud: '✉ ส่งข้อมูลภาษีให้ตัวแทน',
+    btnCalcDist: '📍 คำนวณระยะทาง',
+    distStatusIdle: 'ป้อนที่อยู่ข้างต้นแล้วคลิกคำนวณ',
+    distStatusLoading: 'กำลังคำนวณระยะทาง...',
+    distStatusOk: '✓ คำนวณแล้ว: {km} กม.',
+    distStatusErr: 'ไม่สามารถคำนวณได้ – กรอกระยะทางด้วยตนเอง',
+    optYes: 'ใช่', optNo: 'ไม่', optSelect: 'เลือก...',
+    errRequired: 'กรุณากรอกช่องที่จำเป็นทั้งหมด (ทำเครื่องหมาย *)',
+    errStep1: 'เลือกสถานการณ์รายได้และว่าคุณเป็นเจ้าของบ้านหรือไม่',
+    errStep2: 'ป้อนหมายเลขประจำตัว ชื่อ และนามสกุล',
+    errStep6: 'โปรดระบุว่ามีการมอบอำนาจหรือไม่',
+    pnrQ: 'หมายเลขประจำตัวส่วนบุคคล', pnrHint: 'รูปแบบ: ÅÅÅÅMMDD-XXXX',
+    nameQ: 'ชื่อ', labelFirstName: 'ชื่อต้น', labelLastName: 'นามสกุล',
+    commuteQ: 'การเดินทางประจำวันไปทำงาน',
+    commuteHint: 'ป้อนที่อยู่บ้านและที่ทำงาน – เราคำนวณระยะทางโดยอัตโนมัติ',
+    labelHomeAddr: 'ที่อยู่บ้าน', labelWorkAddr: 'ที่อยู่ที่ทำงาน',
+    ombudSectionTitle: 'แต่งตั้งตัวแทนภาษี',
+    ombudSectionDesc: 'เพื่อยื่นแบบแสดงรายการแทนคุณ คุณต้องมอบอำนาจผ่านกรมสรรพากรสวีเดน ใช้เวลา 3 นาทีด้วย BankID',
+    ombudStatusQ: 'คุณได้มอบอำนาจแล้วหรือยัง?',
+    ombudOptJa: 'ใช่ มอบอำนาจแล้ว',
+    ombudOptSenare: 'ทำทีหลัง – ดำเนินการต่อ',
+    ombudOptHjalp: 'ฉันต้องการความช่วยเหลือ',
+    totalLabel: 'ผลทางภาษีโดยประมาณจากการหักลดหย่อนที่ระบุ',
+    totalNote: 'การประมาณการตามคำตอบของคุณ จำนวนที่แน่นอนจะกำหนดในการยื่นแบบ',
+  },
+  vi: {
+    headerTitle: 'Khai báo thuế thu nhập 2025',
+    headerSub: 'Trả lời câu hỏi – chúng tôi tìm ra các khoản khấu trừ và gửi hồ sơ',
+    step1Label: 'Bước 1/5', step1Title: 'Tình trạng của bạn năm 2025',
+    step1Desc: 'Ba câu hỏi ngắn để xác định các khoản khấu trừ phù hợp với bạn.',
+    step2Label: 'Bước 2/5', step2Title: 'Thu nhập và đi lại',
+    step2Desc: 'Thông tin của bạn và khấu trừ đi lại – thường có tác động thuế lớn nhất.',
+    step3Label: 'Bước 3/5', step3Title: 'Nhà ở và dịch vụ gia đình',
+    step3Desc: 'ROT và RUT cho giảm thuế trực tiếp. Hãy đảm bảo bạn sử dụng đầy đủ.',
+    step4Label: 'Bước 4/5', step4Title: 'Vốn và đầu tư',
+    step4Desc: 'Bán bất động sản, cổ phiếu và thu nhập cho thuê – cơ hội và hệ quả thuế.',
+    step5Label: 'Bước 5/5', step5Title: 'Thu nhập kinh doanh và công ty',
+    step5Desc: 'Câu hỏi dành cho người tự kinh doanh và chủ công ty. Bỏ qua nếu bạn chỉ là nhân viên.',
+    step6Label: 'Tóm tắt và gửi', step6Title: 'Xong – xem lại và gửi',
+    step6Desc: 'Kiểm tra các khoản khấu trừ, chỉ định đại diện và gửi hồ sơ trực tiếp cho chúng tôi.',
+    incomeTypeQ: 'Điều gì mô tả tốt nhất tình trạng thu nhập của bạn năm 2025?',
+    incomeTypeHint: 'Chọn nguồn thu nhập chính của bạn trong năm thuế 2025.',
+    opt_anstald: 'Nhân viên – lương cố định từ công ty',
+    opt_enskild: 'Tự kinh doanh – doanh nghiệp tư nhân (F-tax)',
+    opt_ab: 'Sở hữu công ty TNHH – nhận lương hoặc cổ tức từ công ty của mình',
+    opt_pensionar: 'Người về hưu',
+    opt_student: 'Sinh viên (có công việc bán thời gian hoặc học bổng)',
+    opt_kombination: 'Kết hợp nhiều trường hợp trên',
+    capitalEventsQ: 'Bạn có làm điều nào sau đây trong năm 2025 không?',
+    capitalEventsHint: 'Chọn tất cả các mục phù hợp.',
+    opt_bostad: 'Đã bán bất động sản (căn hộ hoặc nhà)',
+    opt_aktier: 'Đã bán cổ phiếu, quỹ hoặc tiền mã hóa',
+    opt_uthyrning: 'Đã cho thuê nhà hoặc phòng',
+    opt_inget: 'Không có điều nào ở trên',
+    housingQ: 'Bạn có sở hữu nhà không?',
+    opt_ager_lan: 'Có, có thế chấp',
+    opt_ager_utan: 'Có, không có thế chấp',
+    opt_hyr: 'Không, tôi thuê',
+    btnContinue: 'Tiếp tục →', btnBack: '← Quay lại',
+    btnSummary: 'Xem tóm tắt →',
+    btnSendOmbud: '✉ Gửi hồ sơ khai thuế cho đại diện',
+    btnCalcDist: '📍 Tính khoảng cách',
+    distStatusIdle: 'Nhập địa chỉ ở trên và nhấn Tính',
+    distStatusLoading: 'Đang tính khoảng cách...',
+    distStatusOk: '✓ {km} km đã tính',
+    distStatusErr: 'Không thể tính – nhập khoảng cách thủ công',
+    optYes: 'Có', optNo: 'Không', optSelect: 'Chọn...',
+    errRequired: 'Vui lòng điền tất cả các trường bắt buộc (đánh dấu *).',
+    errStep1: 'Chọn tình trạng thu nhập và liệu bạn có sở hữu nhà không.',
+    errStep2: 'Nhập số định danh, tên và họ.',
+    errStep6: 'Vui lòng cho biết liệu giấy ủy quyền đã được cấp chưa.',
+    pnrQ: 'Số định danh cá nhân', pnrHint: 'Định dạng: ÅÅÅÅMMDD-XXXX',
+    nameQ: 'Tên', labelFirstName: 'Tên', labelLastName: 'Họ',
+    commuteQ: 'Hành trình hàng ngày đến nơi làm việc',
+    commuteHint: 'Nhập địa chỉ nhà và nơi làm việc – chúng tôi tự động tính khoảng cách.',
+    labelHomeAddr: 'Địa chỉ nhà', labelWorkAddr: 'Địa chỉ nơi làm việc',
+    ombudSectionTitle: 'Chỉ định đại diện thuế',
+    ombudSectionDesc: 'Để khai thuế thay mặt bạn, bạn cần ủy quyền cho chúng tôi qua Cơ quan Thuế Thụy Điển. Mất 3 phút với BankID.',
+    ombudStatusQ: 'Bạn đã cấp ủy quyền chưa?',
+    ombudOptJa: 'Có, đã hoàn thành',
+    ombudOptSenare: 'Tôi sẽ làm sau – tiếp tục',
+    ombudOptHjalp: 'Tôi cần trợ giúp',
+    totalLabel: 'Tác động thuế ước tính từ các khoản khấu trừ đã xác định',
+    totalNote: 'Ước tính dựa trên câu trả lời của bạn. Số tiền chính xác được xác định trong khai báo.',
+  },
+  ar: {
+    headerTitle: 'إقرار ضريبة الدخل 2025',
+    headerSub: 'أجب على الأسئلة – نحن نجد خصوماتك ونرسل الملف',
+    step1Label: 'الخطوة 1 من 5', step1Title: 'وضعك في عام 2025',
+    step1Desc: 'ثلاثة أسئلة قصيرة لتحديد الخصومات المناسبة لك.',
+    step2Label: 'الخطوة 2 من 5', step2Title: 'الدخل والتنقل',
+    step2Desc: 'بياناتك وخصومات التنقل – عادةً الأثر الضريبي الأكبر لمعظم الناس.',
+    step3Label: 'الخطوة 3 من 5', step3Title: 'السكن وخدمات المنزل',
+    step3Desc: 'ROT وRUT يوفران تخفيضات ضريبية مباشرة. تأكد من الاستفادة الكاملة منهما.',
+    step4Label: 'الخطوة 4 من 5', step4Title: 'رأس المال والاستثمارات',
+    step4Desc: 'بيع العقارات والأسهم ودخل الإيجار – الفرص والعواقب الضريبية.',
+    step5Label: 'الخطوة 5 من 5', step5Title: 'دخل الأعمال والشركة',
+    step5Desc: 'أسئلة لأصحاب العمل الحر وأصحاب الشركات. تخطَّ إذا كنت موظفاً فقط.',
+    step6Label: 'الملخص والإرسال', step6Title: 'اكتملت – راجع وأرسل',
+    step6Desc: 'تحقق من خصوماتك وعيّن ممثلاً وأرسل ملفك مباشرةً إلينا.',
+    incomeTypeQ: 'ما الذي يصف وضعك المالي في عام 2025 بشكل أفضل؟',
+    incomeTypeHint: 'اختر مصدر دخلك الرئيسي خلال السنة الضريبية 2025.',
+    opt_anstald: 'موظف – راتب ثابت من صاحب العمل',
+    opt_enskild: 'عامل حر – مشروع فردي (F-tax)',
+    opt_ab: 'يملك شركة ذات مسؤولية محدودة – يسحب راتباً أو أرباحاً من شركته',
+    opt_pensionar: 'متقاعد',
+    opt_student: 'طالب (مع عمل جزئي أو منح دراسية)',
+    opt_kombination: 'مزيج من عدة حالات أعلاه',
+    capitalEventsQ: 'هل قمت بأي مما يلي في عام 2025؟',
+    capitalEventsHint: 'حدد كل ما ينطبق عليك.',
+    opt_bostad: 'بعت عقاراً (شقة أو منزل)',
+    opt_aktier: 'بعت أسهماً أو صناديق أو عملات مشفرة',
+    opt_uthyrning: 'أجّرت منزلك أو غرفة',
+    opt_inget: 'لا شيء مما سبق',
+    housingQ: 'هل تملك مسكنك؟',
+    opt_ager_lan: 'نعم، مع رهن عقاري',
+    opt_ager_utan: 'نعم، بدون رهن عقاري',
+    opt_hyr: 'لا، أستأجر',
+    btnContinue: 'متابعة →', btnBack: '← رجوع',
+    btnSummary: 'عرض الملخص →',
+    btnSendOmbud: '✉ إرسال ملف الضريبة إلى الممثل',
+    btnCalcDist: '📍 احسب المسافة',
+    distStatusIdle: 'أدخل العناوين أعلاه وانقر احسب',
+    distStatusLoading: 'جاري حساب المسافة...',
+    distStatusOk: '✓ {km} كم تم حسابها',
+    distStatusErr: 'تعذر الحساب – أدخل المسافة يدوياً',
+    optYes: 'نعم', optNo: 'لا', optSelect: 'اختر...',
+    errRequired: 'يرجى ملء جميع الحقول المطلوبة (المحددة بـ *).',
+    errStep1: 'اختر وضعك المالي وما إذا كنت تملك مسكنك.',
+    errStep2: 'أدخل رقم الهوية والاسم الأول واسم العائلة.',
+    errStep6: 'يرجى الإشارة إلى ما إذا كان التوكيل قد صدر.',
+    pnrQ: 'رقم الهوية الشخصية', pnrHint: 'الصيغة: ÅÅÅÅMMDD-XXXX',
+    nameQ: 'الاسم', labelFirstName: 'الاسم الأول', labelLastName: 'اسم العائلة',
+    commuteQ: 'الرحلة اليومية إلى العمل',
+    commuteHint: 'أدخل عنوان منزلك ومكان عملك – نحسب المسافة تلقائياً.',
+    labelHomeAddr: 'عنوان المنزل', labelWorkAddr: 'عنوان مكان العمل',
+    ombudSectionTitle: 'تعيين ممثل ضريبي',
+    ombudSectionDesc: 'لتقديم إقرارك الضريبي نيابةً عنك، تحتاج إلى منحنا توكيلاً عبر دائرة الضرائب السويدية. يستغرق 3 دقائق مع BankID.',
+    ombudStatusQ: 'هل منحت التوكيل؟',
+    ombudOptJa: 'نعم، تم التوكيل',
+    ombudOptSenare: 'سأفعل ذلك لاحقاً – المتابعة على أي حال',
+    ombudOptHjalp: 'أحتاج مساعدة في هذا',
+    totalLabel: 'الأثر الضريبي المقدر للخصومات والتخفيضات المحددة',
+    totalNote: 'تقدير بناءً على إجاباتك. يتم تحديد المبلغ الدقيق في الإقرار الضريبي.',
+  },
+  tr: {
+    headerTitle: 'Gelir Vergisi Beyannamesi 2025',
+    headerSub: 'Soruları yanıtlayın – kesintilerinizi buluyoruz ve dosyayı gönderiyoruz',
+    step1Label: 'Adım 1/5', step1Title: '2025 yılındaki durumunuz',
+    step1Desc: 'Hangi kesintilerin sizinle ilgili olduğunu belirlemek için üç kısa soru.',
+    step2Label: 'Adım 2/5', step2Title: 'Gelir ve işe gidip gelme',
+    step2Desc: 'Bilgileriniz ve işe gidip gelme kesintileri – çoğu kişi için en büyük vergi etkisi.',
+    step3Label: 'Adım 3/5', step3Title: 'Konut ve ev hizmetleri',
+    step3Desc: 'ROT ve RUT doğrudan vergi indirimi sağlar. Bunlardan tam yararlandığınızdan emin olun.',
+    step4Label: 'Adım 4/5', step4Title: 'Sermaye ve yatırımlar',
+    step4Desc: 'Mülk satışı, hisse senetleri ve kira geliri – fırsatlar ve vergi sonuçları.',
+    step5Label: 'Adım 5/5', step5Title: 'İş geliri ve şirket',
+    step5Desc: 'Serbest çalışanlar ve şirket sahipleri için sorular. Yalnızca çalışansanız atlayın.',
+    step6Label: 'Özet ve gönder', step6Title: 'Hazır – inceleyin ve gönderin',
+    step6Desc: 'Kesintilerinizi kontrol edin, temsilci atayın ve dosyayı doğrudan bize gönderin.',
+    incomeTypeQ: '2025 yılındaki gelir durumunuzu en iyi ne açıklıyor?',
+    incomeTypeHint: '2025 vergi yılındaki ana gelir kaynağınızı seçin.',
+    opt_anstald: 'Çalışan – işverenden sabit maaş',
+    opt_enskild: 'Serbest çalışan – şahıs şirketi (F-vergisi)',
+    opt_ab: 'Limited şirketi sahibi – kendi şirketinden maaş veya temettü alıyor',
+    opt_pensionar: 'Emekli',
+    opt_student: 'Öğrenci (yarı zamanlı iş veya bursla)',
+    opt_kombination: 'Yukarıdakilerin birkaçının kombinasyonu',
+    capitalEventsQ: '2025 yılında aşağıdakilerden herhangi birini yaptınız mı?',
+    capitalEventsHint: 'Uygulananların hepsini seçin.',
+    opt_bostad: 'Mülk sattı (daire veya ev)',
+    opt_aktier: 'Hisse senedi, fon veya kripto para sattı',
+    opt_uthyrning: 'Evini veya odasını kiraladı',
+    opt_inget: 'Yukarıdakilerin hiçbiri',
+    housingQ: 'Evinize sahip misiniz?',
+    opt_ager_lan: 'Evet, ipotek ile',
+    opt_ager_utan: 'Evet, ipoteksiz',
+    opt_hyr: 'Hayır, kiracıyım',
+    btnContinue: 'Devam et →', btnBack: '← Geri',
+    btnSummary: 'Özeti gör →',
+    btnSendOmbud: '✉ Vergi dosyasını temsilciye gönder',
+    btnCalcDist: '📍 Mesafeyi hesapla',
+    distStatusIdle: 'Yukarıdaki adresleri girin ve Hesapla\'ya tıklayın',
+    distStatusLoading: 'Mesafe hesaplanıyor...',
+    distStatusOk: '✓ {km} km hesaplandı',
+    distStatusErr: 'Hesaplanamadı – mesafeyi manuel girin',
+    optYes: 'Evet', optNo: 'Hayır', optSelect: 'Seç...',
+    errRequired: 'Lütfen tüm zorunlu alanları doldurun (* ile işaretli).',
+    errStep1: 'Gelir durumunuzu ve ev sahibi olup olmadığınızı seçin.',
+    errStep2: 'Kişisel kimlik numarası, ad ve soyadı girin.',
+    errStep6: 'Lütfen vekaletnamenin verilip verilmediğini belirtin.',
+    pnrQ: 'Kişisel kimlik numarası', pnrHint: 'Format: ÅÅÅÅMMDD-XXXX',
+    nameQ: 'Ad', labelFirstName: 'Ad', labelLastName: 'Soyad',
+    commuteQ: 'İşe günlük yolculuk',
+    commuteHint: 'Ev ve iş yeri adresini girin – mesafeyi otomatik hesaplıyoruz.',
+    labelHomeAddr: 'Ev adresi', labelWorkAddr: 'İş yeri adresi',
+    ombudSectionTitle: 'Vergi temsilcisi atayın',
+    ombudSectionDesc: 'Beyannamenizi sizin adınıza vermek için İsveç Vergi Dairesi aracılığıyla bize vekalet vermeniz gerekir. BankID ile 3 dakika sürer.',
+    ombudStatusQ: 'Vekalet verdiniz mi?',
+    ombudOptJa: 'Evet, tamamlandı',
+    ombudOptSenare: 'Sonra yapacağım – devam ediyorum',
+    ombudOptHjalp: 'Bu konuda yardıma ihtiyacım var',
+    totalLabel: 'Belirlenen kesintiler ve indirimlerden tahmini vergi etkisi',
+    totalNote: 'Cevaplarınıza dayalı tahmin. Kesin miktar beyannamede belirlenir.',
   }
 };
 
-let currentLang = 'sv';
+const LANG_SHORT_FORM = {sv:'SV',en:'EN',zh:'中文',th:'ไทย',vi:'VI',ar:'عربي',tr:'TR'};
+let currentLang = localStorage.getItem('deqlara_lang') || 'sv';
+
 function t(key) { return (T[currentLang] && T[currentLang][key]) || T.sv[key] || key; }
+
+function toggleFormLangMenu() {
+  document.getElementById('formLangMenu').classList.toggle('open');
+}
+document.addEventListener('click', function(e) {
+  const dd = document.getElementById('formLangDropdown');
+  if (dd && !dd.contains(e.target)) {
+    document.getElementById('formLangMenu').classList.remove('open');
+  }
+});
+
 function setLanguage(lang) {
   currentLang = lang;
-  document.querySelectorAll('.lang-btn').forEach((b, i) => b.classList.toggle('active', ['sv','en','zh'][i] === lang));
+  localStorage.setItem('deqlara_lang', lang);
+
+  // Update dropdown label and active state
+  const label = document.getElementById('formLangLabel');
+  if (label) label.textContent = LANG_SHORT_FORM[lang] || lang.toUpperCase();
+  document.querySelectorAll('.lang-opt').forEach(el => {
+    el.classList.toggle('active', el.getAttribute('onclick') === "setLanguage('" + lang + "')");
+  });
+  document.getElementById('formLangMenu').classList.remove('open');
+
+  // RTL for Arabic
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
   document.documentElement.lang = lang === 'zh' ? 'zh-Hans' : lang;
+
+  // Apply translations
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const k = el.getAttribute('data-i18n');
     const v = t(k);
     if (v && v !== k) el.textContent = v;
   });
 }
+
+// Init saved language on load
+document.addEventListener('DOMContentLoaded', function() {
+  if (currentLang !== 'sv') setLanguage(currentLang);
+  else {
+    // Just mark the active option for Swedish
+    document.querySelectorAll('.lang-opt').forEach(el => {
+      el.classList.toggle('active', el.getAttribute('onclick') === "setLanguage('sv')");
+    });
+  }
+});
 
 // ===== STATE =====
 let currentStep = 1;
@@ -1436,7 +1756,12 @@ function goToStep(n) {
   if (n === 2 && !_autocompleteInitDone) { _autocompleteInitDone = true; initAddressAutocomplete(); }
   if (n === 4) setupStep4();
   if (n === 5) setupStep5();
-  if (n === 6) buildSummary();
+  if (n === 6) {
+    buildSummary();
+    const namn = [getVal('fornamn'), getVal('efternamn')].filter(Boolean).join(' ');
+    const el = document.getElementById('betalningNamn');
+    if (el && namn) el.textContent = namn;
+  }
 }
 
 // ===== VALIDATION =====
@@ -2191,62 +2516,71 @@ function downloadSRU() {
   setTimeout(() => _triggerDownload(blanketter, 'BLANKETTER.SRU'), 500);
 }
 
+// ===== SUPABASE CONFIG =====
+// Fyll i dina värden från Supabase → Project Settings → API
+const SUPABASE_URL  = 'https://mgsidtgyqnwpzueraqri.supabase.co';   // t.ex. https://xxxx.supabase.co
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1nc2lkdGd5cW53cHp1ZXJhcXJpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjAwOTg5NiwiZXhwIjoyMDkxNTg1ODk2fQ.B-Pt4AR-NVkSGR9bFZnPyKe2dDqmTa7d9q8IRzC8CR4';        // anon/public key
+
+function genRef() {
+  return 'DK' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2,5).toUpperCase();
+}
+
 async function sendToOmbud() {
   if (!validateStep(6)) return;
-
-  // Kräv BankID-checkbox
-  const bankidBox = document.getElementById('bankidConfirm');
-  if (bankidBox && !bankidBox.checked) {
-    const err = document.getElementById('err-6');
-    if (err) { err.textContent = 'Du behöver bekräfta med BankID-rutan innan du kan skicka.'; err.style.display = 'block'; }
-    bankidBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return;
-  }
 
   const btn = document.getElementById('btnSkicka');
   if (btn) { btn.disabled = true; btn.textContent = 'Skickar...'; }
 
   const ombudDone = getRadio('ombudDone') || 'senare';
   const poaMap = { ja: 'klar', senare: 'fortsatter', hjalp: 'behover_hjalp' };
+  const ref = genRef();
 
-  const payload = {
-    personal_identity_number: getVal('personnummer'),
-    first_name:  getVal('fornamn'),
-    last_name:   getVal('efternamn'),
-    user_email:  getVal('email') || null,
-    user_phone:  getVal('telefon') || null,
-    income_year: 2025,
-    salary:            num('loneinkomst') || 0,
-    travel_deduction:  num('pendlingAvdrag') || 0,
-    rot_deduction:     num('rotArbetskostnad') || 0,
-    rut_deduction:     num('rutArbetskostnad') || 0,
-    interest_secured:  num('bolanerantaBetalad') || 0,
-    interest_unsecured: num('blancoPaidInterest') || 0,
-    rental_net:        num('rentalIncome') || 0,
-    power_of_attorney_status: poaMap[ombudDone] || 'fortsatter',
+  const row = {
+    reference_number:          ref,
+    personal_identity_number:  getVal('personnummer'),
+    first_name:                getVal('fornamn'),
+    last_name:                 getVal('efternamn'),
+    user_email:                getVal('email') || null,
+    user_phone:                getVal('telefon') || null,
+    income_year:               2025,
+    salary:                    num('loneinkomst') || 0,
+    travel_deduction:          num('pendlingAvdrag') || 0,
+    rot_deduction:             num('rotArbetskostnad') || 0,
+    rut_deduction:             num('rutArbetskostnad') || 0,
+    interest_secured:          num('bolanerantaBetalad') || 0,
+    interest_unsecured:        num('blancoPaidInterest') || 0,
+    rental_net:                num('rentalIncome') || 0,
+    power_of_attorney_status:  poaMap[ombudDone] || 'fortsatter',
+    status:                    'submitted',
+    raw_data:                  {},
   };
 
   try {
-    const res = await fetch('/api/submit', {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/declarations`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      headers: {
+        'Content-Type':  'application/json',
+        'apikey':        SUPABASE_ANON,
+        'Authorization': `Bearer ${SUPABASE_ANON}`,
+        'Prefer':        'return=representation',
+      },
+      body: JSON.stringify(row),
     });
 
-    const data = await res.json();
-
     if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      console.error('Supabase fel:', errData);
       const err = document.getElementById('err-6');
-      if (err) { err.textContent = data.message || 'Något gick fel. Försök igen.'; err.style.display = 'block'; }
+      if (err) { err.textContent = 'Något gick fel. Försök igen.'; err.style.display = 'block'; }
       if (btn) { btn.disabled = false; btn.textContent = 'Skicka till ombud'; }
       return;
     }
 
     // Visa kvittens
-    const namn = [payload.first_name, payload.last_name].filter(Boolean).join(' ');
+    const namn = [row.first_name, row.last_name].filter(Boolean).join(' ');
     const refEl = document.getElementById('kvittensRef');
     const namnEl = document.getElementById('kvittensNamn');
-    if (refEl) refEl.textContent = data.reference_number || '–';
+    if (refEl) refEl.textContent = ref;
     if (namnEl) namnEl.textContent = namn || '–';
 
     document.getElementById('kvittensScreen').style.display = 'block';
