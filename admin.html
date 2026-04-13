@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deqlara Admin</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #1a3a6b; --gold: #f6ca3c; --bg: #f4f6f9;
+    --white: #fff; --text: #1a1a2e; --muted: #6b7280;
+    --border: #e5e7eb; --red: #dc2626; --green: #15803d;
+    --orange: #d97706;
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; -webkit-font-smoothing: antialiased; }
+
+  /* LOGIN */
+  #loginScreen {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: var(--navy);
+  }
+  .login-box {
+    background: white; border-radius: 16px; padding: 48px 40px; width: 360px; text-align: center;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+  }
+  .login-logo { font-weight: 800; font-size: 22px; color: var(--navy); margin-bottom: 8px; }
+  .login-logo span { color: var(--gold); }
+  .login-sub { font-size: 13px; color: var(--muted); margin-bottom: 32px; }
+  .login-input {
+    width: 100%; padding: 12px 16px; border: 1.5px solid var(--border);
+    border-radius: 8px; font-size: 15px; margin-bottom: 12px; outline: none;
+    transition: border-color 0.15s;
+  }
+  .login-input:focus { border-color: var(--navy); }
+  .login-btn {
+    width: 100%; padding: 12px; background: var(--navy); color: white;
+    border: none; border-radius: 8px; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .login-btn:hover { background: #122a52; }
+  .login-err { color: var(--red); font-size: 13px; margin-top: 10px; display: none; }
+
+  /* APP */
+  #app { display: none; min-height: 100vh; }
+  header {
+    background: var(--navy); padding: 0 24px; height: 56px;
+    display: flex; align-items: center; gap: 12px;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .header-logo { font-weight: 800; font-size: 16px; color: white; }
+  .header-logo span { color: var(--gold); }
+  .header-badge {
+    font-size: 11px; font-weight: 600; background: rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.8); padding: 3px 10px; border-radius: 20px;
+    letter-spacing: 0.04em;
+  }
+  .header-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .refresh-btn {
+    padding: 6px 14px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+    color: white; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .refresh-btn:hover { background: rgba(255,255,255,0.22); }
+  .logout-btn {
+    padding: 6px 14px; background: transparent; border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.7); border-radius: 6px; font-size: 12px; cursor: pointer;
+  }
+
+  .main { padding: 24px; max-width: 1200px; margin: 0 auto; }
+
+  /* STATS */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  .stat-card {
+    background: white; border: 1px solid var(--border); border-radius: 12px; padding: 20px;
+  }
+  .stat-num { font-size: 28px; font-weight: 800; color: var(--navy); letter-spacing: -0.02em; }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* FILTERS */
+  .filters { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+  .filter-tab {
+    padding: 7px 16px; border-radius: 7px; font-size: 13px; font-weight: 500;
+    border: 1.5px solid var(--border); background: white; color: var(--muted);
+    cursor: pointer; transition: all 0.12s;
+  }
+  .filter-tab:hover { border-color: var(--navy); color: var(--navy); }
+  .filter-tab.active { background: var(--navy); color: white; border-color: var(--navy); }
+  .search-input {
+    margin-left: auto; padding: 7px 14px; border: 1.5px solid var(--border);
+    border-radius: 7px; font-size: 13px; width: 220px; outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-input:focus { border-color: var(--navy); }
+
+  /* TABLE */
+  .table-wrap { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    text-align: left; padding: 12px 16px; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted);
+    background: var(--bg); border-bottom: 1px solid var(--border);
+  }
+  td { padding: 14px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr.expanded td { background: #fafbfc; }
+  tr:hover td { background: #fafbff; }
+
+  .name-cell { font-weight: 600; color: var(--text); }
+  .pnr-cell { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .ref-cell { font-family: monospace; font-size: 12px; color: var(--muted); }
+  .date-cell { font-size: 12px; color: var(--muted); }
+
+  /* STATUS BADGE */
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  }
+  .status-submitted  { background: #fef3c7; color: #92400e; }
+  .status-processing { background: #dbeafe; color: #1e40af; }
+  .status-completed  { background: #dcfce7; color: #15803d; }
+  .status-error      { background: #fee2e2; color: #dc2626; }
+
+  /* FULLMAKT BADGE */
+  .poa-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  }
+  .poa-pending        { background: #f3f4f6; color: var(--muted); }
+  .poa-klar           { background: #dcfce7; color: #15803d; }
+  .poa-fortsatter     { background: #fef3c7; color: #92400e; }
+  .poa-behover_hjalp  { background: #fee2e2; color: #dc2626; }
+
+  /* ACTION BUTTONS */
+  .btn {
+    padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;
+    cursor: pointer; border: none; transition: all 0.12s;
+  }
+  .btn-advance { background: var(--navy); color: white; }
+  .btn-advance:hover { background: #122a52; }
+  .btn-reopen  { background: var(--bg); color: var(--muted); border: 1px solid var(--border); }
+  .btn-reopen:hover { color: var(--text); }
+  .btn-delete  { background: #fee2e2; color: var(--red); }
+  .btn-delete:hover { background: #fecaca; }
+  .btn-expand  { background: var(--bg); color: var(--muted); border: 1px solid var(--border); }
+  .btn-expand:hover { color: var(--text); }
+
+  select.poa-select {
+    padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;
+    border: 1.5px solid var(--border); background: white; cursor: pointer;
+    outline: none; transition: border-color 0.12s;
+  }
+  select.poa-select:focus { border-color: var(--navy); }
+
+  /* DETAIL ROW */
+  .detail-row { display: none; }
+  .detail-row.open { display: table-row; }
+  .detail-inner {
+    padding: 20px 24px; background: #f8faff;
+    border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;
+  }
+  .detail-field label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 700; display: block; margin-bottom: 3px; }
+  .detail-field span  { font-size: 13px; color: var(--text); font-weight: 500; }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100;
+    display: none; align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: white; border-radius: 14px; padding: 32px; width: 400px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+  }
+  .modal h3 { font-size: 17px; font-weight: 700; margin-bottom: 10px; }
+  .modal p  { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+  .btn-cancel { padding: 10px 20px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .btn-confirm-delete { padding: 10px 20px; background: var(--red); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .loading { text-align: center; padding: 60px 20px; color: var(--muted); }
+
+  @media (max-width: 768px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .search-input { width: 100%; margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">Deql<span>ara</span></div>
+    <p class="login-sub">Admin</p>
+    <input type="password" id="pwInput" class="login-input" placeholder="Lösenord" onkeydown="if(event.key==='Enter')login()">
+    <button class="login-btn" onclick="login()">Logga in</button>
+    <p class="login-err" id="loginErr">Fel lösenord</p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <div class="header-logo">Deql<span>ara</span></div>
+    <span class="header-badge">ADMIN</span>
+    <div class="header-right">
+      <button class="refresh-btn" onclick="loadData()">↻ Uppdatera</button>
+      <button class="logout-btn" onclick="logout()">Logga ut</button>
+    </div>
+  </header>
+
+  <div class="main">
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-num" id="statTotal">–</div>
+        <div class="stat-label">Totalt inkomna</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statSubmitted">–</div>
+        <div class="stat-label">Väntar på behandling</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statProcessing">–</div>
+        <div class="stat-label">Under behandling</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statCompleted">–</div>
+        <div class="stat-label">Klara</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+      <button class="filter-tab active" onclick="setFilter('all', this)">Alla</button>
+      <button class="filter-tab" onclick="setFilter('submitted', this)">Inkommen</button>
+      <button class="filter-tab" onclick="setFilter('processing', this)">Behandlas</button>
+      <button class="filter-tab" onclick="setFilter('completed', this)">Klar</button>
+      <input class="search-input" id="searchInput" placeholder="Sök namn, ref, personnummer..." oninput="renderTable()">
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <div class="loading" id="loadingState">Laddar ärenden...</div>
+      <div class="empty-state" id="emptyState" style="display:none">Inga ärenden hittades.</div>
+      <table id="mainTable" style="display:none">
+        <thead>
+          <tr>
+            <th>Namn</th>
+            <th>Referens</th>
+            <th>Status</th>
+            <th>Deklarationsombud</th>
+            <th>Datum</th>
+            <th>Åtgärd</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Delete modal -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal">
+    <h3>Radera ärende?</h3>
+    <p id="deleteModalText">Detta går inte att ångra.</p>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeDeleteModal()">Avbryt</button>
+      <button class="btn-confirm-delete" onclick="confirmDelete()">Radera</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== CONFIG =====
+// Samma värden som i formuläret
+const SUPABASE_URL  = 'https://mgsidtgyqnwpzueraqri.supabase.co';
+const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1nc2lkdGd5cW53cHp1ZXJhcXJpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjAwOTg5NiwiZXhwIjoyMDkxNTg1ODk2fQ.B-Pt4AR-NVkSGR9bFZnPyKe2dDqmTa7d9q8IRzC8CR4';
+const ADMIN_PASSWORD = 'deqlara2025'; // Byt till eget lösenord
+
+// ===== AUTH =====
+function login() {
+  const pw = document.getElementById('pwInput').value;
+  if (pw === ADMIN_PASSWORD) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    loadData();
+  } else {
+    document.getElementById('loginErr').style.display = 'block';
+  }
+}
+function logout() {
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('pwInput').value = '';
+}
+
+// ===== DATA =====
+let allData = [];
+let currentFilter = 'all';
+let deleteTargetId = null;
+let expandedIds = new Set();
+
+async function sb(path, opts = {}) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    ...opts,
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Prefer': 'return=representation',
+      ...(opts.headers || {}),
+    },
+  });
+  return res;
+}
+
+async function loadData() {
+  document.getElementById('loadingState').style.display = 'block';
+  document.getElementById('mainTable').style.display = 'none';
+  document.getElementById('emptyState').style.display = 'none';
+
+  const res = await sb('declarations?select=*&order=created_at.desc');
+  allData = await res.json();
+
+  updateStats();
+  renderTable();
+}
+
+function updateStats() {
+  document.getElementById('statTotal').textContent = allData.length;
+  document.getElementById('statSubmitted').textContent  = allData.filter(r => r.status === 'submitted').length;
+  document.getElementById('statProcessing').textContent = allData.filter(r => r.status === 'processing').length;
+  document.getElementById('statCompleted').textContent  = allData.filter(r => r.status === 'completed').length;
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+
+function renderTable() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  let rows = allData;
+
+  if (currentFilter !== 'all') rows = rows.filter(r => r.status === currentFilter);
+  if (search) rows = rows.filter(r =>
+    (r.first_name + ' ' + r.last_name).toLowerCase().includes(search) ||
+    (r.reference_number || '').toLowerCase().includes(search) ||
+    (r.personal_identity_number || '').includes(search)
+  );
+
+  document.getElementById('loadingState').style.display = 'none';
+
+  if (rows.length === 0) {
+    document.getElementById('mainTable').style.display = 'none';
+    document.getElementById('emptyState').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('mainTable').style.display = 'table';
+
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = rows.map(r => {
+    const isExpanded = expandedIds.has(r.id);
+    const date = new Date(r.created_at).toLocaleDateString('sv-SE', { day:'2-digit', month:'short', year:'numeric' });
+
+    const nextStatus = r.status === 'submitted' ? 'processing' : r.status === 'processing' ? 'completed' : null;
+    const nextLabel  = r.status === 'submitted' ? 'Starta behandling' : r.status === 'processing' ? 'Markera klar' : null;
+
+    const poaLabels = { pending:'Väntar', klar:'Fullmakt klar', fortsatter:'Fortsätter ändå', behover_hjalp:'Behöver hjälp' };
+
+    return `
+      <tr>
+        <td>
+          <div class="name-cell">${r.first_name} ${r.last_name}</div>
+          <div class="pnr-cell">${r.personal_identity_number || ''}</div>
+        </td>
+        <td><span class="ref-cell">${r.reference_number || '–'}</span></td>
+        <td><span class="status-badge status-${r.status}">${statusLabel(r.status)}</span></td>
+        <td>
+          <select class="poa-select" onchange="updatePoa('${r.id}', this.value)">
+            ${['pending','klar','fortsatter','behover_hjalp'].map(v =>
+              `<option value="${v}" ${r.power_of_attorney_status === v ? 'selected' : ''}>${poaLabels[v]}</option>`
+            ).join('')}
+          </select>
+        </td>
+        <td><span class="date-cell">${date}</span></td>
+        <td style="display:flex;gap:6px;flex-wrap:wrap">
+          ${nextStatus ? `<button class="btn btn-advance" onclick="advanceStatus('${r.id}','${nextStatus}')">${nextLabel}</button>` : ''}
+          ${r.status === 'completed' ? `<button class="btn btn-reopen" onclick="advanceStatus('${r.id}','submitted')">Återöppna</button>` : ''}
+          <button class="btn btn-expand" onclick="toggleDetail('${r.id}')">${isExpanded ? 'Stäng' : 'Detaljer'}</button>
+          <button class="btn btn-delete" onclick="openDeleteModal('${r.id}','${r.first_name} ${r.last_name}')">Radera</button>
+        </td>
+      </tr>
+      <tr class="detail-row ${isExpanded ? 'open' : ''}" id="detail-${r.id}">
+        <td colspan="6">
+          <div class="detail-inner">
+            <div class="detail-field"><label>E-post</label><span>${r.user_email || '–'}</span></div>
+            <div class="detail-field"><label>Telefon</label><span>${r.user_phone || '–'}</span></div>
+            <div class="detail-field"><label>Inkomstår</label><span>${r.income_year}</span></div>
+            <div class="detail-field"><label>Lön</label><span>${fmt(r.salary)} kr</span></div>
+            <div class="detail-field"><label>Pendlingsavdrag</label><span>${fmt(r.travel_deduction)} kr</span></div>
+            <div class="detail-field"><label>ROT</label><span>${fmt(r.rot_deduction)} kr</span></div>
+            <div class="detail-field"><label>RUT</label><span>${fmt(r.rut_deduction)} kr</span></div>
+            <div class="detail-field"><label>Ränteavdrag</label><span>${fmt(r.interest_secured)} kr</span></div>
+            <div class="detail-field"><label>Uthyrning netto</label><span>${fmt(r.rental_net)} kr</span></div>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function statusLabel(s) {
+  return { submitted:'Inkommen', processing:'Behandlas', completed:'Klar', error:'Fel' }[s] || s;
+}
+function fmt(n) {
+  return (n || 0).toLocaleString('sv-SE');
+}
+function toggleDetail(id) {
+  if (expandedIds.has(id)) expandedIds.delete(id); else expandedIds.add(id);
+  renderTable();
+}
+
+// ===== ACTIONS =====
+async function advanceStatus(id, status) {
+  await sb(`declarations?id=eq.${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status, updated_at: new Date().toISOString() }),
+  });
+  const row = allData.find(r => r.id === id);
+  if (row) row.status = status;
+  updateStats();
+  renderTable();
+}
+
+async function updatePoa(id, value) {
+  await sb(`declarations?id=eq.${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ power_of_attorney_status: value, updated_at: new Date().toISOString() }),
+  });
+  const row = allData.find(r => r.id === id);
+  if (row) row.power_of_attorney_status = value;
+}
+
+function openDeleteModal(id, name) {
+  deleteTargetId = id;
+  document.getElementById('deleteModalText').textContent = `Vill du radera ärendet för ${name}? Detta går inte att ångra.`;
+  document.getElementById('deleteModal').classList.add('open');
+}
+function closeDeleteModal() {
+  deleteTargetId = null;
+  document.getElementById('deleteModal').classList.remove('open');
+}
+async function confirmDelete() {
+  if (!deleteTargetId) return;
+  await sb(`declarations?id=eq.${deleteTargetId}`, { method: 'DELETE' });
+  allData = allData.filter(r => r.id !== deleteTargetId);
+  closeDeleteModal();
+  updateStats();
+  renderTable();
+}
+</script>
+</body>
+</html>
