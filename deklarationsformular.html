@@ -2323,18 +2323,14 @@ function generateSRU() {
 const SRU_EOL = '\n';
 
 // --- Blanketttyp-koder ---
-// Skatteverket avvisar sammansatta tokens som "INK1S-2025P4".
-// Använd bara typkoden: "#BLANKETT INK1", "#BLANKETT K4" etc.
-// Om Skatteverket i framtiden kräver period-suffix, uppdatera här.
-// Bekräftade koder från Skatteverkets officiella Filexempel.xlsx (2025P4-spec).
-// Format: <BlankettTyp>-<InkomstÅr>P<Periodnummer>
-// Exempel: INK1-2025P4 (ingen S-suffix på INK1)
+// Skatteverket godkänner BARA plain typkoder: INK1, K4, K5, K10, NE.
+// Sammansatta tokens (t.ex. INK1-2025P4, INK1S-2025P4) avvisas.
 const BLANKETT_PERIOD_TOKENS = {
-  'INK1': 'INK1-2025P4',
-  'K4':   'K4-2025P4',
-  'K5':   'K5-2025P4',
-  'K10':  'K10-2025P4',
-  'NE':   'NE-2025P4',
+  'INK1': 'INK1',
+  'K4':   'K4',
+  'K5':   'K5',
+  'K10':  'K10',
+  'NE':   'NE',
 };
 
 function getBlankettPeriodToken(formType) {
@@ -2503,7 +2499,13 @@ function generateBlanketterSRU() {
 function generateSRU_clean() { return generateBlanketterSRU(); }
 
 function _triggerDownload(content, filename) {
-  const blob = new Blob([content], { type: 'application/octet-stream' });
+  // Skatteverket kräver ISO 8859-1 — konvertera från JS-sträng (Unicode)
+  const bytes = new Uint8Array(content.length);
+  for (let i = 0; i < content.length; i++) {
+    const code = content.charCodeAt(i);
+    bytes[i] = code <= 0xFF ? code : 0x3F; // tecken utanför ISO 8859-1 → '?'
+  }
+  const blob = new Blob([bytes], { type: 'text/plain;charset=iso-8859-1' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url; a.download = filename;
