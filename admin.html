@@ -561,8 +561,9 @@ function buildBlanketterSRU(r) {
 
   if (r.salary > 0)           lines.push(`#UPPGIFT 1000 ${Math.round(r.salary)}`);
   if (r.travel_deduction > 0) lines.push(`#UPPGIFT 1070 ${Math.round(r.travel_deduction)}`);
-  if (r.rot_deduction > 0)    lines.push(`#UPPGIFT 1583 ${Math.min(Math.round(r.rot_deduction * 0.30), 50000)}`);
-  if (r.rut_deduction > 0)    lines.push(`#UPPGIFT 1584 ${Math.min(Math.round(r.rut_deduction * 0.50), 75000)}`);
+  // 1583/1584 = underlag (arbets­kostnad) — Skatteverket beräknar 30%/50% av underlaget
+  if (r.rot_deduction > 0)    lines.push(`#UPPGIFT 1583 ${Math.round(r.rot_deduction)}`);
+  if (r.rut_deduction > 0)    lines.push(`#UPPGIFT 1584 ${Math.round(r.rut_deduction)}`);
   if (r.interest_secured > 0) lines.push(`#UPPGIFT 1170 ${Math.round(r.interest_secured)}`);
   if (r.interest_unsecured > 0) lines.push(`#UPPGIFT 1177 ${Math.round(r.interest_unsecured)}`);
   if (r.rental_net > 0)       lines.push(`#UPPGIFT 1101 ${Math.round(r.rental_net)}`);

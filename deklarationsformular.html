@@ -2245,7 +2245,7 @@ function generateSRU() {
   L.push('');
 
   const lon = num('abLon');
-  if (lon > 0) L.push(`#UPPGIFT 1000 ${Math.round(lon)}    // 1.1 Lön och förmåner`);
+  if (lon > 0) L.push(`#UPPGIFT 1000 ${Math.round(lon)}`);
 
   const commuteKm = num('commuteKm'), commuteType = getVal('commuteType');
   const commuteDays = num('commuteDays') || 220, kollektivtKr = num('kollektivtKr');
@@ -2253,62 +2253,63 @@ function generateSRU() {
     let cost = commuteType === 'bil' ? commuteKm * 2 * commuteDays * 2.50
       : kollektivtKr > 0 ? kollektivtKr : commuteKm * 2 * commuteDays * 1.20;
     const ded = Math.max(0, cost - 11000);
-    if (ded > 0) L.push(`#UPPGIFT 1070 ${Math.round(ded)}    // 2.1 Resor till/från arbetet`);
+    if (ded > 0) L.push(`#UPPGIFT 1070 ${Math.round(ded)}`);
   }
 
   const fack = num('unionKr'), tools = num('workToolsKr');
   const ovriga = fack + tools;
-  if (ovriga > 5000) L.push(`#UPPGIFT 1073 ${Math.round(ovriga)}    // 2.4 Övriga utgifter för arbetet`);
+  if (ovriga > 5000) L.push(`#UPPGIFT 1073 ${Math.round(ovriga)}`);
 
+  // 1583/1584 = underlag (arbets­kostnad) — Skatteverket beräknar 30%/50% själva
   const rotKr = num('rotKr');
-  if (rotKr > 0) L.push(`#UPPGIFT 1583 ${Math.min(Math.round(rotKr * 0.30), 50000)}    // 4.1 ROT skattereduktion`);
+  if (rotKr > 0) L.push(`#UPPGIFT 1583 ${Math.round(rotKr)}`);
 
   const rutKr = num('rutKr');
-  if (rutKr > 0) L.push(`#UPPGIFT 1584 ${Math.min(Math.round(rutKr * 0.50), getVal('rut65')==='ja' ? 150000 : 75000)}    // 4.2 RUT skattereduktion`);
+  if (rutKr > 0) L.push(`#UPPGIFT 1584 ${Math.round(rutKr)}`);
 
   const rental = num('rentalIncome');
-  if (rental > 0) { const net = Math.max(0, rental - rentalSchablon(rental)); if (net > 0) L.push(`#UPPGIFT 1101 ${Math.round(net)}    // 7.3 Överskott uthyrning`); }
+  if (rental > 0) { const net = Math.max(0, rental - rentalSchablon(rental)); if (net > 0) L.push(`#UPPGIFT 1101 ${Math.round(net)}`); }
 
   const gain = num('capitalGain');
-  if (gain > 0) L.push(`#UPPGIFT 1102 ${Math.round(gain)}    // 7.4 Vinst fondandelar`);
+  if (gain > 0) L.push(`#UPPGIFT 1102 ${Math.round(gain)}`);
 
   const sp = num('salePrice'), bp = num('buyPrice');
   if (sp > 0 && bp > 0) {
     const bg = sp - bp - num('improvements') - num('saleCosts');
-    if (bg > 0) L.push(`#UPPGIFT 1104 ${Math.round(bg)}    // 7.6 Vinst K5`);
+    if (bg > 0) L.push(`#UPPGIFT 1104 ${Math.round(bg)}`);
   }
 
   const interest = num('interestKr');
-  if (interest > 0) L.push(`#UPPGIFT 1170 ${Math.round(interest)}    // 8.1 Ränteutgifter lån med säkerhet`);
+  if (interest > 0) L.push(`#UPPGIFT 1170 ${Math.round(interest)}`);
 
   const interestU = num('interestUnsecured');
-  if (interestU > 0) L.push(`#UPPGIFT 1177 ${Math.round(interestU)}    // 8.8 Ränteutgifter lån utan säkerhet (50% 2025)`);
+  if (interestU > 0) L.push(`#UPPGIFT 1177 ${Math.round(interestU)}`);
 
   const closs = num('capitalLoss');
-  if (closs > 0) L.push(`#UPPGIFT 1172 ${Math.round(closs)}    // 8.3 Förlust fondandelar`);
+  if (closs > 0) L.push(`#UPPGIFT 1172 ${Math.round(closs)}`);
 
   if (sp > 0 && bp > 0) {
     const bl = bp + num('improvements') + num('saleCosts') - sp;
-    if (bl > 0) L.push(`#UPPGIFT 1174 ${Math.round(bl * 0.50)}    // 8.5 Förlust K5`);
+    if (bl > 0) L.push(`#UPPGIFT 1174 ${Math.round(bl * 0.50)}`);
   }
 
   L.push(''); L.push('#BLANKETTSLUT');
 
   if (sp > 0 && bp > 0) {
     L.push('');
-    L.push('#BLANKETT K5');
+    L.push(`#BLANKETT ${getBlankettPeriodToken('K5')}`);
     L.push(`#IDENTITET ${pnr} ${datum}`);
     if (namn) L.push(`#NAMN ${namn}`);
     L.push('');
-    L.push(`#UPPGIFT 3620 ${Math.round(sp)}    // 1. Försäljningspris`);
-    L.push(`#UPPGIFT 3621 ${Math.round(num('saleCosts'))}    // 2. Försäljningsutgifter`);
-    L.push(`#UPPGIFT 3622 ${Math.round(bp)}    // 3. Inköpspris`);
+    L.push(`#UPPGIFT 3620 ${Math.round(sp)}`);
+    L.push(`#UPPGIFT 3621 ${Math.round(num('saleCosts'))}`);
+    L.push(`#UPPGIFT 3622 ${Math.round(bp)}`);
     const imp = num('improvements');
-    if (imp > 0) L.push(`#UPPGIFT 3623 ${Math.round(imp)}    // 4. Förbättringsutgifter`);
+    if (imp > 0) L.push(`#UPPGIFT 3623 ${Math.round(imp)}`);
     const res = sp - bp - imp - num('saleCosts');
-    L.push(`#UPPGIFT 3625 ${Math.round(res)}    // 6. Vinst (+) eller förlust (-)`);
-    if (res > 0) L.push(`#UPPGIFT 3629 ${Math.round(res)}    // 9. Vinst → INK1 p.7.6`);
-    else L.push(`#UPPGIFT 3630 ${Math.round(Math.abs(res))}    // 10. Förlust → INK1 p.8.5`);
+    L.push(`#UPPGIFT 3625 ${Math.round(res)}`);
+    if (res > 0) L.push(`#UPPGIFT 3629 ${Math.round(res)}`);
+    else L.push(`#UPPGIFT 3630 ${Math.round(Math.abs(res))}`);
     L.push(''); L.push('#BLANKETTSLUT');
   }
 
@@ -2456,8 +2457,9 @@ function generateBlanketterSRU() {
   const ovriga = fack + tools;
   if (ovriga > 5000) L.push(`#UPPGIFT 1073 ${Math.round(ovriga)}`);
 
-  const rotKr = num('rotKr'); if (rotKr > 0) L.push(`#UPPGIFT 1583 ${Math.min(Math.round(rotKr * 0.30), 50000)}`);
-  const rutKr = num('rutKr'); if (rutKr > 0) L.push(`#UPPGIFT 1584 ${Math.min(Math.round(rutKr * 0.50), getVal('rut65')==='ja'?150000:75000)}`);
+  // 1583/1584 = underlag (arbets­kostnad) — Skatteverket beräknar 30%/50% av underlaget
+  const rotKr = num('rotKr'); if (rotKr > 0) L.push(`#UPPGIFT 1583 ${Math.round(rotKr)}`);
+  const rutKr = num('rutKr'); if (rutKr > 0) L.push(`#UPPGIFT 1584 ${Math.round(rutKr)}`);
 
   const rental = num('rentalIncome');
   if (rental > 0) { const net = Math.max(0, rental - rentalSchablon(rental)); if (net > 0) L.push(`#UPPGIFT 1101 ${Math.round(net)}`); }
