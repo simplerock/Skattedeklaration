@@ -411,6 +411,14 @@ function renderTable() {
             <div class="detail-field"><label>RUT</label><span>${fmt(r.rut_deduction)} kr</span></div>
             <div class="detail-field"><label>Ränteavdrag</label><span>${fmt(r.interest_secured)} kr</span></div>
             <div class="detail-field"><label>Uthyrning netto</label><span>${fmt(r.rental_net)} kr</span></div>
+            <div class="detail-field"><label>Adress</label><span>${r.address || '–'}</span></div>
+            <div class="detail-field"><label>Postnummer</label><span>${r.postnummer || '–'}</span></div>
+            <div class="detail-field"><label>Ort</label><span>${r.postort || '–'}</span></div>
+          </div>
+          <div style="margin-top:16px;padding-top:14px;border-top:1px solid #f0f0f0;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            ${r.postnummer ? `
+              <button class="btn btn-advance" onclick="downloadSRU('${r.id}')">⬇ Ladda ner SRU-filer</button>
+            ` : `<span style="font-size:12px;color:#d97706">⚠ Postnummer saknas — SRU kan inte genereras</span>`}
           </div>
         </td>
       </tr>
@@ -466,6 +474,99 @@ async function confirmDelete() {
   closeDeleteModal();
   updateStats();
   renderTable();
+}
+
+// ===== SRU GENERATION =====
+function sruNow() {
+  const now = new Date();
+  const d = now.toISOString().slice(0,10).replace(/-/g,'');
+  const t = now.toTimeString().slice(0,8).replace(/:/g,'');
+  return { date: d, time: t };
+}
+
+function sruPnr12(raw) {
+  const digits = (raw || '').replace(/\D/g, '');
+  if (digits.length === 12) return digits;
+  if (digits.length === 10) {
+    const yy = parseInt(digits.slice(0,2), 10);
+    const currentYY = new Date().getFullYear() % 100;
+    return (yy <= currentYY ? '20' : '19') + digits;
+  }
+  return digits;
+}
+
+function toISO88591Blob(text) {
+  const bytes = new Uint8Array(text.length);
+  for (let i = 0; i < text.length; i++) {
+    const code = text.charCodeAt(i);
+    bytes[i] = code <= 0xFF ? code : 0x3F;
+  }
+  return new Blob([bytes], { type: 'text/plain;charset=iso-8859-1' });
+}
+
+function triggerDownload(content, filename) {
+  const blob = toISO88591Blob(content);
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function buildInfoSRU(r) {
+  const pnr = sruPnr12(r.personal_identity_number);
+  const namn = [r.last_name, r.first_name].filter(Boolean).join(', ') || 'Okänt';
+  const { date } = sruNow();
+  const lines = [
+    '#DATABESKRIVNING_START',
+    '#PRODUKT SRU',
+    `#SKAPAD ${date}`,
+    '#PROGRAM Deqlara Admin 1.0',
+    '#FILNAMN BLANKETTER.SRU',
+    '#DATABESKRIVNING_SLUT',
+    '#MEDIELEV_START',
+    `#ORGNR ${pnr}`,
+    `#NAMN ${namn}`,
+  ];
+  if (r.address) lines.push(`#ADRESS ${r.address.split(',')[0].trim()}`);
+  lines.push(`#POSTNR ${r.postnummer}`);
+  if (r.postort) lines.push(`#POSTORT ${r.postort}`);
+  lines.push(`#KONTAKT ${[r.first_name, r.last_name].filter(Boolean).join(' ')}`);
+  lines.push('#MEDIELEV_SLUT');
+  return lines.join('\n') + '\n';
+}
+
+function buildBlanketterSRU(r) {
+  const pnr = sruPnr12(r.personal_identity_number);
+  const namn = [r.last_name, r.first_name].filter(Boolean).join(', ');
+  const { date, time } = sruNow();
+  const lines = [
+    '#BLANKETT INK1',
+    `#IDENTITET ${pnr} ${date} ${time}`,
+  ];
+  if (namn) lines.push(`#NAMN ${namn}`);
+
+  if (r.salary > 0)           lines.push(`#UPPGIFT 1000 ${Math.round(r.salary)}`);
+  if (r.travel_deduction > 0) lines.push(`#UPPGIFT 1070 ${Math.round(r.travel_deduction)}`);
+  if (r.rot_deduction > 0)    lines.push(`#UPPGIFT 1583 ${Math.min(Math.round(r.rot_deduction * 0.30), 50000)}`);
+  if (r.rut_deduction > 0)    lines.push(`#UPPGIFT 1584 ${Math.min(Math.round(r.rut_deduction * 0.50), 75000)}`);
+  if (r.interest_secured > 0) lines.push(`#UPPGIFT 1170 ${Math.round(r.interest_secured)}`);
+  if (r.interest_unsecured > 0) lines.push(`#UPPGIFT 1177 ${Math.round(r.interest_unsecured)}`);
+  if (r.rental_net > 0)       lines.push(`#UPPGIFT 1101 ${Math.round(r.rental_net)}`);
+
+  lines.push('#BLANKETTSLUT');
+  lines.push('#FIL_SLUT');
+  return lines.join('\n') + '\n';
+}
+
+function downloadSRU(id) {
+  const r = allData.find(x => x.id === id);
+  if (!r) return;
+  if (!r.postnummer) { alert('Postnummer saknas – kan inte generera SRU.'); return; }
+  const prefix = (r.reference_number || r.personal_identity_number || 'sru').replace(/[^a-zA-Z0-9]/g,'_');
+  triggerDownload(buildInfoSRU(r), `INFO_${prefix}.SRU`);
+  setTimeout(() => triggerDownload(buildBlanketterSRU(r), `BLANKETTER_${prefix}.SRU`), 500);
 }
 </script>
 </body>

@@ -2558,6 +2558,9 @@ async function sendToOmbud() {
     rental_net:                num('rentalIncome') || 0,
     power_of_attorney_status:  poaMap[ombudDone] || 'fortsatter',
     status:                    'submitted',
+    address:                   getVal('homeAddress') || null,
+    postnummer:                (getVal('postnummer') || '').replace(/\s/g, '') || null,
+    postort:                   getVal('postort') || null,
     raw_data:                  {},
   };
 
