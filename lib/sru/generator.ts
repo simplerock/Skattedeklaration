@@ -1,28 +1,60 @@
+// Server-side SRU generator — must stay in sync with public/sru-core.js
 import type { DeclarationRecord } from '../types/declaration';
 
 const LF = '\n';
 
-function pad(n: number): string {
-  return String(n).padStart(2, '0');
+// Blankett period tokens — must match public/sru-core.js BLANKETT_PERIOD_TOKENS
+const BLANKETT_PERIOD_TOKENS: Record<string, string> = {
+  INK1: 'INK1-2025P4',
+  K4:   'K4-2025P4',
+  K5:   'K5-2025P4',
+  K10:  'K10-2025P4',
+  NE:   'NE-2025P4',
+};
+
+function sruPnr12(raw: string): string {
+  const digits = (raw || '').replace(/\D/g, '');
+  if (digits.length === 12) return digits;
+  if (digits.length === 10) {
+    const yy = parseInt(digits.slice(0, 2), 10);
+    const currentYY = new Date().getFullYear() % 100;
+    return (yy <= currentYY ? '20' : '19') + digits;
+  }
+  return digits;
 }
 
-function sruDate(): string {
-  const d = new Date();
-  return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`;
+function sruNow(): { date: string; time: string } {
+  const now = new Date();
+  const d = now.toISOString().slice(0, 10).replace(/-/g, '');
+  const t = now.toTimeString().slice(0, 8).replace(/:/g, '');
+  return { date: d, time: t };
 }
 
-function sruTime(): string {
-  const d = new Date();
-  return `${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+function buildBlankett(
+  formType: string,
+  identity: { pnr: string; namn: string; date: string; time: string },
+  fields: [number, number][],
+): string[] {
+  const token = BLANKETT_PERIOD_TOKENS[formType];
+  if (!token) throw new Error(`Unknown blankett type: ${formType}`);
+  const lines: string[] = [
+    `#BLANKETT ${token}`,
+    `#IDENTITET ${identity.pnr} ${identity.date} ${identity.time}`,
+  ];
+  if (identity.namn) lines.push(`#NAMN ${identity.namn}`);
+  for (const [code, val] of fields) {
+    if (val !== 0 && val != null) {
+      lines.push(`#UPPGIFT ${code} ${Math.round(val)}`);
+    }
+  }
+  lines.push('#BLANKETTSLUT');
+  return lines;
 }
 
-// Returnerar { infoSru, blankettSru } som strängar (LF, ISO 8859-1-kompatibel)
 export function generateSruFiles(rec: DeclarationRecord): { infoSru: string; blankettSru: string } {
-  const pnr   = rec.personal_identity_number.replace(/\D/g, '');
-  const namn  = `${rec.last_name}, ${rec.first_name}`;
-  const date  = sruDate();
-  const time  = sruTime();
-  const year  = rec.income_year;
+  const pnr = sruPnr12(rec.personal_identity_number);
+  const namn = `${rec.last_name}, ${rec.first_name}`;
+  const { date, time } = sruNow();
 
   // ---- INFO.SRU ----
   const infoLines = [
@@ -35,60 +67,62 @@ export function generateSruFiles(rec: DeclarationRecord): { infoSru: string; bla
     '#MEDIELEV_START',
     `#ORGNR ${pnr}`,
     `#NAMN ${namn}`,
-    `#POSTNR 00000`,   // ersätt med riktigt postnr om det lagras
-    `#POSTORT Okand`,
-    `#KONTAKT ${rec.first_name} ${rec.last_name}`,
-    '#MEDIELEV_SLUT',
   ];
+  if (rec.address) {
+    const addr = rec.address.split(',')[0].trim();
+    if (addr) infoLines.push(`#ADRESS ${addr}`);
+  }
+  infoLines.push(`#POSTNR ${rec.postnummer || '00000'}`);
+  infoLines.push(`#POSTORT ${rec.postort || 'Okand'}`);
+  infoLines.push(`#KONTAKT ${rec.first_name} ${rec.last_name}`);
+  infoLines.push('#MEDIELEV_SLUT');
   const infoSru = infoLines.join(LF) + LF;
 
   // ---- BLANKETTER.SRU ----
-  const token = `INK1-${year}P4`;
-  const lines: string[] = [
-    `#BLANKETT ${token}`,
-    `#IDENTITET ${pnr} ${date} ${time}`,
-    `#NAMN ${namn}`,
+  const identity = { pnr, namn, date, time };
+  const blankettBlocks: string[][] = [];
+
+  // INK1
+  const sp = rec.housing_sale_price ?? 0;
+  const bp = rec.housing_buy_price ?? 0;
+  const imp = rec.housing_improvements ?? 0;
+  const sc = rec.housing_sale_costs ?? 0;
+  const housingGain = (sp > 0 && bp > 0) ? Math.max(0, sp - bp - imp - sc) : 0;
+  const housingLoss = (sp > 0 && bp > 0) ? Math.max(0, bp + imp + sc - sp) * 0.50 : 0;
+
+  const ink1Fields: [number, number][] = [
+    [1000, rec.salary],
+    [1070, rec.travel_deduction],
+    [1073, rec.other_work_expenses],
+    [1583, rec.rot_deduction],
+    [1584, rec.rut_deduction],
+    [1101, rec.rental_net],
+    [1102, rec.capital_gain_funds],
+    [1104, housingGain],
+    [1170, rec.interest_secured],
+    [1177, rec.interest_unsecured],
+    [1172, rec.capital_loss_funds],
+    [1174, housingLoss],
   ];
+  blankettBlocks.push(buildBlankett('INK1', identity, ink1Fields));
 
-  const add = (kod: number, val: number) => {
-    if (val > 0) lines.push(`#UPPGIFT ${kod} ${val}`);
-  };
-
-  add(1000, rec.salary);
-  add(1070, rec.travel_deduction);
-  add(1073, rec.other_work_expenses);
-  add(1583, rec.rot_deduction);
-  add(1584, rec.rut_deduction);
-  add(1101, rec.rental_net);
-  add(1102, rec.capital_gain_funds);
-  add(1170, rec.interest_secured);
-  add(1177, rec.interest_unsecured);
-  add(1172, rec.capital_loss_funds);
-
-  // K5 — bostadsförsäljning
-  if (rec.housing_sale_price && rec.housing_buy_price) {
-    const sp  = rec.housing_sale_price;
-    const bp  = rec.housing_buy_price;
-    const imp = rec.housing_improvements ?? 0;
-    const sc  = rec.housing_sale_costs   ?? 0;
+  // K5
+  if (sp > 0 && bp > 0) {
     const res = sp - bp - imp - sc;
-
-    lines.push('#BLANKETTSLUT');
-    lines.push(`#BLANKETT K5-${year}P4`);
-    lines.push(`#IDENTITET ${pnr} ${date} ${time}`);
-    lines.push(`#NAMN ${namn}`);
-    lines.push(`#UPPGIFT 3620 ${sp}`);
-    lines.push(`#UPPGIFT 3621 ${sc}`);
-    lines.push(`#UPPGIFT 3622 ${bp}`);
-    if (imp > 0) lines.push(`#UPPGIFT 3623 ${imp}`);
-    lines.push(`#UPPGIFT 3625 ${res}`);
-    if (res > 0) lines.push(`#UPPGIFT 3629 ${res}`);
-    else         lines.push(`#UPPGIFT 3630 ${Math.abs(res)}`);
+    const k5Fields: [number, number][] = [
+      [3620, sp],
+      [3621, sc],
+      [3622, bp],
+      [3623, imp],
+      [3625, res],
+      [res > 0 ? 3629 : 3630, Math.abs(res)],
+    ];
+    blankettBlocks.push(buildBlankett('K5', identity, k5Fields));
   }
 
-  lines.push('#BLANKETTSLUT');
-  lines.push('#FIL_SLUT');
+  const allLines = blankettBlocks.flat();
+  allLines.push('#FIL_SLUT');
+  const blankettSru = allLines.join(LF) + LF;
 
-  const blankettSru = lines.join(LF) + LF;
   return { infoSru, blankettSru };
 }

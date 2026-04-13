@@ -50,6 +50,9 @@ export interface DeclarationRecord {
   housing_buy_price: number | null;
   housing_improvements: number | null;
   housing_sale_costs: number | null;
+  address: string | null;
+  postnummer: string | null;
+  postort: string | null;
   raw_data: SubmissionPayload;
 }
 

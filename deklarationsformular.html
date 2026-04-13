@@ -1120,6 +1120,7 @@ body {
   </div>
 </div>
 
+<script src="sru-core.js"></script>
 <script>
 // ===== CONFIG =====
 const OMBUD_PNR = '19830920-6731';
@@ -2227,301 +2228,100 @@ function formatHousing(v) {
   return {ager_lan:'Äger med bolån',ager_utan:'Äger utan bolån',hyr:'Hyr'}[v] || v;
 }
 
-// ===== SRU GENERATION =====
-function generateSRU() {
-  const pnr = getVal('personnummer') || 'XXXXXX-XXXX';
-  const namn = [getVal('efternamn'), getVal('fornamn')].filter(Boolean).join(', ');
-  const datum = new Date().toISOString().slice(0,10).replace(/-/g,'');
-  const L = [];
+// ===== SRU FILE GENERATION — uses shared SruCore (public/sru-core.js) =====
 
-  L.push('// SRU-FIL: INKOMSTDEKLARATION 1, INKOMSTÅR 2025');
-  L.push('// Fältkoder: Skatteverket 2025P4-specifikation (INK1_SKV2000-35-02-0025-02)');
-  L.push('// Genererad: ' + new Date().toLocaleString('sv-SE'));
-  L.push('');
-  L.push('#BLANKETT INK1');
-  L.push(`#IDENTITET ${pnr} ${datum}`);
-  L.push('#SYSTEMINFO Deklarationsformular 2025');
-  if (namn) L.push(`#NAMN ${namn}`);
-  L.push('');
-
-  const lon = num('abLon');
-  if (lon > 0) L.push(`#UPPGIFT 1000 ${Math.round(lon)}`);
-
-  const commuteKm = num('commuteKm'), commuteType = getVal('commuteType');
-  const commuteDays = num('commuteDays') || 220, kollektivtKr = num('kollektivtKr');
-  if (commuteKm > 0 && commuteType) {
-    let cost = commuteType === 'bil' ? commuteKm * 2 * commuteDays * 2.50
-      : kollektivtKr > 0 ? kollektivtKr : commuteKm * 2 * commuteDays * 1.20;
-    const ded = Math.max(0, cost - 11000);
-    if (ded > 0) L.push(`#UPPGIFT 1070 ${Math.round(ded)}`);
-  }
-
-  const fack = num('unionKr'), tools = num('workToolsKr');
-  const ovriga = fack + tools;
-  if (ovriga > 5000) L.push(`#UPPGIFT 1073 ${Math.round(ovriga)}`);
-
-  // 1583/1584 = underlag (arbets­kostnad) — Skatteverket beräknar 30%/50% själva
-  const rotKr = num('rotKr');
-  if (rotKr > 0) L.push(`#UPPGIFT 1583 ${Math.round(rotKr)}`);
-
-  const rutKr = num('rutKr');
-  if (rutKr > 0) L.push(`#UPPGIFT 1584 ${Math.round(rutKr)}`);
-
-  const rental = num('rentalIncome');
-  if (rental > 0) { const net = Math.max(0, rental - rentalSchablon(rental)); if (net > 0) L.push(`#UPPGIFT 1101 ${Math.round(net)}`); }
-
-  const gain = num('capitalGain');
-  if (gain > 0) L.push(`#UPPGIFT 1102 ${Math.round(gain)}`);
-
-  const sp = num('salePrice'), bp = num('buyPrice');
-  if (sp > 0 && bp > 0) {
-    const bg = sp - bp - num('improvements') - num('saleCosts');
-    if (bg > 0) L.push(`#UPPGIFT 1104 ${Math.round(bg)}`);
-  }
-
-  const interest = num('interestKr');
-  if (interest > 0) L.push(`#UPPGIFT 1170 ${Math.round(interest)}`);
-
-  const interestU = num('interestUnsecured');
-  if (interestU > 0) L.push(`#UPPGIFT 1177 ${Math.round(interestU)}`);
-
-  const closs = num('capitalLoss');
-  if (closs > 0) L.push(`#UPPGIFT 1172 ${Math.round(closs)}`);
-
-  if (sp > 0 && bp > 0) {
-    const bl = bp + num('improvements') + num('saleCosts') - sp;
-    if (bl > 0) L.push(`#UPPGIFT 1174 ${Math.round(bl * 0.50)}`);
-  }
-
-  L.push(''); L.push('#BLANKETTSLUT');
-
-  if (sp > 0 && bp > 0) {
-    L.push('');
-    L.push(`#BLANKETT ${getBlankettPeriodToken('K5')}`);
-    L.push(`#IDENTITET ${pnr} ${datum}`);
-    if (namn) L.push(`#NAMN ${namn}`);
-    L.push('');
-    L.push(`#UPPGIFT 3620 ${Math.round(sp)}`);
-    L.push(`#UPPGIFT 3621 ${Math.round(num('saleCosts'))}`);
-    L.push(`#UPPGIFT 3622 ${Math.round(bp)}`);
-    const imp = num('improvements');
-    if (imp > 0) L.push(`#UPPGIFT 3623 ${Math.round(imp)}`);
-    const res = sp - bp - imp - num('saleCosts');
-    L.push(`#UPPGIFT 3625 ${Math.round(res)}`);
-    if (res > 0) L.push(`#UPPGIFT 3629 ${Math.round(res)}`);
-    else L.push(`#UPPGIFT 3630 ${Math.round(Math.abs(res))}`);
-    L.push(''); L.push('#BLANKETTSLUT');
-  }
-
-  L.push('#FIL_SLUT');
-  return L.join('\n');
-}
-
-// ===== SRU FILE GENERATION (Skatteverket-specifikation) =====
-// ===== SRU FILE GENERATION — Skatteverket SKV 269 =====
-// Filnamn: INFO.SRU + BLANKETTER.SRU (exakt, döp aldrig om)
-// Teckenkodning: ISO 8859-1. Radslut: LF (\n) enl. SKV 269 9.3.
-const SRU_EOL = '\n';
-
-// --- Blanketttyp-koder ---
-// Bekräftat av Skatteverket: period-token krävs, t.ex. INK1-2025P4
-// Plain typkod (INK1) avvisas — "tillhör en period som inte är öppen för inlämning"
-const BLANKETT_PERIOD_TOKENS = {
-  'INK1': 'INK1-2025P4',
-  'K4':   'K4-2025P4',
-  'K5':   'K5-2025P4',
-  'K10':  'K10-2025P4',
-  'NE':   'NE-2025P4',
-};
-
-function getBlankettPeriodToken(formType) {
-  const token = BLANKETT_PERIOD_TOKENS[formType];
-  if (!token) throw new Error(`Okänd blanketttyp: ${formType}. Lägg till i BLANKETT_PERIOD_TOKENS.`);
-  return token;
-}
-
-// --- Hjälpfunktioner ---
-function sruPnr12(raw) {
-  const digits = (raw || '').replace(/\D/g, '');
-  if (digits.length === 12) return digits; // already full 12-digit
-  if (digits.length === 10) {
-    // 2-digit century: born 2000+ have birth year 00–99 in first 2 digits
-    // Convention: if year <= current 2-digit year, assume 2000s; else 1900s
-    const yy = parseInt(digits.slice(0, 2), 10);
-    const currentYY = new Date().getFullYear() % 100;
-    return (yy <= currentYY ? '20' : '19') + digits;
-  }
-  return digits;
-}
-
-function sruNow() {
-  const now = new Date();
-  const d = now.toISOString().slice(0,10).replace(/-/g,'');
-  const t = now.toTimeString().slice(0,8).replace(/:/g,'');
-  return { date: d, time: t };
-}
-
-function serializeSruLines(lines) {
-  return lines.join(SRU_EOL) + SRU_EOL;
-}
-
-// --- Pre-export validering ---
 function validateSruInput() {
   const errors = [];
-  const pnr = sruPnr12(getVal('personnummer'));
+  const pnr = SruCore.sruPnr12(getVal('personnummer'));
   if (!pnr || pnr.length < 10) errors.push('Personnummer saknas eller är ogiltigt.');
   const namn = [getVal('efternamn'), getVal('fornamn')].filter(Boolean).join(', ');
   if (!namn) errors.push('Namn saknas (förnamn + efternamn).');
   return errors;
 }
 
-// ===== INFO.SRU =====
-// Ordning enl. SKV 269 avsnitt 9.4.1 + filexempel sida 20.
-// #PRODUKT måste vara exakt "SRU". Ingen #PERIOD-rad.
-function generateInfoSRU() {
-  const pnr12 = sruPnr12(getVal('personnummer'));
-  const namn = [getVal('efternamn'), getVal('fornamn')].filter(Boolean).join(', ') || 'Okänt';
-  const { date, time } = sruNow();
-  const L = [];
-
-  // Databeskrivning
-  L.push('#DATABESKRIVNING_START');
-  L.push('#PRODUKT SRU');
-  L.push(`#SKAPAD ${date}`);  // YYYYMMDD — Skatteverket avvisar YYYYMMDDHHMMSS
-  L.push('#PROGRAM Deklarationsformularet 1.0');
-  L.push('#FILNAMN BLANKETTER.SRU');
-  L.push('#DATABESKRIVNING_SLUT');
-
-  // Medieleverantör
-  L.push('#MEDIELEV_START');
-  L.push(`#ORGNR ${pnr12}`);
-  L.push(`#NAMN ${namn}`);
-
-  // Adressfält — ta från hemadress om den finns
-  const homeAddr = getVal('homeAddress') || '';
-  const parts = homeAddr.split(',').map(s => s.trim()).filter(Boolean);
-  if (parts[0]) L.push(`#ADRESS ${parts[0]}`);
-
-  // Postnummer och postort — hämtas direkt från egna fält
-  const postnr = (getVal('postnummer') || '').replace(/\s/g, '');
-  const postort = (getVal('postort') || '').trim();
-
-  // #POSTNR är OBLIGATORISKT
-  if (!postnr || postnr === '00000') {
-    throw new Error('Postnummer saknas. Fyll i postnummerfältet.');
-  }
-  L.push(`#POSTNR ${postnr}`);
-
-  // #POSTORT är OBLIGATORISKT
-  if (!postort) {
-    throw new Error('Ort saknas. Fyll i ortfältet.');
-  }
-  L.push(`#POSTORT ${postort}`);
-
-  const kontakt = [getVal('fornamn'), getVal('efternamn')].filter(Boolean).join(' ');
-  if (kontakt) L.push(`#KONTAKT ${kontakt}`);
-
-  L.push('#MEDIELEV_SLUT');
-
-  return serializeSruLines(L);
+function _collectIdentity() {
+  const pnr12 = SruCore.sruPnr12(getVal('personnummer'));
+  const namn = [getVal('efternamn'), getVal('fornamn')].filter(Boolean).join(', ');
+  const { date, time } = SruCore.sruNow();
+  return { pnr: pnr12, namn, date, time };
 }
 
-// ===== BLANKETTER.SRU =====
-// Varje blankettblock: #BLANKETT <token> → #IDENTITET → #NAMN → #UPPGIFT:er → #BLANKETTSLUT
-// Filen avslutas med #FIL_SLUT
+function generateInfoSRU() {
+  const pnr12 = SruCore.sruPnr12(getVal('personnummer'));
+  const namn = [getVal('efternamn'), getVal('fornamn')].filter(Boolean).join(', ') || 'Okänt';
+  const homeAddr = getVal('homeAddress') || '';
+  const address = homeAddr.split(',').map(s => s.trim()).filter(Boolean)[0] || '';
+  const postnr = (getVal('postnummer') || '').replace(/\s/g, '');
+  const postort = (getVal('postort') || '').trim();
+  const kontakt = [getVal('fornamn'), getVal('efternamn')].filter(Boolean).join(' ');
+  return SruCore.buildInfoSru({
+    pnr: pnr12, namn, address, postnummer: postnr, postort, kontakt,
+    programName: 'Deklarationsformularet 1.0',
+  });
+}
+
 function generateBlanketterSRU() {
-  const pnr12 = sruPnr12(getVal('personnummer'));
-  const namn = [getVal('efternamn'), getVal('fornamn')].filter(Boolean).join(', ');
-  const { date, time } = sruNow();
-  const L = [];
+  const id = _collectIdentity();
+  const blanketter = [];
 
-  // --- INK1-blankettblock ---
-  L.push(`#BLANKETT ${getBlankettPeriodToken('INK1')}`);
-  L.push(`#IDENTITET ${pnr12} ${date} ${time}`);
-  if (namn) L.push(`#NAMN ${namn}`);
-
-  const lon = num('abLon'); if (lon > 0) L.push(`#UPPGIFT 1000 ${Math.round(lon)}`);
-
+  // --- INK1 ---
+  const lon = num('abLon');
   const commuteKm = num('commuteKm'), commuteType = getVal('commuteType');
   const commuteDays = num('commuteDays') || 220, kollektivtKr = num('kollektivtKr');
+  let travelDed = 0;
   if (commuteKm > 0 && commuteType) {
     let cost = commuteType === 'bil' ? commuteKm * 2 * commuteDays * 2.50
       : kollektivtKr > 0 ? kollektivtKr : commuteKm * 2 * commuteDays * 1.20;
-    const ded = Math.max(0, cost - 11000);
-    if (ded > 0) L.push(`#UPPGIFT 1070 ${Math.round(ded)}`);
+    travelDed = Math.max(0, cost - 11000);
   }
-
-  const fack = num('unionKr'), tools = num('workToolsKr');
-  // Rapportera TOTALA beloppet om det överstiger 5 000 kr (Skatteverket drar av 5 000 på sin sida).
-  // Räkna alltid ihop fack + verktyg — tröskeln gäller summan, inte enskilda poster.
-  const ovriga = fack + tools;
-  if (ovriga > 5000) L.push(`#UPPGIFT 1073 ${Math.round(ovriga)}`);
-
-  // 1583/1584 = underlag (arbets­kostnad) — Skatteverket beräknar 30%/50% av underlaget
-  const rotKr = num('rotKr'); if (rotKr > 0) L.push(`#UPPGIFT 1583 ${Math.round(rotKr)}`);
-  const rutKr = num('rutKr'); if (rutKr > 0) L.push(`#UPPGIFT 1584 ${Math.round(rutKr)}`);
-
+  const ovriga = num('unionKr') + num('workToolsKr');
+  const rotKr = num('rotKr'), rutKr = num('rutKr');
   const rental = num('rentalIncome');
-  if (rental > 0) { const net = Math.max(0, rental - rentalSchablon(rental)); if (net > 0) L.push(`#UPPGIFT 1101 ${Math.round(net)}`); }
-
-  const gain = num('capitalGain'); if (gain > 0) L.push(`#UPPGIFT 1102 ${Math.round(gain)}`);
-
+  const rentalNet = rental > 0 ? Math.max(0, rental - rentalSchablon(rental)) : 0;
+  const gain = num('capitalGain');
   const sp = num('salePrice'), bp = num('buyPrice');
-  if (sp > 0 && bp > 0) { const bg = sp - bp - num('improvements') - num('saleCosts'); if (bg > 0) L.push(`#UPPGIFT 1104 ${Math.round(bg)}`); }
+  const imp = num('improvements'), sc = num('saleCosts');
+  const housingGain = (sp > 0 && bp > 0) ? Math.max(0, sp - bp - imp - sc) : 0;
+  const housingLoss = (sp > 0 && bp > 0) ? Math.max(0, bp + imp + sc - sp) * 0.50 : 0;
 
-  const interest = num('interestKr'); if (interest > 0) L.push(`#UPPGIFT 1170 ${Math.round(interest)}`);
-  const iU = num('interestUnsecured'); if (iU > 0) L.push(`#UPPGIFT 1177 ${Math.round(iU)}`);
-  const closs = num('capitalLoss'); if (closs > 0) L.push(`#UPPGIFT 1172 ${Math.round(closs)}`);
+  const ink1Fields = [
+    [1000, lon],
+    [1070, travelDed],
+    [1073, ovriga > 5000 ? ovriga : 0],
+    [1583, rotKr],
+    [1584, rutKr],
+    [1101, rentalNet],
+    [1102, gain],
+    [1104, housingGain],
+    [1170, num('interestKr')],
+    [1177, num('interestUnsecured')],
+    [1172, num('capitalLoss')],
+    [1174, housingLoss],
+  ];
+  blanketter.push(SruCore.buildBlankett('INK1', id, ink1Fields));
 
-  if (sp > 0 && bp > 0) { const bl = bp + num('improvements') + num('saleCosts') - sp; if (bl > 0) L.push(`#UPPGIFT 1174 ${Math.round(bl * 0.50)}`); }
-
-  L.push('#BLANKETTSLUT');
-
-  // --- K5-blankettblock (bostadsförsäljning) ---
+  // --- K5 (bostadsförsäljning) ---
   if (sp > 0 && bp > 0) {
-    L.push(`#BLANKETT ${getBlankettPeriodToken('K5')}`);
-    L.push(`#IDENTITET ${pnr12} ${date} ${time}`);
-    if (namn) L.push(`#NAMN ${namn}`);
-    L.push(`#UPPGIFT 3620 ${Math.round(sp)}`);
-    L.push(`#UPPGIFT 3621 ${Math.round(num('saleCosts'))}`);
-    L.push(`#UPPGIFT 3622 ${Math.round(bp)}`);
-    const imp = num('improvements'); if (imp > 0) L.push(`#UPPGIFT 3623 ${Math.round(imp)}`);
-    const res = sp - bp - imp - num('saleCosts');
-    L.push(`#UPPGIFT 3625 ${Math.round(res)}`);
-    if (res > 0) L.push(`#UPPGIFT 3629 ${Math.round(res)}`);
-    else L.push(`#UPPGIFT 3630 ${Math.round(Math.abs(res))}`);
-    L.push('#BLANKETTSLUT');
+    const res = sp - bp - imp - sc;
+    const k5Fields = [
+      [3620, sp],
+      [3621, sc],
+      [3622, bp],
+      [3623, imp],
+      [3625, res],
+      [res > 0 ? 3629 : 3630, Math.abs(res)],
+    ];
+    blanketter.push(SruCore.buildBlankett('K5', id, k5Fields));
   }
 
-  L.push('#FIL_SLUT');
-  return serializeSruLines(L);
-}
-
-// Bakåtkompatibilitet: generateSRU_clean returnerar BLANKETTER-innehållet
-function generateSRU_clean() { return generateBlanketterSRU(); }
-
-function _triggerDownload(content, filename) {
-  // Skatteverket kräver ISO 8859-1 — konvertera från JS-sträng (Unicode)
-  const bytes = new Uint8Array(content.length);
-  for (let i = 0; i < content.length; i++) {
-    const code = content.charCodeAt(i);
-    bytes[i] = code <= 0xFF ? code : 0x3F; // tecken utanför ISO 8859-1 → '?'
-  }
-  const blob = new Blob([bytes], { type: 'text/plain;charset=iso-8859-1' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  return SruCore.buildBlanketterSru(blanketter);
 }
 
 function downloadSRU() {
   const info = generateInfoSRU();
   const blanketter = generateBlanketterSRU();
-  // Skatteverket kräver exakt dessa filnamn — döp ALDRIG om filerna
-  _triggerDownload(info, 'INFO.SRU');
-  setTimeout(() => _triggerDownload(blanketter, 'BLANKETTER.SRU'), 500);
+  SruCore.triggerDownload(info, 'INFO.SRU');
+  setTimeout(() => SruCore.triggerDownload(blanketter, 'BLANKETTER.SRU'), 500);
 }
 
 // ===== SUPABASE CONFIG =====
