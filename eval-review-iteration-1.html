@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eval Review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" integrity="sha384-EnyY0/GSHQGSxSgMwaIPzSESbqoOLSexfnSMN2AP+39Ckmn92stwABZynq1JyzdT" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --bg: #faf9f5;
+      --surface: #ffffff;
+      --border: #e8e6dc;
+      --text: #141413;
+      --text-muted: #b0aea5;
+      --accent: #d97757;
+      --accent-hover: #c4613f;
+      --green: #788c5d;
+      --green-bg: #eef2e8;
+      --red: #c44;
+      --red-bg: #fceaea;
+      --header-bg: #141413;
+      --header-text: #faf9f5;
+      --radius: 6px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Lora', Georgia, serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ---- Header ---- */
+    .header {
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .header h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .header .instructions {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      margin-top: 0.25rem;
+    }
+    .header .progress {
+      font-size: 0.875rem;
+      opacity: 0.8;
+      text-align: right;
+    }
+
+    /* ---- Main content ---- */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* ---- Sections ---- */
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      flex-shrink: 0;
+    }
+    .section-header {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.75rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .section-body {
+      padding: 1rem;
+    }
+
+    /* ---- Config badge ---- */
+    .config-badge {
+      display: inline-block;
+      padding: 0.2rem 0.625rem;
+      border-radius: 9999px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-left: 0.75rem;
+      vertical-align: middle;
+    }
+    .config-badge.config-primary {
+      background: rgba(33, 150, 243, 0.12);
+      color: #1976d2;
+    }
+    .config-badge.config-baseline {
+      background: rgba(255, 193, 7, 0.15);
+      color: #f57f17;
+    }
+
+    /* ---- Prompt ---- */
+    .prompt-text {
+      white-space: pre-wrap;
+      font-size: 0.9375rem;
+      line-height: 1.6;
+    }
+
+    /* ---- Outputs ---- */
+    .output-file {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .output-file + .output-file {
+      margin-top: 1rem;
+    }
+    .output-file-header {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .output-file-header .dl-btn {
+      font-size: 0.7rem;
+      color: var(--accent);
+      text-decoration: none;
+      cursor: pointer;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+    .output-file-header .dl-btn:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+    .output-file-content {
+      padding: 0.75rem;
+      overflow-x: auto;
+    }
+    .output-file-content pre {
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+    .output-file-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+    .output-file-content iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+    }
+    .output-file-content table {
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+      width: 100%;
+    }
+    .output-file-content table td,
+    .output-file-content table th {
+      border: 1px solid var(--border);
+      padding: 0.375rem 0.5rem;
+      text-align: left;
+    }
+    .output-file-content table th {
+      background: var(--bg);
+      font-weight: 600;
+    }
+    .output-file-content .download-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+    .output-file-content .download-link:hover {
+      background: var(--border);
+    }
+    .empty-state {
+      color: var(--text-muted);
+      font-style: italic;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    /* ---- Feedback ---- */
+    .prev-feedback {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.625rem 0.75rem;
+      margin-top: 0.75rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .prev-feedback-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.25rem;
+      color: var(--text-muted);
+    }
+    .feedback-textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.9375rem;
+      line-height: 1.5;
+      resize: vertical;
+      color: var(--text);
+    }
+    .feedback-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    .feedback-status {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      min-height: 1.1em;
+    }
+
+    /* ---- Grades (collapsible) ---- */
+    .grades-toggle {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .grades-toggle:hover {
+      color: var(--accent);
+    }
+    .grades-toggle .arrow {
+      margin-right: 0.5rem;
+      transition: transform 0.15s;
+      font-size: 0.75rem;
+    }
+    .grades-toggle .arrow.open {
+      transform: rotate(90deg);
+    }
+    .grades-content {
+      display: none;
+      margin-top: 0.75rem;
+    }
+    .grades-content.open {
+      display: block;
+    }
+    .grades-summary {
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .grade-badge {
+      display: inline-block;
+      padding: 0.125rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .grade-pass { background: var(--green-bg); color: var(--green); }
+    .grade-fail { background: var(--red-bg); color: var(--red); }
+    .assertion-list {
+      list-style: none;
+    }
+    .assertion-item {
+      padding: 0.625rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8125rem;
+    }
+    .assertion-item:last-child { border-bottom: none; }
+    .assertion-status {
+      font-weight: 600;
+      margin-right: 0.5rem;
+    }
+    .assertion-status.pass { color: var(--green); }
+    .assertion-status.fail { color: var(--red); }
+    .assertion-evidence {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      padding-left: 1.5rem;
+    }
+
+    /* ---- View tabs ---- */
+    .view-tabs {
+      display: flex;
+      gap: 0;
+      padding: 0 2rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .view-tab {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.625rem 1.25rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .view-tab:hover { color: var(--text); }
+    .view-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    .view-panel { display: none; }
+    .view-panel.active { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+
+    /* ---- Benchmark view ---- */
+    .benchmark-view {
+      padding: 1.5rem 2rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .benchmark-table {
+      border-collapse: collapse;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.8125rem;
+      width: 100%;
+      margin-bottom: 1.5rem;
+    }
+    .benchmark-table th, .benchmark-table td {
+      padding: 0.625rem 0.75rem;
+      text-align: left;
+      border: 1px solid var(--border);
+    }
+    .benchmark-table th {
+      font-family: 'Poppins', sans-serif;
+      background: var(--header-bg);
+      color: var(--header-text);
+      font-weight: 500;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .benchmark-table tr:hover { background: var(--bg); }
+    .benchmark-table tr.benchmark-row-with { background: rgba(33, 150, 243, 0.06); }
+    .benchmark-table tr.benchmark-row-without { background: rgba(255, 193, 7, 0.06); }
+    .benchmark-table tr.benchmark-row-with:hover { background: rgba(33, 150, 243, 0.12); }
+    .benchmark-table tr.benchmark-row-without:hover { background: rgba(255, 193, 7, 0.12); }
+    .benchmark-table tr.benchmark-row-avg { font-weight: 600; border-top: 2px solid var(--border); }
+    .benchmark-table tr.benchmark-row-avg.benchmark-row-with { background: rgba(33, 150, 243, 0.12); }
+    .benchmark-table tr.benchmark-row-avg.benchmark-row-without { background: rgba(255, 193, 7, 0.12); }
+    .benchmark-delta-positive { color: var(--green); font-weight: 600; }
+    .benchmark-delta-negative { color: var(--red); font-weight: 600; }
+    .benchmark-notes {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+    }
+    .benchmark-notes h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+    }
+    .benchmark-notes ul {
+      list-style: disc;
+      padding-left: 1.25rem;
+    }
+    .benchmark-notes li {
+      font-size: 0.8125rem;
+      line-height: 1.6;
+      margin-bottom: 0.375rem;
+    }
+    .benchmark-empty {
+      color: var(--text-muted);
+      font-style: italic;
+      text-align: center;
+      padding: 3rem;
+    }
+
+    /* ---- Navigation ---- */
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+    .nav-btn {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.5rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text);
+      transition: all 0.15s;
+    }
+    .nav-btn:hover:not(:disabled) {
+      background: var(--bg);
+      border-color: var(--text-muted);
+    }
+    .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .done-btn {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.5rem 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+    .done-btn:hover {
+      background: var(--bg);
+      border-color: var(--text-muted);
+    }
+    .done-btn.ready {
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-weight: 600;
+    }
+    .done-btn.ready:hover {
+      background: var(--accent-hover);
+    }
+    /* ---- Done overlay ---- */
+    .done-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+    .done-overlay.visible {
+      display: flex;
+    }
+    .done-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 2rem 3rem;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+    }
+    .done-card h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .done-card p {
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    .done-card .btn-row {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    .done-card button {
+      padding: 0.5rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    .done-card button:hover {
+      background: var(--bg);
+    }
+    /* ---- Toast ---- */
+    .toast {
+      position: fixed;
+      bottom: 5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 200;
+    }
+    .toast.visible {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" style="height:100vh; display:flex; flex-direction:column;">
+    <div class="header">
+      <div>
+        <h1>Eval Review: <span id="skill-name"></span></h1>
+        <div class="instructions">Review each output and leave feedback below. Navigate with arrow keys or buttons. When done, copy feedback and paste into Claude Code.</div>
+      </div>
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <!-- View tabs (only shown when benchmark data exists) -->
+    <div class="view-tabs" id="view-tabs" style="display:none;">
+      <button class="view-tab active" onclick="switchView('outputs')">Outputs</button>
+      <button class="view-tab" onclick="switchView('benchmark')">Benchmark</button>
+    </div>
+
+    <!-- Outputs panel (qualitative review) -->
+    <div class="view-panel active" id="panel-outputs">
+    <div class="main">
+      <!-- Prompt -->
+      <div class="section">
+        <div class="section-header">Prompt <span class="config-badge" id="config-badge" style="display:none;"></span></div>
+        <div class="section-body">
+          <div class="prompt-text" id="prompt-text"></div>
+        </div>
+      </div>
+
+      <!-- Outputs -->
+      <div class="section">
+        <div class="section-header">Output</div>
+        <div class="section-body" id="outputs-body">
+          <div class="empty-state">No output files found</div>
+        </div>
+      </div>
+
+      <!-- Previous Output (collapsible) -->
+      <div class="section" id="prev-outputs-section" style="display:none;">
+        <div class="section-header">
+          <div class="grades-toggle" onclick="togglePrevOutputs()">
+            <span class="arrow" id="prev-outputs-arrow">&#9654;</span>
+            Previous Output
+          </div>
+        </div>
+        <div class="grades-content" id="prev-outputs-content"></div>
+      </div>
+
+      <!-- Grades (collapsible) -->
+      <div class="section" id="grades-section" style="display:none;">
+        <div class="section-header">
+          <div class="grades-toggle" onclick="toggleGrades()">
+            <span class="arrow" id="grades-arrow">&#9654;</span>
+            Formal Grades
+          </div>
+        </div>
+        <div class="grades-content" id="grades-content"></div>
+      </div>
+
+      <!-- Feedback -->
+      <div class="section">
+        <div class="section-header">Your Feedback</div>
+        <div class="section-body">
+          <textarea
+            class="feedback-textarea"
+            id="feedback"
+            placeholder="What do you think of this output? Any issues, suggestions, or things that look great?"
+          ></textarea>
+          <div class="feedback-status" id="feedback-status"></div>
+          <div class="prev-feedback" id="prev-feedback" style="display:none;">
+            <div class="prev-feedback-label">Previous feedback</div>
+            <div id="prev-feedback-text"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav" id="outputs-nav">
+      <button class="nav-btn" id="prev-btn" onclick="navigate(-1)">&#8592; Previous</button>
+      <button class="done-btn" id="done-btn" onclick="showDoneDialog()">Submit All Reviews</button>
+      <button class="nav-btn" id="next-btn" onclick="navigate(1)">Next &#8594;</button>
+    </div>
+    </div><!-- end panel-outputs -->
+
+    <!-- Benchmark panel (quantitative stats) -->
+    <div class="view-panel" id="panel-benchmark">
+      <div class="benchmark-view" id="benchmark-content">
+        <div class="benchmark-empty">No benchmark data available. Run a benchmark to see quantitative results here.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Done overlay -->
+  <div class="done-overlay" id="done-overlay">
+    <div class="done-card">
+      <h2>Review Complete</h2>
+      <p>Your feedback has been saved. Go back to your Claude Code session and tell Claude you're done reviewing.</p>
+      <div class="btn-row">
+        <button onclick="closeDoneDialog()">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ---- Embedded data (injected by generate_review.py) ----
+    const EMBEDDED_DATA = {"skill_name": "swedish-tax-advisor", "runs": [{"id": "commuter-interest-with_skill", "prompt": "Hej, jag jobbar heltid som systemutvecklare p\u00e5 ett f\u00f6retag i Stockholm men bor i Uppsala. Jag \u00e5ker t\u00e5g varje dag, kostar ungef\u00e4r 2 800 kr/m\u00e5nad. Har ocks\u00e5 tagit ett privatl\u00e5n p\u00e5 150 000 kr f\u00f6r att renovera badrummet, r\u00e4ntan \u00e4r 8%. Kan du g\u00e5 igenom vad jag kan dra av i min deklaration?", "eval_id": 0, "outputs": [{"name": "response.txt", "type": "text", "content": "Hej! Tack f\u00f6r att du delar din situation. Du har tv\u00e5 v\u00e4l relevanta avdragsomr\u00e5den h\u00e4r \u2014 pendlingsavdraget och r\u00e4nteavdraget \u2014 s\u00e5 l\u00e5t mig g\u00e5 igenom b\u00e5da noggrant.\n\n---\n\nBED\u00d6MNING\n\nDu jobbar heltid som anst\u00e4lld systemutvecklare i Stockholm men bor i Uppsala. Det betyder att du har tv\u00e5 stora m\u00f6jligheter:\n\n1. Pendlingsavdrag f\u00f6r t\u00e5gresor \u2014 2 800 kr/m\u00e5nad \u00e4r faktiskt ganska typiskt f\u00f6r Uppsala\u2013Stockholm-pendlare och ligger v\u00e4l \u00f6ver tr\u00f6skeln\n2. R\u00e4nteavdrag p\u00e5 privatl\u00e4net f\u00f6r badrummen \u2014 ett privatl\u00e5n p\u00e5 150 000 kr till 8% r\u00e4nta ger dig en inte obetydlig r\u00e4ntekostnad att dra av\n\nB\u00e5da \u00e4r helt lagliga och framf\u00f6r allt v\u00e4l dokumenterade \u2014 t\u00e5gresor l\u00e4mnar ett sp\u00e5r, och l\u00e5ner\u00e4ntan \u00e4r redan rapporterad av banken till Skatteverket.\n\n---\n\nLAGLIGA M\u00d6JLIGHETER\n\n**1. PENDLINGSAVDRAG (pendlingsavdrag)**\n\nDitt t\u00e5g kostar 2 800 kr/m\u00e5nad = 33 600 kr/\u00e5r. Det \u00e4r l\u00e5ngt \u00f6ver tr\u00f6skeln p\u00e5 11 000 SEK/\u00e5r (2024-niv\u00e5), s\u00e5 du kan dra av \u00f6verskottet.\n\nHur det fungerar:\n\u2022 Du drar av den del av pendlingskostnaden som \u00f6verskrider 11 000 SEK/\u00e5r\n\u2022 \u00d6verskottet \u00e4r: 33 600 \u2212 11 000 = 22 600 SEK/\u00e5r\n\u2022 Det motsvarar ungef\u00e4r 1 883 SEK/m\u00e5nad som kan dras av\n\nVad som kr\u00e4vs:\n\u2022 Du m\u00e5ste kunna dokumentera pendlingen \u2014 spara dina t\u00e5gbiljetter eller \u00e5rskort. SJ eller motsvarande transport\u00adoperat\u00f6r kommer redan ha detta dokumenterat \u00e5t dig om det \u00e4r ett \u00e5rskort\n\u2022 Du m\u00e5ste kunna visa att det \u00e4r en faktisk vardaglig pendling mellan Uppsala och Stockholm\n\u2022 Skatteverket kommer redan att ha rapporterat detta fr\u00e5n t\u00e5gbolaget om du anv\u00e4nder ett t\u00e5greskort/m\u00e5nadskort \u2014 men det \u00e4r ditt ansvar att deklarera det korrekt\n\nViktigt att veta:\n\u2022 Det \u00e4r bara den faktiska kostnaden som r\u00e4knas, inte vad du *skulle* kunna \u00e5ka f\u00f6r\n\u2022 T\u00e5g r\u00e4knas som \"kollektivtrafik\" och \u00e4r helt okej \u2014 ingen pr\u00f6vning av om bilen hade varit snabbare\n\u2022 Avdraget \u00e4r inte automatiskt \u2014 du m\u00e5ste fylla det in p\u00e5 r\u00e4tt rad i deklarationen\n\n**2. R\u00c4NTEAVDRAG (r\u00e4nteavdrag)**\n\nDu har ett privatlan p\u00e5 150 000 SEK med 8% r\u00e4nta. \u00c5rlig r\u00e4ntekostnad = 150 000 \u00d7 0,08 = 12 000 SEK/\u00e5r.\n\nHur r\u00e4nteavdraget fungerar:\n\u2022 30% deduktion p\u00e5 r\u00e4ntekostnader upp till 100 000 SEK\n\u2022 21% deduktion p\u00e5 r\u00e4ntekostnader mellan 100 001\u2013150 000 SEK\n\u2022 Du f\u00e5r allts\u00e5: (100 000 \u00d7 0,30) + (12 000 \u00d7 0,21) = 30 000 + 2 520 = 32 520 SEK i r\u00e4nteavdrag v\u00e4rde\n\nWait \u2014 l\u00e5t mig r\u00e4kna om h\u00e4r. Din r\u00e4nta \u00e4r 12 000 SEK totalt. Det ligger under 100 000 SEK-gr\u00e4nsen, s\u00e5:\n\u2022 12 000 SEK \u00d7 30% = 3 600 SEK i r\u00e4nteavdrag\n\nDet h\u00e4r \u00e4r viktigt: n\u00e4r du s\u00e4ger att du drog ett privatlan f\u00f6r badrummet, \u00e4r l\u00e5net redan rapporterat till Skatteverket av din bank? Om det \u00e4r ett vanligt privatlan fr\u00e5n ett svenskt kreditinstitut, ja. Om det \u00e4r fr\u00e5n en privatperson (v\u00e4nner, familj), beh\u00f6ver du dokumentera det sj\u00e4lv och rapportera det.\n\nVad som kr\u00e4vs:\n\u2022 L\u00e5nehandlingar som visar l\u00e5nebeloppet, r\u00e4ntan och vilken bank/l\u00e5ngivare det \u00e4r\n\u2022 Skatteverket f\u00e5r redan information fr\u00e5n dina banker om bol\u00e5n och privatlan \u2014 men kontrollera att allt st\u00e4mmer\n\u2022 Se till att du kan bevisa att r\u00e4ntan \u00e4r 8% (inte h\u00f6gre eller l\u00e4gre)\n\nViktigt att veta:\n\u2022 R\u00e4nteavdraget \u00e4r v\u00e4rdefullt f\u00f6r dig, men bara 30% av kostnaden \u00e4r avdragsgill (eller 21% p\u00e5 delen \u00f6ver 100 000 SEK)\n\u2022 Om l\u00e5net inte \u00e4r fr\u00e5n en registrerad finansiell institution utan fr\u00e5n en privatperson, m\u00e5ste du rapportera det sj\u00e4lv och det kan vara sv\u00e5rare att bevisa\n\u2022 R\u00e4ntan m\u00e5ste vara faktisk betald r\u00e4nta \u2014 avbetalningsgebyr och provisioner r\u00e4knas inte\n\n---\n\nSAKER ATT KONTROLLERA\n\n1. **\u00c4r t\u00e5gkostnaden redan f\u00f6rutfylld?** Skatteverket f\u00e5r ofta automatisk rapportering fr\u00e5n t\u00e5gbolagen. Det \u00e4r mycket m\u00f6jligt att din pendlingskostnad redan \u00e4r inrapporterad \u2014 men du m\u00e5ste sj\u00e4lv fylla in avdraget p\u00e5 r\u00e4tt plats i deklarationen.\n\n2. **\u00c4r badrummet p\u00e5 din privatbostad?** R\u00e4nteavdraget p\u00e5 ett privatl\u00e5n \u00e4r bara till\u00e5tet f\u00f6r allm\u00e4n anv\u00e4ndning \u2014 inte f\u00f6r investeringar i n\u00e4ringsverksamhet. Men en badrumsrenovering p\u00e5 din hem\u00e5t \u00e4r helt okej.\n\n3. **Vilken typ av t\u00e5gkort anv\u00e4nder du?** Om det \u00e4r ett m\u00e5nadskort eller \u00e5rskort fr\u00e5n SJ eller motsvarande \u2014 perfekt, det \u00e4r l\u00e4tt att dokumentera. Om du k\u00f6per enskilda biljetter \u2014 spara kvitton eller exportera historiken fr\u00e5n din biljettprovider.\n\n4. **\u00c4r privatl\u00e4net fr\u00e5n en bank eller fr\u00e5n privatperson?** Om det \u00e4r fr\u00e5n en k\u00e4nd bank (Klarna, Lendo, Svea, etc.) \u2014 inga problem, banken rapporterar redan. Om det \u00e4r fr\u00e5n privatperson \u2014 du m\u00e5ste kunna bevisa l\u00e5nevillkoren skriftligt.\n\n5. **Begr\u00e4nsningar p\u00e5 r\u00e4nteavdraget \u2014 \u00e4r du gifta/sammanskrivna?** Om du \u00e4r sammanskrivna med n\u00e5gon och ni har gemensam bostad, kan r\u00e4nteavdraget p\u00e5 privatlan f\u00f6r hem\u00e5t vara begr\u00e4nsat till 50 % var. Men det \u00e4r inte n\u00e5got du beh\u00f6ver oroa dig f\u00f6r enbart baserat p\u00e5 att du tog l\u00e5net \u2014 bara n\u00e5got att verifiera.\n\n---\n\nN\u00c4STA STEG\n\n1. **Samla dokumentation f\u00f6r pendlingen:**\n   \u2212 Ladda ner dina t\u00e5gresor fr\u00e5n SJ eller motsvarande transport\u00f6r (eller spara \u00e5rskortet/kontot)\n   \u2212 Om du inte redan gjort det, registrera ditt t\u00e5gkort/abonnemang med ditt personnummer hos operat\u00f6ren\n\n2. **Verifiera r\u00e4nteavdraget:**\n   \u2212 Logga in p\u00e5 ditt personliga skattekonto (skatteverket.se) och se om r\u00e4ntorna redan \u00e4r f\u00f6rutfyllda\n   \u2212 Kontrollera att beloppet st\u00e4mmer (150 000 SEK) och r\u00e4ntan (8%)\n   \u2212 Se till att l\u00e5nehandlingarna finns sparade hemma \u2014 du beh\u00f6ver dem om Skatteverket g\u00f6r en fr\u00e5ga senare\n\n3. **Fyll i deklarationen korrekt:**\n   \u2212 Pendlingsavdrag g\u00e5r p\u00e5 rad f\u00f6r \"Pendlingsavdrag\" (kom ih\u00e5g: endast \u00f6verskottet \u00f6ver 11 000 SEK)\n   \u2212 R\u00e4nteavdraget b\u00f6r redan vara f\u00f6rutfyllt, men dubbelkolla att det \u00e4r korrekt\n   \u2212 Om n\u00e5got saknas eller ser felaktigt ut, kontakta Skatteverket innan du skickar in \u2014 det \u00e4r enklare \u00e4n att fixa efter\u00e5t\n\n4. **Kontakta Skatteverket om n\u00e5got \u00e4r os\u00e4kert:**\n   \u2212 Du kan ringa dem eller skriva i ditt skattekonto om n\u00e5got \u00e4r oklart\n   \u2212 Skatteverket \u00e4r generellt hj\u00e4lpsam med denna typ av fr\u00e5gor\n\n---\n\nSAMMANFATTNING\n\nDu har tv\u00e5 v\u00e4l grundade avdrag h\u00e4r. Pendlingsavdraget p\u00e5 cirka 22 600 SEK/\u00e5r och r\u00e4nteavdraget p\u00e5 cirka 3 600 SEK/\u00e5r tillsammans sparar dig pengar. B\u00e5da \u00e4r v\u00e4ldokumenterade och helt lagliga. Huvudsaken \u00e4r att du fyller in dem korrekt i deklarationen och sparar din dokumentation.\n\nOm du har fler fr\u00e5gor n\u00e4r du b\u00f6rjar fylla i deklarationen \u2014 bara att h\u00f6ra av dig!\n"}], "grading": {"eval_id": 0, "run_id": "commuter-interest-with_skill", "expectations": [{"text": "Response mentions pendlingsavdrag (commuting deduction) and the 11,000 SEK threshold", "passed": true, "evidence": "Explicitly mentions 'tr\u00f6skeln p\u00e5 11 000 SEK/\u00e5r (2024-niv\u00e5)' and explains the excess is deductible"}, {"text": "Response correctly calculates that 2,800 kr/month = 33,600 kr/year exceeds the 11,000 SEK threshold, making the excess ~22,600 SEK deductible", "passed": true, "evidence": "States '2 800 kr/m\u00e5nad = 33 600 kr/\u00e5r' and '33 600 \u2212 11 000 = 22 600 SEK/\u00e5r'"}, {"text": "Response correctly identifies the private loan interest as deductible (r\u00e4nteavdrag) \u2014 NOT incorrectly dismissing it as non-deductible", "passed": true, "evidence": "Correctly identifies r\u00e4nteavdrag and provides the correct calculation for the loan interest deduction"}, {"text": "Response calculates interest correctly: 150,000 kr \u00d7 8% = 12,000 kr/year, deductible at 30% = 3,600 kr tax reduction", "passed": true, "evidence": "States '\u00c5rlig r\u00e4ntekostnad = 150 000 \u00d7 0,08 = 12 000 SEK/\u00e5r' and '12 000 SEK \u00d7 30% = 3 600 SEK i r\u00e4nteavdrag'"}, {"text": "Response uses the skill's structured format (Bed\u00f6mning, Lagliga m\u00f6jligheter, Saker att kontrollera, N\u00e4sta steg) or equivalent clear sections", "passed": true, "evidence": "Uses all four prescribed sections: BED\u00d6MNING, LAGLIGA M\u00d6JLIGHETER, SAKER ATT KONTROLLERA, N\u00c4STA STEG"}, {"text": "Response is written in Swedish (matching the user's language)", "passed": true, "evidence": "Entire response is in Swedish"}], "pass_rate": 1.0, "notes": "Perfect score. All calculations correct, structure followed, language matched."}}, {"id": "commuter-interest-without_skill", "prompt": "Hej, jag jobbar heltid som systemutvecklare p\u00e5 ett f\u00f6retag i Stockholm men bor i Uppsala. Jag \u00e5ker t\u00e5g varje dag, kostar ungef\u00e4r 2 800 kr/m\u00e5nad. Har ocks\u00e5 tagit ett privatl\u00e5n p\u00e5 150 000 kr f\u00f6r att renovera badrummet, r\u00e4ntan \u00e4r 8%. Kan du g\u00e5 igenom vad jag kan dra av i min deklaration?", "eval_id": 0, "outputs": [{"name": "response.txt", "type": "text", "content": "Hej! Tack f\u00f6r dina fr\u00e5gor. Nedan g\u00e5r jag igenom vad du kan dra av i din deklaration enligt g\u00e4llande svenska skatteregler.\n\n=== TRAFIKUTGIFTER - PENDLINGSKOSTNADER ===\n\nBra nyheter h\u00e4r! Du \u00e5ker t\u00e5g mellan Uppsala och Stockholm dagligen f\u00f6r att komma till jobbet. Dina trafikutgifter p\u00e5 cirka 2 800 kr/m\u00e5nad \u00e4r en viktig deduktion.\n\nEnligt Skatteverkets regler kan du dra av kostnaderna f\u00f6r arbetstransporter. Det spelar ingen roll om det \u00e4r t\u00e5g, buss, bil eller cykel - kostnaderna \u00e4r avdragsgilla.\n\nHur du hanterar detta:\n- Du kan dra av den totala kostnaden f\u00f6r t\u00e5get (2 800 kr/m\u00e5nad eller cirka 33 600 kr/\u00e5r)\n- Anv\u00e4nd motsvarande belopp i din deklaration\n- Se till att du spara dina kvitton/biljetter som dokumentation, \u00e4ven om du normalt inte beh\u00f6ver bifoga dem\n\nViktigt att notera:\n- Du kan INTE dra av kostnader f\u00f6r hemresor eller semesterresor\n- De avdragsgilla kostnaderna \u00e4r endast f\u00f6r arbetstransporter (Uppsala-Stockholm och retur)\n\n=== R\u00c4NTEKOSTNADER P\u00c5 PRIVATL\u00c5N ===\n\nH\u00e4r kommer lite mindre bra nyheter. Du har ett privatl\u00e5n p\u00e5 150 000 kr f\u00f6r badrumsrenovering med 8% r\u00e4nta.\n\nUnder 2024 och fram\u00e5t g\u00e4ller dock nya regler:\n- R\u00e4nteavdrag \u00e4r begr\u00e4nsat till l\u00e5ngfristiga skulder som \u00e4r direkt kopplade till n\u00e4ringsbetingade utgifter\n- F\u00f6r ett privatl\u00e5n anv\u00e4nt f\u00f6r hemrenovering (personlig konsumtion) \u00e4r r\u00e4ntekostnaden tyv\u00e4rr INTE avdragsgill\n- Badrumsrenovering klassificeras som en privat heminvestering, inte en n\u00e4ringsbetingad utgift\n\nHistoriska roller:\n- Fram till 2023 kunde vissa r\u00e4ntekostnader dras av, men reglerna har sk\u00e4rpts betydligt\n- Fr\u00e5n och med 2024 \u00e4r privata l\u00e5nr\u00e4ntor inte l\u00e4ngre avdragsgilla f\u00f6r denna typ av l\u00e5n\n\n=== SAMMANFATTNING AV DINA DEDUKTIONER ===\n\nVad du CAN dra av:\n\u2713 Trafikutgifter: cirka 33 600 kr/\u00e5r (2 800 kr \u00d7 12 m\u00e5nader)\n\nVad du INTE kan dra av:\n\u2717 R\u00e4nta p\u00e5 privatl\u00e5net f\u00f6r badrumsrenovering\n\n=== PRAKTISKA R\u00c5D F\u00d6R DEKLARATIONEN ===\n\n1. Spara dina t\u00e5gbiljetter/kvitton fr\u00e5n SJ eller motsvarande\n2. R\u00e4kna ut det totala beloppet f\u00f6r \u00e5ret\n3. Mata in beloppet under \"Utgifter f\u00f6r arbetstransporter\" n\u00e4r du fyller i din skattedeklaration\n4. Du kan \u00e4ven registrera detta om du anv\u00e4nder Skatteverkets webbtj\u00e4nster eller pappersdeklaration\n\n=== \u00d6VRIGA M\u00d6JLIGHETER ATT SPARA SKATT ===\n\n\u00c4ven om du inte kan dra av l\u00e5ner\u00e4ntan kan det finnas andra s\u00e4tt att optimera din skattesituation:\n\n- Jobba hemma? Om du f\u00e5r f\u00f6rlustabdrag f\u00f6r hemmakontor kan det m\u00f6jligg\u00f6ra vissa kostnader, men detta \u00e4r strikt reglerat\n- Arbetsresor och lunchkostnader \u00e4r normalt inte avdragsgilla f\u00f6r anst\u00e4llda\n- F\u00f6rs\u00e4kringar och pensionssparande kan ge skattebetingade f\u00f6rdelar - kontrollera vad ditt f\u00f6retag erbjuder\n\n=== REKOMMENDATION ===\n\nMin rekommendation \u00e4r att:\n1. Fokusera p\u00e5 att deklarera dina pendlingskostnader p\u00e5 33 600 kr/\u00e5r\n2. Spara all dokumentation f\u00f6r dessa utgifter\n3. Acceptera att l\u00e5ner\u00e4ntan inte \u00e4r avdragsgill enligt g\u00e4llande regler\n4. \u00d6verv\u00e4g att kontakta en skattebetj\u00e4nsteman om du har fler invecklade kostnader eller fr\u00e5gor\n\nOm du \u00e4r os\u00e4ker p\u00e5 n\u00e5got eller har extra kostnader, rekommenderar jag att du kontaktar Skatteverket direkt eller bes\u00f6ker skatteverket.se f\u00f6r mer information.\n\nLycka till med deklarationen!\n"}], "grading": {"eval_id": 0, "run_id": "commuter-interest-without_skill", "expectations": [{"text": "Response mentions pendlingsavdrag (commuting deduction) and the 11,000 SEK threshold", "passed": false, "evidence": "Mentions trafikutgifter/pendlingskostnader but NO mention of the 11,000 SEK threshold. Says 'kan dra av den totala kostnaden f\u00f6r t\u00e5get (2 800 kr/m\u00e5nad eller cirka 33 600 kr/\u00e5r)' \u2014 incorrectly implies full amount is deductible"}, {"text": "Response correctly calculates that 2,800 kr/month = 33,600 kr/year exceeds the 11,000 SEK threshold, making the excess ~22,600 SEK deductible", "passed": false, "evidence": "Says you can deduct all 33,600 kr/year \u2014 misses the threshold entirely. Only the excess over 11,000 SEK is deductible."}, {"text": "Response correctly identifies the private loan interest as deductible (r\u00e4nteavdrag) \u2014 NOT incorrectly dismissing it as non-deductible", "passed": false, "evidence": "MAJOR FACTUAL ERROR: States 'privatl\u00e5n f\u00f6r hemrenovering (personlig konsumtion) \u00e4r r\u00e4ntekostnaden tyv\u00e4rr INTE avdragsgill' and claims 'Fr\u00e5n och med 2024 \u00e4r privata l\u00e5nr\u00e4ntor inte l\u00e4ngre avdragsgilla' \u2014 this is completely wrong. Private loan interest is deductible as r\u00e4nteavdrag in Sweden."}, {"text": "Response calculates interest correctly: 150,000 kr \u00d7 8% = 12,000 kr/year, deductible at 30% = 3,600 kr tax reduction", "passed": false, "evidence": "No calculation provided \u2014 incorrectly dismisses the entire deduction as unavailable"}, {"text": "Response uses the skill's structured format (Bed\u00f6mning, Lagliga m\u00f6jligheter, Saker att kontrollera, N\u00e4sta steg) or equivalent clear sections", "passed": true, "evidence": "Has sections but not the prescribed format \u2014 uses generic headers"}, {"text": "Response is written in Swedish (matching the user's language)", "passed": true, "evidence": "Response is in Swedish"}], "pass_rate": 0.33, "notes": "Critical factual error: falsely claims private loan interest is not deductible in Sweden. This is incorrect \u2014 r\u00e4nteavdrag applies to private loans. Also misses the 11,000 SEK commuting threshold entirely."}}, {"id": "famansbolag-3:12-with_skill", "prompt": "I own 100% of a small consulting AB that I started 3 years ago. I've been paying myself a salary of 50,000 SEK/month and the company has about 400,000 SEK in retained earnings. I haven't taken any dividends yet. What should I know about the 3:12 rules and is there anything I should think about before year end?", "eval_id": 1, "outputs": [{"name": "response.txt", "type": "text", "content": "BED\u00d6MNING (ASSESSMENT)\n\nYou're in a textbook f\u00e5mansbolag situation \u2014 a closely held company with one owner, good profitability (judging by the retained earnings), and a deliberate choice not to take dividends. The 3:12 rules will be central to your tax planning going forward. Right now, you're in a favorable position, but this is exactly when you need to understand the mechanics so you can make intentional decisions rather than reactive ones.\n\nThe fact that you have 400,000 SEK in retained earnings suggests your company is performing well. The question is: should some of that stay in the company, or should you take dividends? The answer depends heavily on how the 3:12 rules apply to your specific situation, which I'll break down below.\n\n\n---\n\nLAGLIGA M\u00d6JLIGHETER (LEGAL OPTIMIZATIONS & KEY THINGS TO UNDERSTAND)\n\n\n## Understanding the 3:12 Rules (S\u00e4rskild f\u00e5mansbolagsbeskattning)\n\nThe 3:12 rules exist to prevent unfair tax advantages for owners of closely held companies. They divide dividend income into two categories, taxed very differently:\n\n1. **Dividend up to \"gr\u00e4nsbeloppet\" (threshold amount)**: Taxed at 20% (capital income rate)\n2. **Dividend above gr\u00e4nsbeloppet**: Taxed as employment income (up to 57% marginal rate)\n\nThis is why the threshold matters so much. You want to understand exactly how much you can extract from your company as \"favorable\" dividend income.\n\n### How the Threshold (Gr\u00e4nsbeloppet) Is Calculated\n\nThe threshold is based on:\n- **Salary basis (l\u00f6neunderlag)**: The total salary you've paid yourself in the year\n- **Company equity**: The equity in your AB at year-end\n- **A fixed rate**: Currently 17% of equity\n\nThe formula is:\n**Gr\u00e4nsbeloppet = (Salary \u00d7 1.67) + (17% \u00d7 Equity at year-end)**\n\nIn your case:\n- Your annual salary: 600,000 SEK (50,000 \u00d7 12)\n- Current equity: approximately 400,000 SEK (retained earnings)\n\nLet's calculate your rough gr\u00e4nsbeloppet:\n= (600,000 \u00d7 1.67) + (17% \u00d7 400,000)\n= 1,002,000 + 68,000\n= ~1,070,000 SEK\n\nThis means you can take a dividend of up to ~1,070,000 SEK in the coming year and have it taxed at the favorable 20% rate on the capital side.\n\n### Why Your Salary Matters So Much\n\nNotice that salary is multiplied by 1.67 in the formula. This is hugely in your favor. The higher your salary, the higher your gr\u00e4nsbeloppet, and the more dividend you can extract at the favorable 20% rate rather than the punitive 57% rate.\n\nYou're currently taking 600,000 SEK/year in salary. This salary basis directly enables you to take dividends in the future. This is one reason many f\u00e5mansbolag owners stick with a reasonable salary rather than taking minimal salary plus large dividends \u2014 the salary \"buys\" you dividend space at favorable rates.\n\n### Sparat Utdelningsutrymme (Carried-Forward Dividend Space)\n\nHere's a critical point: unused dividend space carries forward. If you don't take any dividend this year, your \"saved up\" allowance grows.\n\n- Year 1, 2, 3: You likely had gr\u00e4nsbeloppet of roughly 1,000,000+ each year.\n- You haven't used any of it.\n- This means you've accumulated roughly 3,000,000+ SEK of dividend space that can be used in any future year.\n\nIn practice, this means you have considerable flexibility. You could take a large dividend in year 4 without worrying about the 3:12 penalty, as long as it stays within your accumulated allowance.\n\nThis is a real advantage, but it requires you to:\n1. Understand how much you've accumulated\n2. Document it carefully (K10 forms track this)\n3. Use it intentionally before a major event (like selling your company or a tax rule change)\n\n\n## The K10 Form\n\nEvery year, even if you take zero dividends, you must file a K10 form with Skatteverket. This form documents:\n- Your salary (l\u00f6neunderlag)\n- Your company's equity\n- Your gr\u00e4nsbeloppet for the year\n- Any dividends taken\n- Your accumulated \"saved\" dividend space\n\nMany owners skip this or don't prioritize it, but K10 is your evidence trail. If you ever take a large dividend and face a tax audit, K10 will show that you had the room to do it without triggering the 3:12 penalty.\n\nMake sure your accountant or bookkeeper files this correctly every year. Don't assume it's been done.\n\n\n---\n\nSAKER ATT KONTROLLERA (THINGS TO WATCH)\n\n\n## 1. Are You Actually a F\u00e5mansbolag?\n\nThe 3:12 rules apply to f\u00e5mansforetag (closely held companies). This technically means:\n- No more than 10 shareholders, OR\n- Shares owned mostly by a small group of people who also work in the company\n\nIn your case (100% owner, you work in it), you definitely qualify. But if you ever consider bringing in investors or other shareholders, this status could change. Keep it in mind if you're thinking about raising capital.\n\n\n## 2. The Salary/Dividend Balance\n\nThis is more strategic than legal, but it matters for tax planning:\n\n**Taking salary** (which you're already doing at 50,000/month):\n- Deductible for the company\n- Reduces taxable profit\n- You pay personal income tax on it\n- But it generates gr\u00e4nsbeloppet space\n\n**Taking dividends**:\n- NOT deductible for the company\n- Comes from post-tax profit\n- Taxed at 20% (up to your threshold) or 57% (above threshold)\n- Doesn't reduce company profit, but uses up your dividend space\n\nMany owners ask: \"Should I take more salary instead of dividends?\" The answer depends on your company's profitability, your personal tax bracket, and how much you actually need to extract. There's no universal right answer, but understanding the trade-off is essential.\n\nFor your situation at 50,000/month salary: this is a reasonable salary level for a consulting business owner. It's not so low that it raises red flags with Skatteverket, and it does help you accumulate dividend space.\n\n\n## 3. The 17% Equity Component\n\nYour gr\u00e4nsbeloppet includes 17% of your company's equity each year. This means:\n\n**Keeping money in the company grows your future dividend room.**\n\nIf you:\n- Retain 400,000 SEK in equity now\n- Your 17% component is 68,000 SEK of allowed dividend\n\nIf you let the company earn more profit and retain it:\n- Equity grows to 600,000 SEK\n- Your 17% component becomes 102,000 SEK\n- This compounds over time\n\nThis is a subtle but powerful incentive to keep profitable companies profitable. Retaining earnings doesn't just accumulate wealth in the company \u2014 it also expands your future dividend flexibility.\n\n\n## 4. Personal Deductions You Might Be Missing\n\nAs an owner with employment income (your salary), you may also benefit from:\n\n**Standard deduction (grundavdrag)**: Applied automatically to your salary income.\n\n**Jobbskatteavdrag (earned income tax credit)**: Also applied automatically, but worth knowing it exists to verify you're getting it on your tax return.\n\n**Union fees and professional memberships**: If you pay a-kassa, union fees, or professional association dues, these are deductible against your salary income.\n\n**Home office deduction**: Only if you legitimately have a home office with no workspace at your company office, and your work genuinely requires it. This is narrow and often denied if you have any office space elsewhere.\n\nThese won't be major, but they're worth reviewing in your annual tax return.\n\n\n## 5. Capital Gains If You Ever Sell the Company\n\nThis isn't urgent, but if you eventually exit (sell the AB), the 3:12 rules will rear their head in a different way. The gain on sale of business shares is taxed as capital gains (30%), but large gains can trigger additional scrutiny if they look like income shifting. This is a year-5 or year-10 question, not a today question, but keep it in the back of your mind.\n\n\n## 6. Equity Structure and Related-Party Transactions\n\nMake sure your company records are clean:\n- Loan agreements between you and the company (if any): Should be documented and include reasonable interest rates.\n- Expenses you pay personally and try to reimburse from the company: Make sure they're properly documented and actually business expenses.\n- Any related-party transactions: Must be at arm's length (fair market price).\n\nThis isn't about the 3:12 rules directly, but it protects you if there's ever a tax audit.\n\n\n---\n\nN\u00c4STA STEG (NEXT STEPS)\n\n\n## Immediate (Before Year-End):\n\n1. **Confirm your K10 filings for years 1-3**: Ask your accountant whether K10 forms were filed for each year. If not, consider filing them now (there may be a late-filing penalty, but it's worth doing). You want clear documentation of your accumulated dividend space.\n\n2. **Calculate your exact gr\u00e4nsbeloppet for this year**: You'll need:\n   - Your total salary so far this year (or projected for the full year)\n   - Your company's projected equity at year-end\n   - Then apply the formula: (Salary \u00d7 1.67) + (17% \u00d7 Equity)\n\n3. **Decide if you want to take a dividend this year**: If your company has cash and profit, you now know how much you can take at favorable rates. This is a real decision point. Would it make sense to extract some of the 400,000 SEK retained earnings as a dividend before year-end, or do you want to let it continue building?\n\n4. **Review your tax return drafts**: When Skatteverket sends your preliminary tax return (f\u00f6rhandsdeklaration), check:\n   - That your salary income is correct\n   - That standard deductions and jobbskatteavdrag are applied\n   - Whether any dividends have been pre-filled (they shouldn't be if you haven't taken any)\n\n## Before Next Year:\n\n5. **Establish a dividend strategy**: Talk with your accountant about your longer-term plan. Do you want to:\n   - Keep accumulating capital in the company (and your dividend allowance with it)?\n   - Take regular dividends to optimize your personal cash flow?\n   - Make a one-time large dividend sometime in the next few years?\n\n6. **Track your dividend space going forward**: Your accountant should provide you with an annual K10 calculation showing your gr\u00e4nsbeloppet and accumulated space. If they don't, ask for it. This is your map for future planning.\n\n7. **Monitor for rule changes**: The 3:12 rules can change (the threshold percentages have changed in the past). Stay aware of any changes to the 17% equity component or the 1.67 salary multiplier.\n\n\n---\n\nSUMMARY\n\nYou're in a strong position:\n- A profitable business with growing retained earnings\n- A reasonable salary that builds your dividend space\n- Accumulated (but unused) dividend allowance of roughly 3,000,000+ SEK across three years\n- Time to plan intentionally rather than react\n\nThe key thing to understand is that the 3:12 rules aren't a trap for you \u2014 they're a tax-planning tool if you use them deliberately. You have flexibility: you can take dividends at favorable rates (within your threshold), or you can keep building capital and expand your future flexibility.\n\nBefore year-end, make sure your K10 filings are in order, calculate your exact threshold, and decide whether it makes sense to take a dividend this year or keep letting the company grow. Either choice is legal and defensible as long as you understand the mechanics.\n\nYour situation is textbook f\u00e5mansbolag planning. Make sure your accountant is treating it that way \u2014 not just filing forms, but actually helping you optimize the structure. If they're not, it might be worth a conversation with a tax advisor who specializes in closely held companies.\n"}], "grading": {"eval_id": 1, "run_id": "famansbolag-with_skill", "expectations": [{"text": "Response explains gr\u00e4nsbeloppet (the annual dividend allowance) and how it's calculated", "passed": true, "evidence": "Detailed explanation with formula: 'Gr\u00e4nsbeloppet = (Salary \u00d7 1.67) + (17% \u00d7 Equity at year-end)' and numerical example"}, {"text": "Response mentions sparat utdelningsutrymme (accumulated unused dividend space) and its value", "passed": true, "evidence": "Dedicated section on 'Sparat Utdelningsutrymme' with explanation that unused space carries forward and estimates ~3,000,000+ SEK accumulated"}, {"text": "Response mentions the K10 form and that it must be filed annually", "passed": true, "evidence": "Clear section on K10 form: 'Every year, even if you take zero dividends, you must file a K10 form with Skatteverket'"}, {"text": "Response correctly explains that dividends within gr\u00e4nsbeloppet are taxed at 20% (capital) vs ordinary income tax (up to ~57%) for excess", "passed": true, "evidence": "'Dividend up to gr\u00e4nsbeloppet (threshold amount): Taxed at 20%' and 'Dividend above gr\u00e4nsbeloppet: Taxed as employment income (up to 57% marginal rate)'"}, {"text": "Response explains that the owner's salary affects the gr\u00e4nsbeloppet through l\u00f6neunderlag", "passed": true, "evidence": "Explains salary \u00d7 1.67 formula and 'Why Your Salary Matters So Much' section"}, {"text": "Response does NOT falsely claim that 3:12 rules automatically deem dividends or trigger penalties just because no dividends were taken", "passed": true, "evidence": "No false deemed dividend claims \u2014 correctly explains the rules as a planning tool, not an automatic trigger"}], "pass_rate": 1.0, "notes": "Perfect score. Comprehensive, accurate explanation of 3:12 rules with correct mechanics."}}, {"id": "famansbolag-3:12-without_skill", "prompt": "I own 100% of a small consulting AB that I started 3 years ago. I've been paying myself a salary of 50,000 SEK/month and the company has about 400,000 SEK in retained earnings. I haven't taken any dividends yet. What should I know about the 3:12 rules and is there anything I should think about before year end?", "eval_id": 1, "outputs": [{"name": "response.txt", "type": "text", "content": "SWEDISH 3:12 RULES AND TAX PLANNING ADVICE FOR YOUR AB\n=====================================================\n\nBACKGROUND ON YOUR SITUATION\nYou are the sole owner of a closely held Swedish AB with:\n- 100% ownership\n- 600,000 SEK annual salary (50,000 SEK/month)\n- 400,000 SEK in retained earnings\n- No dividend distributions to date\n- Company age: 3 years\n\nThis profile makes you subject to the 3:12 rules (trettiotv\u00e5regeln), which are critical to understand\nfor minimizing your tax burden.\n\n\nWHAT ARE THE 3:12 RULES?\n=======================\n\nThe 3:12 rules form part of Swedish tax law designed to prevent unfair tax advantages for shareholders\nin closely held companies (f\u00e5mansf\u00f6retag - closely held enterprises). The rules primarily address the\ndifferential tax treatment between:\n\n1. SALARY/WAGES: Taxed as employment income (employee + employer social security contributions)\n2. DIVIDENDS: Taxed as capital income (lower tax rate but no deductions for company)\n\nCRITERIA FOR BEING A \"F\u00c5MANSF\u00d6RETAG\" (CLOSELY HELD COMPANY)\n===========================================================\n\nYour AB qualifies as a closely held company if:\n\u2713 You (the shareholder) and related parties control more than 50% of votes\n\u2713 Your company is not listed on a regulated market\n\u2713 With your 100% ownership, this definitely applies to you\n\nThe 3:12 rules create a DEEMED DIVIDEND mechanism that can be triggered under certain conditions.\n\n\nKEY COMPONENTS OF THE 3:12 RULES\n================================\n\n1. THE \"DEEMED DIVIDEND\" CONCEPT (Realisationsprincipen)\n\nUnder the 3:12 rules, a portion of your company's profit may be deemed as distributed to you as\na dividend, regardless of whether you actually receive it. This deemed dividend is calculated as:\n\nDEEMED DIVIDEND = Excess Profit \u00d7 (Tax Rate Difference)\n\nThe calculation is complex, but the fundamental principle is: if your company generates \"excessive\"\nprofit relative to your salary, part of that profit may be taxed as a dividend to you personally,\neven if you don't withdraw it.\n\n\n2. THE \"PROFIT REQUIREMENT\" (Vinstutdelningsprincipen)\n\nThis states that profits generated in your company should be distributed in a reasonable proportion\nbetween:\n- Wages/salary to you as an employee\n- Return on your invested capital (via dividends)\n\nThere is no single \"correct\" salary vs. dividend split, but regulators expect a reasonable relationship.\n\nFACTORS CONSIDERED:\n- Industry standards for comparable positions\n- Actual work performed by the owner\n- Capital invested and at risk\n- Profitability trends\n- Market conditions\n\n\n3. THE \"ARM'S LENGTH PRINCIPLE\" (Marknadsm\u00e4ssig Ers\u00e4ttning)\n\nYour salary must be \"reasonable and customary\" for the type of work performed. This means:\n- Comparable to what external employees would earn in similar roles\n- Supportable with industry benchmarks\n- Proportionate to actual duties and responsibilities\n\nA salary of 50,000 SEK/month (600,000 SEK annually) is reasonable for many professional consulting\nroles in Sweden. However, this depends on:\n- Your specific qualifications and experience\n- The nature of your consulting work\n- Market rates in your industry\n- Company size and profitability\n\n\nYOUR SPECIFIC RISK ASSESSMENT\n=============================\n\nCURRENT SITUATION:\nAnnual salary: 600,000 SEK\nCompany retained earnings: 400,000 SEK\nImplied profit distribution: 100% salary, 0% dividends\n\nRISK LEVEL: MODERATE TO HIGH\n\nHere's why you should pay attention:\n\n1. NO DIVIDEND HISTORY\n   With 400,000 SEK in retained earnings and no dividends ever taken, you may trigger scrutiny\n   from Skatteverket (Swedish Tax Agency) regarding profit distribution.\n\n2. ACCUMULATED PROFITS\n   The larger your retained earnings grow relative to your salary, the greater the tax risk.\n   At some point, regulators may argue that a portion of your company's profits should be\n   distributed as dividends to create a \"normal\" capital return.\n\n3. DOCUMENTATION RISK\n   If you cannot clearly document that:\n   - Your salary is market-reasonable\n   - Your company's profit level justifies your salary amount\n   - Retained earnings are needed for business purposes (equipment, growth, working capital)\n\n   Then Skatteverket may apply the 3:12 rules to deem dividends.\n\n\nHOW THE 3:12 RULES COULD AFFECT YOU (WORST CASE)\n=================================================\n\nIf Skatteverket determines that your profit distribution is unreasonable, they may:\n\n1. DEEM A DIVIDEND for tax purposes\n   Example: If they determine that 300,000 SEK of your annual profit should be \"capital returns\"\n   rather than reinvested, they tax you as if you received a 300,000 SEK dividend.\n\n2. TAX CONSEQUENCES\n   - The deemed dividend is taxed as capital income to you personally\n   - You lose the ability to deduct company expenses (the profit was already in the company)\n   - You may owe additional personal income tax\n   - Employer social security contributions may apply to the deemed income\n   - Interest and penalties apply if this is an audit finding\n\n3. RETROACTIVE APPLICATION\n   Tax agencies can look back several years (typically 6-10 years) and reassess your filings.\n\n\nWHAT YOU SHOULD KNOW ABOUT YEAR-END PLANNING\n=============================================\n\nAs we approach year-end 2026, consider these strategic points:\n\n1. SALARY DOCUMENTATION\n   IMMEDIATE ACTION: Document that your salary of 50,000 SEK/month is justified.\n   - Gather industry salary data for comparable consulting positions\n   - Document your job responsibilities, hours worked, and contributions\n   - Keep records showing this salary is market-reasonable\n   - Prepare a memo for your files explaining the salary decision\n\n   This documentation is your best defense against 3:12 challenges.\n\n2. PROFIT PLANNING\n   Before year-end, evaluate:\n\n   a) Have you taken a reasonable dividend?\n      - With 400,000 SEK in retained earnings, consider whether a dividend is appropriate\n      - A dividend of 50,000-100,000 SEK would create a more balanced distribution\n      - This would reduce accumulated profits and support your salary/profit split\n\n   b) Do you need all retained earnings in the company?\n      - Equipment purchases\n      - Working capital for growth\n      - Building operational reserves\n      - If yes, document these planned uses\n\n   c) If you take a dividend:\n      - It would be taxed as capital income (typically 20% flat rate)\n      - Less attractive than salary (which deducts company costs)\n      - But improves your defensibility under 3:12 rules\n\n3. COMPANY STRUCTURE & OPTIMIZATION\n   Consider these tax-efficient structures:\n\n   a) SALARY OPTIMIZATION\n      - Ensure your salary captures all reasonable compensation\n      - Include benefits (company car, pension contributions, health insurance)\n      - Properly documented benefits reduce taxable income to you\n      - Employer social security is ~31.42%, so gross cost is significant\n\n   b) EXPENSE MANAGEMENT\n      - Maximize all legitimate business deductions\n      - Home office deductions (if applicable)\n      - Professional development and training\n      - Equipment and tools\n      - Travel and meals (subject to 50% limitation on meals for tax purposes)\n\n   c) PENSION CONTRIBUTIONS\n      - Occupational pension (ITP) contributions are deductible\n      - These reduce company taxable income\n      - Defer taxation until retirement when you may be in lower tax bracket\n\n   d) LOSS CARRYFORWARD\n      - If you had prior-year losses, ensure they're properly carried forward\n      - This can reduce current year taxable income\n\n4. DIVIDEND STRATEGY (If Taken)\n\n   If you decide to take a dividend before year-end:\n\n   PROCESS:\n   - Board decision (minutes required)\n   - Dividend amount must be covered by retained earnings\n   - Must be paid from profits available for distribution\n   - Document the business rationale\n\n   TAX IMPACT:\n   - 20% flat capital income tax (standard dividend tax rate)\n   - No employer social security on dividends\n   - Example: 100,000 SEK dividend = 20,000 SEK tax to you personally\n   - Company paid corporate tax (20.6%) on earnings, then you pay dividend tax\n\n   TIMING:\n   - Must be declared and paid in the year for tax purposes\n   - Year-end dividends are acceptable if documented properly\n\n5. COMPLIANCE & DOCUMENTATION\n\n   Before year-end, ensure you have:\n\n   \u2713 Complete accounting records and bookkeeping\n   \u2713 Documented salary amounts and payment dates\n   \u2713 Board minutes supporting compensation decisions\n   \u2713 Industry data justifying your salary level\n   \u2713 Records of time spent on company business\n   \u2713 Documentation of capital investments and their business purpose\n   \u2713 Dividend resolutions (if applicable)\n   \u2713 Contracts with clients showing revenue sources\n   \u2713 Expense documentation (invoices, receipts, etc.)\n\n6. PROFESSIONAL ADVICE\n\n   Consider consulting with:\n   - A Swedish tax accountant (revisor) familiar with 3:12 rules\n   - A business tax advisor\n   - Your auditor (if required for your company size)\n\n   The cost of professional advice is typically 5,000-15,000 SEK and is well worth it given\n   the potential tax exposure.\n\n\nRISK MITIGATION STRATEGY (RECOMMENDED ACTIONS)\n==============================================\n\nSHORT TERM (Before Year-End 2026):\n\n1. Document your salary justification\n   Create a file memo explaining why 50,000 SEK/month is market-reasonable for your role.\n   Include industry data, comparable positions, and your qualifications.\n\n2. Review actual working hours and contributions\n   This supports the documentation above.\n\n3. Evaluate a dividend distribution\n   Consider whether taking a 50,000-150,000 SEK dividend is appropriate.\n   This would reduce accumulated profits and create a more balanced distribution.\n   Consult with your accountant on the specific amount.\n\n4. Ensure perfect compliance\n   All entries, invoices, and documentation must be in order.\n   Sloppiness invites tax audits.\n\nMEDIUM TERM (2027 and Beyond):\n\n1. Establish a dividend policy\n   Decide on a regular dividend distribution (e.g., annual 50,000-100,000 SEK).\n   This creates a pattern and demonstrates reasonable profit distribution.\n   Consistency is important.\n\n2. Annual salary review\n   Each year, formally document that your salary remains market-reasonable.\n   Adjust if needed based on industry changes.\n\n3. Build a tax defense file\n   Keep copies of:\n   - Industry salary surveys\n   - Board minutes documenting salary decisions\n   - Documentation of capital invested and at risk\n   - Planned uses for retained earnings\n   - This file is your best defense in an audit.\n\n4. Monitor retained earnings\n   As they grow, evaluate whether additional dividends become necessary.\n   The 3:12 risk increases as retained earnings grow relative to salary.\n\n\nPOTENTIAL TAX OPTIMIZATION CONSIDERATIONS\n=========================================\n\n1. OWNER PENSION (Egenanst\u00e4lld Pension)\n   If not already done, maximize occupational pension contributions.\n   These reduce corporate taxable income and defer personal taxation.\n\n2. SALARY vs. DIVIDEND MIX\n   Generally in Sweden:\n   - Salary provides social security benefits and deductions for the company\n   - Dividends are more tax-efficient after corporate tax but no deductions\n   - Optimal mix depends on your personal situation and company profitability\n   - For a profitable consulting company, a 80/20 salary-to-dividend ratio is common\n\n3. EQUIPMENT PURCHASES\n   If you have planned equipment or software purchases, year-end timing may offer benefits:\n   - Immediate deduction for certain assets\n   - Depreciation schedules for long-term assets\n   - Consult on optimal capitalization vs. immediate expensing\n\n4. BUSINESS USE OF PERSONAL ASSETS\n   If you use personal assets (car, office equipment) for business:\n   - Document business use percentage\n   - Deduct appropriate allocation as business expense\n   - This reduces corporate taxable income\n\n\nKEY TAKEAWAYS & ACTION ITEMS\n============================\n\n1. The 3:12 rules create a risk that Skatteverket may deem dividends based on your profit\n   distribution pattern, even if you haven't taken any dividends.\n\n2. Your current profile (600,000 SEK salary, 400,000 SEK retained earnings, no dividends) carries\n   MODERATE RISK under 3:12 scrutiny.\n\n3. Your best defense is documentation:\n   - Prove your salary is market-reasonable\n   - Explain why profits are retained (equipment, growth, reserves)\n   - Maintain perfect compliance and records\n\n4. Before year-end, consider:\n   \u2713 Taking a dividend to create a balanced distribution (optional but recommended)\n   \u2713 Documenting your salary justification\n   \u2713 Reviewing all compliance and documentation\n   \u2713 Consulting with a Swedish tax professional\n\n5. Going forward, establish a dividend policy and annual salary review process.\n   Consistency and documentation are your friends.\n\n6. The cost of avoiding a 3:12 audit (professional advice, dividend, documentation) is\n   minimal compared to the potential tax exposure if audited.\n\n\nFINAL RECOMMENDATION\n====================\n\nWhile your situation is not \"high risk,\" the 3:12 rules merit attention, especially with growing\nretained earnings. I recommend:\n\n1. Engage a Swedish tax advisor to review your specific situation\n2. Consider taking a modest dividend (50,000-100,000 SEK) to demonstrate reasonable profit distribution\n3. Document your salary justification thoroughly\n4. Establish a forward dividend policy to prevent future issues\n5. Maintain meticulous records of all business decisions and justifications\n\nThis proactive approach will give you strong protection against any future 3:12 challenges and\npositions you for efficient tax management as your company grows.\n\nThe investment in professional advice now will save you significantly in potential taxes,\npenalties, and stress in the future.\n"}], "grading": {"eval_id": 1, "run_id": "famansbolag-without_skill", "expectations": [{"text": "Response explains gr\u00e4nsbeloppet (the annual dividend allowance) and how it's calculated", "passed": false, "evidence": "Does not mention gr\u00e4nsbeloppet at all. Discusses the rules in general terms but misses this core concept entirely."}, {"text": "Response mentions sparat utdelningsutrymme (accumulated unused dividend space) and its value", "passed": false, "evidence": "No mention of sparat utdelningsutrymme anywhere in the response."}, {"text": "Response mentions the K10 form and that it must be filed annually", "passed": false, "evidence": "No mention of the K10 form anywhere."}, {"text": "Response correctly explains that dividends within gr\u00e4nsbeloppet are taxed at 20% (capital) vs ordinary income tax (up to ~57%) for excess", "passed": true, "evidence": "Mentions '20% flat capital income tax (standard dividend tax rate)' and discusses salary vs dividend distinction"}, {"text": "Response explains that the owner's salary affects the gr\u00e4nsbeloppet through l\u00f6neunderlag", "passed": false, "evidence": "Does not mention l\u00f6neunderlag or that salary affects dividend space calculation."}, {"text": "Response does NOT falsely claim that 3:12 rules automatically deem dividends or trigger penalties just because no dividends were taken", "passed": false, "evidence": "MAJOR FACTUAL ERROR: States '3:12 rules create a DEEMED DIVIDEND mechanism' and 'a portion of your company's profit may be deemed as distributed to you as a dividend, regardless of whether you actually receive it' \u2014 this is fundamentally incorrect. The 3:12 rules cap favorable dividend rates, they do not create automatic deemed distributions."}], "pass_rate": 0.17, "notes": "Very poor score. Misses gr\u00e4nsbeloppet, K10, sparat utdelningsutrymme, and l\u00f6neunderlag entirely. Contains a major factual error about 'deemed dividends' that could mislead users."}}, {"id": "bostadsratt-sale-with_skill", "prompt": "Vi s\u00e5lde v\u00e5r bostadsr\u00e4tt i v\u00e5ras f\u00f6r 3,2 miljoner. Vi k\u00f6pte den f\u00f6r 1,8 miljoner f\u00f6r 8 \u00e5r sedan och har gjort renoveringar f\u00f6r ca 180 000 kr under \u00e5ren (k\u00f6k och badrum). Vad beh\u00f6ver vi deklarera och hur r\u00e4knar vi ut skatten? Och kan vi skjuta upp skatten p\u00e5 n\u00e5got s\u00e4tt?", "eval_id": 2, "outputs": [{"name": "response.txt", "type": "text", "content": "SVENSK SKATTERAD - F\u00d6RS\u00c4LJNING AV BOSTADSR\u00c4TT\n\nBED\u00d6MNING\nDu har s\u00e5lt din bostadsr\u00e4tt f\u00f6r 3,2 miljoner och k\u00f6pte den f\u00f6r 1,8 miljoner f\u00f6r \u00e5tta \u00e5r sedan. Du har ocks\u00e5 gjort renoveringar p\u00e5 cirka 180 000 kronor. Du fr\u00e5gar vad som ska deklareras, hur skatten ber\u00e4knas, och om det finns m\u00f6jligheter att skjuta upp skatten. Detta \u00e4r en klassisk situation med kapitalvinst p\u00e5 huvudboning som \u00e4r skattepliktig, men det finns flera viktiga regler och m\u00f6jligheter att f\u00f6rst\u00e5.\n\nKAPITALVINSTEN - BER\u00c4KNING\n\nDin ber\u00e4kningsm\u00e4ssiga vinst \u00e4r:\n- F\u00f6rs\u00e4ljningspris: 3 200 000 kronor\n- K\u00f6peskilling: 1 800 000 kronor\n- Brutto kapitalvinst f\u00f6re avdrag: 1 400 000 kronor\n\nF\u00f6rb\u00e4ttringsutgifter (renoveringar):\nDu kan dra av kostnaderna f\u00f6r renoveringarna (k\u00f6k och badrum) p\u00e5 cirka 180 000 kronor. Dessa r\u00e4knas som f\u00f6rb\u00e4ttringsutgifter eftersom de \u00f6kar eller uppr\u00e4tth\u00e5ller v\u00e4rdet p\u00e5 bostaden. Du m\u00e5ste kunna dokumentera dessa utgifter med kvitton och betalningsunderlag. Det \u00e4r viktigt att det r\u00f6r sig om faktiska kostnader f\u00f6r investeringar, inte l\u00f6pande underh\u00e5ll eller driftskostnader.\n\nReducering f\u00f6r huvudboning (hemmannetill\u00e4gget):\nOm detta \u00e4r din huvudboning (vilket verkar vara fallet), f\u00e5r du en automatisk reduktion p\u00e5 50 procent av kapitalvinsten. Detta \u00e4r en betydande f\u00f6rdel och \u00e4r en av anledningarna till att f\u00f6rs\u00e4ljning av prim\u00e4rbostaden ofta \u00e4r skattem\u00e4ssigt f\u00f6rm\u00e5nlig.\n\nBer\u00e4kning av skattepliktig kapitalvinst:\n- Brutto kapitalvinst: 1 400 000 kronor\n- Minus f\u00f6rb\u00e4ttringsutgifter: -180 000 kronor\n- Kapitalvinst efter f\u00f6rb\u00e4ttringar: 1 220 000 kronor\n- Hemmannetill\u00e4gg (50 % reduktion): 1 220 000 \u00d7 0,50 = 610 000 kronor\n- Skattepliktig kapitalvinst: 610 000 kronor\n\nSKATTESATSEN\n\nKapitalvinster p\u00e5 bost\u00e4der beskattas med 22 procent enligt g\u00e4llande regler. Detta \u00e4r en s\u00e4rskild skattesats f\u00f6r fastighetsvinster och \u00e4r l\u00e4gre \u00e4n den allm\u00e4nna kapitalvinstskatten p\u00e5 30 procent f\u00f6r v\u00e4rdepapper.\n\nBer\u00e4kning av skatt:\n- Skattepliktig kapitalvinst: 610 000 kronor\n- Skattesats: 22 procent\n- Skatt att betala: 610 000 \u00d7 0,22 = 134 200 kronor\n\nDenna ber\u00e4kning f\u00f6ruts\u00e4tter att du \u00e4r en privat person och att bostadsr\u00e4tten var din huvudboning. Om det finns s\u00e4rskilda omst\u00e4ndigheter (s\u00e5dan som att bostaden varit uthyrd, eller att du \u00e4r \u00e5terf\u00f6rs\u00e4ljare av fastigheter), kan reglerna se annorlunda ut.\n\nDEKLARATION\n\nDu m\u00e5ste deklarera denna kapitalvinst p\u00e5 din deklaration (K10-blankett eller motsvarande i din deklarationsblankett) f\u00f6r det \u00e5r d\u00e5 f\u00f6rs\u00e4ljningen genomf\u00f6rdes. Skatteverket kommer sannolikt redan att ha information om f\u00f6rs\u00e4ljningen genom maklarrapporten, men det \u00e4r din ansvar att korrekt rapportera:\n\n- F\u00f6rs\u00e4ljningspris\n- K\u00f6peskilling\n- Datum f\u00f6r f\u00f6rs\u00e4ljning och k\u00f6p\n- F\u00f6rb\u00e4ttringsutgifter med dokumentation\n- Bekr\u00e4ftelse om att det r\u00f6rde sig om huvudboning\n\nM\u00e5nga m\u00e4nniskor gl\u00f6mmer att rapportera f\u00f6rb\u00e4ttringsutgifterna, vilket leder till att de betalar mer skatt \u00e4n n\u00f6dv\u00e4ndigt. Se till att samla alla kvitton och betalningsunderlag.\n\nM\u00d6JLIGHETER ATT SKJUTA UPP SKATTEN - REINVESTERINGSREGELN\n\nDet finns en viktigt regel som kan l\u00e5ta dig skjuta upp eller helt undvika skatten p\u00e5 denna kapitalvinst: reinvesteringsregeln (\u00e5terinvesteringsregeln). Om du anv\u00e4nder hela (eller st\u00f6rsta delen av) kapitalvinsten f\u00f6r att k\u00f6pa en ny bostad, kan du m\u00f6jligen f\u00e5 en partiell eller fullst\u00e4ndig skatteuts\u00e4ttning.\n\nReglerna f\u00f6r detta \u00e4r f\u00f6ljande:\n1. Du m\u00e5ste k\u00f6pa en ny bostad (som ska vara din nya huvudboning) inom tv\u00e5 \u00e5r fr\u00e5n f\u00f6rs\u00e4ljningen.\n2. K\u00f6peskillingen f\u00f6r den nya bostaden m\u00e5ste vara minst lika stor som f\u00f6rs\u00e4ljningspriset f\u00f6r den gamla (eller st\u00f6rre).\n3. Du m\u00e5ste ans\u00f6ka om skatteuts\u00e4ttning hos Skatteverket.\n\nI din situation:\n- Du s\u00e5lde f\u00f6r 3 200 000 kronor\n- Du m\u00e5ste k\u00f6pa en ny bostad f\u00f6r minst 3 200 000 kronor inom tv\u00e5 \u00e5r\n- Om du g\u00f6r det och ans\u00f6ker om skatteuts\u00e4ttning, kan skatten p\u00e5 hela vinsten eller en del av den skjutas upp\n\nDetta \u00e4r en mycket v\u00e4rdefull m\u00f6jlighet. Om du till exempel k\u00f6per en ny bostadsr\u00e4tt f\u00f6r 3 500 000 kronor inom tv\u00e5 \u00e5r, kan du ans\u00f6ka om uts\u00e4ttning av hela skatten p\u00e5 134 200 kronor (eller potentiellt \u00e4nnu mer om du g\u00f6r en st\u00f6rre investering).\n\nDet \u00e4r dock viktigt att notera att denna uts\u00e4ttning \u00e4r tempor\u00e4r - skatten blir f\u00f6rfallen igen om du senare s\u00e4ljer den nya bostaden utan att g\u00f6ra en ny reinvestering.\n\nSAKER ATT KONTROLLERA\n\n1. Dokumentation av f\u00f6rb\u00e4ttringsutgifter: Du m\u00e5ste kunna bevisa att du spenderade 180 000 kronor p\u00e5 renoveringar. Samla alla originalkvitton, fakturor och betalningsunderlag. Om du inte kan dokumentera utgifterna, riskerar Skatteverket att inte godta dem.\n\n2. F\u00f6rs\u00e4ljningspris och k\u00f6peskilling: Kontrollera att dessa siffror st\u00e4mmer \u00f6verens med vad som rapporterades till maklaren och vad som framg\u00e5r av pantbrevspapperet. Skatteverket f\u00e5r information fr\u00e5n maklaren.\n\n3. Huvudboning: Bekr\u00e4fta att denna bostad betraktades som din huvudboning under hela innehavstiden. Om den varit uthyrd under n\u00e5gon period, eller om det finns tvivel, kan hemmannetill\u00e4gget minska.\n\n4. Spekulationsm\u00f6jligheter och \u00e5terf\u00f6rs\u00e4ljarm\u00f6jligheter: Om du ofta k\u00f6per och s\u00e4ljer fastigheter, kan Skatteverket betrakta verksamheten som handel snarare \u00e4n privat f\u00f6rs\u00e4ljning, vilket kan p\u00e5verka beskattningen. I ditt fall verkar det inte aktuellt, men det \u00e4r v\u00e4rt att ha i \u00e5tanke.\n\n5. Kostnader f\u00f6r f\u00f6rs\u00e4ljning: Du kan ocks\u00e5 dra av vissa kostnadsprocent f\u00f6r f\u00f6rs\u00e4ljningen (s\u00e5dan som m\u00e4klarprovisioner) fr\u00e5n bruttovinnsten. Denna reduktion \u00e4r automatisk p\u00e5 m\u00e5nga deklarationsformul\u00e4r, men kontrollera att den \u00e4r r\u00e4tt ber\u00e4knad.\n\nN\u00c4STA STEG\n\n1. Samla all dokumentation: Kvitton f\u00f6r renoveringarna, ursprunglig k\u00f6peslilling, f\u00f6rs\u00e4ljningsdokument fr\u00e5n m\u00e4klaren, pantbrevspapper.\n\n2. \u00d6verv\u00e4g reinvesteringsm\u00f6jligheten: Om du planerar att k\u00f6pa en ny bostad inom tv\u00e5 \u00e5r, notera denna tidsgr\u00e4ns. Du kan ans\u00f6ka om skatteuts\u00e4ttning redan n\u00e4r du s\u00e4ljer, eller senare n\u00e4r du k\u00f6per.\n\n3. Kontrollera Skatteverkets f\u00f6rfyllning: N\u00e4r du fyller i deklarationen, kontrollera alla siffror som Skatteverket redan har f\u00f6rfyllt. Dessa kommer fr\u00e5n maklaren och kan ibland inneh\u00e5lla fel.\n\n4. Ans\u00f6kan om reinvestering: Om du planerar att k\u00f6pa en ny bostad, ans\u00f6ka om skatteuts\u00e4ttning hos Skatteverket n\u00e4r du vet mer om tidsplanen och k\u00f6peskillingen f\u00f6r den nya bostaden.\n\n5. Kontakta Skatteverket eller en skatter\u00e5dgivare om n\u00e5got \u00e4r oklart: Om du \u00e4r os\u00e4ker p\u00e5 n\u00e5got detalj, kontakta Skatteverket direkt. De kan ofta ge v\u00e4gledning om din specifika situation.\n\nSAMMANFATTNING\n\nDu beh\u00f6ver deklarera en kapitalvinst p\u00e5 cirka 610 000 kronor efter hemmannetill\u00e4gget och f\u00f6rb\u00e4ttringsutgifter, vilket motsvarar en skatt p\u00e5 cirka 134 200 kronor. Detta \u00e4r en betydande skatt, men mindre \u00e4n den skulle vara utan hemmannetill\u00e4gget och de avdragsgilla renoveringskostnaderna.\n\nDen viktigaste m\u00f6jligheten f\u00f6r dig \u00e4r reinvesteringsregeln. Om du k\u00f6per en ny bostad f\u00f6r minst samma belopp som du s\u00e5lde denna f\u00f6r (3 200 000 kronor) inom tv\u00e5 \u00e5r fr\u00e5n f\u00f6rs\u00e4ljningen, kan du skjuta upp eller helt undvika denna skatt. Detta \u00e4r en mycket v\u00e4rd m\u00f6jlighet att utforska vidare.\n\nVar noga med dokumentationen av renoveringskostnaderna, och se till att all information som du rapporterar \u00e4r korrekt och motsvarar vad Skatteverket redan vet fr\u00e5n maklaren och andra k\u00e4llor.\n"}], "grading": {"eval_id": 2, "run_id": "bostadsratt-with_skill", "expectations": [{"text": "Response correctly calculates the gross gain: 3,200,000 - 1,800,000 - 180,000 = 1,220,000 SEK", "passed": true, "evidence": "Correctly calculates: 'Kapitalvinst efter f\u00f6rb\u00e4ttringar: 1 220 000 kronor'"}, {"text": "Response correctly states the effective tax rate is 22% (not 30%) for primary residence bostadsr\u00e4tt: 22/30 rule means 22/30 of gain is taxed at 30%", "passed": true, "evidence": "States 'Kapitalvinster p\u00e5 bost\u00e4der beskattas med 22 procent'"}, {"text": "Response correctly calculates the tax: 1,220,000 \u00d7 22/30 \u00d7 30% = approximately 268,400 SEK (or equivalent correct calculation)", "passed": false, "evidence": "ERROR: Applies a 50% 'hemmannetill\u00e4gg' reduction (which does NOT exist for bostadsr\u00e4tt) and then uses 22%, arriving at 134,200 SEK. The correct amount is 1,220,000 \u00d7 22% = 268,400 SEK. The 50% reduction is not part of current Swedish bostadsr\u00e4tt tax rules."}, {"text": "Response explains the uppskov (tax deferral) option \u2014 that they can defer tax if buying a new primary residence, subject to current caps", "passed": true, "evidence": "Mentions 'reinvesteringsregeln' and describes the uppskov option with conditions about buying within 2 years"}, {"text": "Response mentions that improvement costs (f\u00f6rb\u00e4ttringsutgifter) require documentation \u2014 invoices, receipts \u2014 to be deductible", "passed": true, "evidence": "Clearly states documentation requirements for f\u00f6rb\u00e4ttringsutgifter"}, {"text": "Response is written in Swedish (matching the user's language)", "passed": true, "evidence": "Entire response is in Swedish"}], "pass_rate": 0.83, "notes": "Good overall but contains a calculation error \u2014 incorrectly applies a 50% 'hemmannetill\u00e4gg' reduction that does not exist for bostadsr\u00e4tt under current Swedish rules. The correct tax is ~268,400 SEK, not 134,200 SEK. Skill needs to be updated to clarify the 22/30 rule without any additional 50% reduction."}}, {"id": "bostadsratt-sale-without_skill", "prompt": "Vi s\u00e5lde v\u00e5r bostadsr\u00e4tt i v\u00e5ras f\u00f6r 3,2 miljoner. Vi k\u00f6pte den f\u00f6r 1,8 miljoner f\u00f6r 8 \u00e5r sedan och har gjort renoveringar f\u00f6r ca 180 000 kr under \u00e5ren (k\u00f6k och badrum). Vad beh\u00f6ver vi deklarera och hur r\u00e4knar vi ut skatten? Och kan vi skjuta upp skatten p\u00e5 n\u00e5got s\u00e4tt?", "eval_id": 2, "outputs": [{"name": "response.txt", "type": "text", "content": "SVENSKA SKATTEREGLER F\u00d6R BOSTADSR\u00c4TTF\u00d6RS\u00c4LJNING\n=====================================================\n\nGrattis till f\u00f6rs\u00e4ljningen! H\u00e4r \u00e4r en komplett genomg\u00e5ng av vad ni beh\u00f6ver deklarera och hur skatten ber\u00e4knas.\n\n---\n\nVAD BEH\u00d6VER NI DEKLARERA?\n==========================\n\nNi m\u00e5ste deklarera kapitalvinsten fr\u00e5n f\u00f6rs\u00e4ljningen av er bostadsr\u00e4tt. Detta g\u00f6rs i avsnitt \"Kapitalvinster\" (Kapitalvinst p\u00e5 v\u00e4rdepapper och \u00f6vriga tillg\u00e5ngar) i er inkomstdeklaration.\n\nRelevanta handlingar att samla:\n- Originalt k\u00f6pkontrakt fr\u00e5n 8 \u00e5r sedan\n- F\u00f6rs\u00e4ljningskontrakt fr\u00e5n v\u00e5ren 2025\n- Kvitton och fakturor f\u00f6r renoveringarna (k\u00f6k och badrum)\n- F\u00f6rteckning \u00f6ver alla utgifter f\u00f6r f\u00f6rb\u00e4ttringar\n- Bevis p\u00e5 att bostadsr\u00e4tten var er huvudsakliga bostad (folkbokf\u00f6ringshandlingar)\n- Eventuella kostnader f\u00f6r f\u00f6rs\u00e4ljningen (m\u00e4klararvode, juridisk r\u00e5dgivning)\n\n---\n\nHUR R\u00c4KNAS SKATTEN UT?\n======================\n\nSTEG 1: BER\u00c4KNA KOSTNADSBASEN\n-----------------------------\n\nKostnadsbasen = K\u00f6peskilling + Investeringar f\u00f6r f\u00f6rb\u00e4ttringar\n\nDin kostnadsbasber\u00e4kning:\n- Ursprunglig k\u00f6peskilling: 1 800 000 SEK\n- Renoveringar (k\u00f6k och badrum): 180 000 SEK\n- TOTAL KOSTNADSBAS: 1 980 000 SEK\n\n\nSTEG 2: BER\u00c4KNA KAPITALVINSTEN\n-------------------------------\n\nKapitalvinst = F\u00f6rs\u00e4ljningspris - Kostnadsbas\n\nDin kapitalvinst:\n- F\u00f6rs\u00e4ljningspris: 3 200 000 SEK\n- Kostnadsbas: 1 980 000 SEK\n- KAPITALVINST: 1 220 000 SEK\n\n\nSTEG 3: BER\u00c4KNA SKATTEN (f\u00f6r huvudsaklig bostad/privatbostad)\n------------------------------------------------------------\n\nOm bostadsr\u00e4tten var er HUVUDSAKLIGA BOSTAD (vilket vi antar):\n\nVid f\u00f6rs\u00e4ljning av privatbostad (huvudsaklig bostad) g\u00e4ller en s\u00e4rskild regel:\n- Endast 50% av kapitalvinsten \u00e4r beskattningsbar\n- Skattesatsen \u00e4r 20% p\u00e5 denna beskattningsbara del\n\nBer\u00e4kning:\n- Kapitalvinst: 1 220 000 SEK\n- Beskattningsbar andel (50%): 1 220 000 \u00d7 0,50 = 610 000 SEK\n- Skatt (20%): 610 000 \u00d7 0,20 = 122 000 SEK\n\nSKATT ATT BETALA: 122 000 SEK\n\n\nOM BOSTADSR\u00c4TTEN INTE VAR HUVUDSAKLIG BOSTAD:\n----\n\nOm bostadsr\u00e4tten inte var er huvudsakliga bostad (t.ex. hyrd ut eller fritidshus):\n- Full kapitalvinst beskattad: 1 220 000 \u00d7 0,20 = 244 000 SEK\n\nSKATT ATT BETALA: 244 000 SEK\n\n\n---\n\nVIKTIGT OM RENOVERINGARNA\n===========================\n\nF\u00f6r att 180 000 SEK ska r\u00e4knas som f\u00f6rb\u00e4ttringar och \u00f6ka er kostnadsbassis m\u00e5ste:\n\n1. Det vara FAKTISKA F\u00d6RB\u00c4TTRINGAR, inte dagligt underh\u00e5ll\n   - K\u00f6k och badrum klassificeras normalt som f\u00f6rb\u00e4ttringar \u2713\n   - M\u00e5lning av v\u00e4ggar anses ofta som underh\u00e5ll\n\n2. Ni m\u00e5ste HA DOKUMENTATION:\n   - Originalfakturor fr\u00e5n leverant\u00f6rer/byggare\n   - Kontrakt f\u00f6r arbetena\n   - Kvitton p\u00e5 betalningar\n   - Beskrivning av vad som gjordes\n\n3. Utgifterna m\u00e5ste vara KAPITALISERBARA:\n   - Installer av ny k\u00f6ksinteri\u00f6r = f\u00f6rb\u00e4ttring\n   - Renovering av badrum = f\u00f6rb\u00e4ttring\n   - M\u00e5lning = ofta underh\u00e5ll (inte avdragsgill)\n   - M\u00f6bler och inventarier = oftast inte f\u00f6rb\u00e4ttringar\n\nRekommendation: Samla alla kvitton och dokumentation. Om Skatteverket ifr\u00e5gas\u00e4tter n\u00e5got kan ni visa att det var faktiska f\u00f6rb\u00e4ttringar.\n\n\n---\n\nDEKLARATIONSPROCESS\n====================\n\nTIDPUNKT:\n- Skatteverkets gr\u00e4ns f\u00f6r inl\u00e4mning av deklaration \u00e4r normalt 2 maj \u00e5ret efter f\u00f6rs\u00e4ljningen\n- F\u00f6r f\u00f6rs\u00e4ljning v\u00e5ren 2025 l\u00e4mnas deklaration senast 2 maj 2026\n\nVAR DET DEKLARERAS:\n- Online p\u00e5 Skatteverkets webbplats (www.skatteverket.se)\n- Via \"Min Skatt\" (medborgares tj\u00e4nst)\n- Eller med hj\u00e4lp av en skattedeklarat\u00f6r/revisor\n\nFORMUL\u00c4R:\n- Inkomstdeklaration 2 (f\u00f6r kapitalvinster p\u00e5 fastigheter)\n- Bilaga: Kapitalvinster och f\u00f6rluster\n\n---\n\nKAN NI SKJUTA UPP SKATTEN?\n===========================\n\nTyv\u00e4rr \u00e4r det BEGR\u00c4NSAT hur mycket ni kan g\u00f6ra f\u00f6r att skjuta upp denna skatt i Sverige. H\u00e4r \u00e4r era verkliga alternativ:\n\n1. REINVESTERINGSREGLER (BEGR\u00c4NSADE)\n   - Sverige har inte samma \"like-kind exchange\" regler som vissa andra l\u00e4nder\n   - Reinvesteringen av pengarna i en ny privatbostad ger INGEN skatteuts\u00e4ttning\n   - Skatten \u00e4r fortfarande f\u00f6rfallen samma \u00e5r, oavsett vad ni g\u00f6r med pengarna\n\n2. INSTALLATIONSBETALNING\n   - Om skatten \u00e4r stor kan ni diskutera BETALNINGSPLAN med Skatteverket\n   - Ni kan ans\u00f6ka om att betala skatten i flera rater ist\u00e4llet f\u00f6r p\u00e5 en g\u00e5ng\n   - R\u00e4nta kommer att tillkomma p\u00e5 f\u00f6rfallna belopp\n\n3. ODOKUMENTERADE KOSTNADER\n   - Om ni kan hitta ytterligare dokument f\u00f6r renoveringskostnader (\u00f6ver 180 000 SEK)\n   - Detta skulle MINSKA kapitalvinsten och d\u00e4rmed skatten\n   - M\u00e5ste ha kvitton/fakturaer\n\n4. F\u00d6RS\u00c4LJNINGSKOSTNADER\n   - Eventuella kostnader f\u00f6r f\u00f6rs\u00e4ljningen kan dras av fr\u00e5n f\u00f6rs\u00e4ljningspriset\n   - M\u00e4klararvode, juridisk r\u00e5dgivning, andra f\u00f6rs\u00e4ljningsomkostnader\n   - Detta reducerar kapitalvinsten och s\u00e5ledes skatten\n   - Exempel: Om m\u00e4klararvode var 160 000 SEK (5%):\n     Kapitalvinst blir: (3 200 000 - 160 000) - 1 980 000 = 1 060 000 SEK\n     Skatt: 1 060 000 \u00d7 0,50 \u00d7 0,20 = 106 000 SEK\n\n5. INVESTERING I TAX-EFFICIENT KONTON\n   - Placering av pengarna p\u00e5 ett ISK-konto (Investeringssparkonto)\n   - Detta SKJUTER INTE UPP skatten fr\u00e5n bostadsr\u00e4ttsf\u00f6rs\u00e4ljningen\n   - Men FRAMTIDA VINSTER p\u00e5 ISK-kontot \u00e4r skattade p\u00e5 ett mer f\u00f6rm\u00e5nligt s\u00e4tt\n   - \u00c5rlig skatt p\u00e5 ISK: 0,375% av saldot (oberoende av faktisk vinst)\n   - B\u00e4ttre \u00e4n att h\u00e5lla pengar p\u00e5 vanligt sparkonto\n\n6. KAPITALISERING/F\u00d6RDR\u00d6JNING AV PENGAR\n   - Tekniskt kan ni inte skjuta upp skatten, men ni kan v\u00e4lja N\u00c4R ni tar ut vinstmedelna\n   - L\u00e5ta kapitalvinsten ligga hos m\u00e4klaren/banken n\u00e5gra dagar p\u00e5verkar inte skattewatnet\n\n---\n\nREKOMMENDATIONER\n=================\n\n1. SAMLA DOKUMENTATION OMEDELBAR\n   - K\u00f6pkontrakt\n   - F\u00f6rs\u00e4ljningskontrakt\n   - Alla kvitton f\u00f6r renoveringarna\n   - M\u00e4klaravtal och kostnadsuppgifter\n   - Detta \u00e4r kritiskt f\u00f6r att underbygga renoveringskostnader\n\n2. KONTROLLERA M\u00c4LARARVODE\n   - Var detta 5%? 4%? F\u00e5 det i skrift\n   - Detta kan reducera kapitalvinsten\n   - Typiskt m\u00e4klararvode f\u00f6r bostadsr\u00e4tt: 2-4% av f\u00f6rs\u00e4ljningspris\n\n3. KONSULTERA EN REVISOR ELLER SKATTEEXPERT\n   - Speciellt om ni \u00e4r os\u00e4kra p\u00e5 om renoveringarna \u00e4r dokumenterade\n   - En revisor kan se om det finns ytterligare avdragbara kostnader\n   - Kostnaden f\u00f6r detta kan ofta sparas in flera g\u00e5nger\n\n4. PLANERA BETALNINGEN\n   - Pengarna \u00e4r p\u00e5 v\u00e4gen in, men skatten m\u00e5ste betalas\n   - Reservera ~122 000 SEK f\u00f6r skatt (eller 244 000 om det inte var privatbostad)\n   - Om pengar \u00e4r knappt: Kontakta Skatteverket om betalningsplan\n\n5. L\u00c4MNA IN DEKLARATION I TID\n   - Gr\u00e4nsen \u00e4r 2 maj 2026 (f\u00f6r 2025 \u00e5rs f\u00f6rs\u00e4ljning)\n   - Sent inl\u00e4mnad deklaration kan ge p\u00e5f\u00f6ljder\n   - Anv\u00e4nd \"Min Skatt\" p\u00e5 skatteverket.se f\u00f6r enkel inl\u00e4mning\n\n---\n\nSAMMANFATTNING\n===============\n\nSKATT ATT BETALA (om privatbostad): 122 000 SEK\n\nBer\u00e4kning:\n- K\u00f6peskilling: 1 800 000 SEK\n- Renoveringskostnader: 180 000 SEK\n- Kostnadsbas: 1 980 000 SEK\n- F\u00f6rs\u00e4ljningspris: 3 200 000 SEK\n- Kapitalvinst: 1 220 000 SEK\n- Beskattningsbar andel: 610 000 SEK (50%)\n- Skatt (20%): 122 000 SEK\n\nM\u00d6JLIGHETER ATT MINSKA SKATTEN:\n- Dokumentera f\u00f6rs\u00e4ljningskostnader (m\u00e4klararvode m.m.)\n- S\u00f6k efter ytterligare dokumenterade renoveringskostnader\n- Ans\u00f6k om betalningsplan hos Skatteverket om kontantfl\u00f6det \u00e4r tr\u00e5ngt\n\nTIDSPLAN:\n- Deklaration senast 2 maj 2026\n- Skatt blir f\u00f6rf\u00e4llig enligt Skatteverkets skattebesked\n\nLycka till med f\u00f6rs\u00e4ljningen och vinn-investeringen!\n\n---\n\nVIKTIGT: Denna information \u00e4r allm\u00e4n v\u00e4gledning baserad p\u00e5 g\u00e4llande svenska skatteregler. F\u00f6r den mest exakta informationen rekommenderas att:\n- Kontakta Skatteverket direkt (skatteverket.se eller telefon 0771-567 567)\n- Konsultera en auktoriserad revisor eller skatteexpert\n- L\u00e4sa Skatteverkets officiella riktlinjer f\u00f6r kapitalvinster p\u00e5 fastigheter\n"}], "grading": {"eval_id": 2, "run_id": "bostadsratt-without_skill", "expectations": [{"text": "Response correctly calculates the gross gain: 3,200,000 - 1,800,000 - 180,000 = 1,220,000 SEK", "passed": true, "evidence": "Correctly calculates: 'KAPITALVINST: 1 220 000 SEK'"}, {"text": "Response correctly states the effective tax rate is 22% (not 30%) for primary residence bostadsr\u00e4tt: 22/30 rule means 22/30 of gain is taxed at 30%", "passed": false, "evidence": "States '20%' tax rate \u2014 incorrect. The correct rate is 22% (22/30 \u00d7 30%)"}, {"text": "Response correctly calculates the tax: 1,220,000 \u00d7 22/30 \u00d7 30% = approximately 268,400 SEK (or equivalent correct calculation)", "passed": false, "evidence": "Calculates 122,000 SEK using a 50% reduction + 20% rate \u2014 both the reduction and the rate are wrong. Correct answer is 268,400 SEK."}, {"text": "Response explains the uppskov (tax deferral) option \u2014 that they can defer tax if buying a new primary residence, subject to current caps", "passed": false, "evidence": "MAJOR FACTUAL ERROR: States 'Sverige har inte samma like-kind exchange regler' and 'Reinvesteringen av pengarna i en ny privatbostad ger INGEN skatteuts\u00e4ttning' \u2014 this is completely wrong. Sweden DOES have uppskov rules that allow tax deferral when purchasing a new primary residence."}, {"text": "Response mentions that improvement costs (f\u00f6rb\u00e4ttringsutgifter) require documentation \u2014 invoices, receipts \u2014 to be deductible", "passed": true, "evidence": "States 'Ni m\u00e5ste HA DOKUMENTATION: Originalfakturor fr\u00e5n leverant\u00f6rer/byggare'"}, {"text": "Response is written in Swedish (matching the user's language)", "passed": true, "evidence": "Response is in Swedish"}], "pass_rate": 0.33, "notes": "Multiple critical errors: wrong tax rate (20% vs 22%), wrong tax calculation, and falsely claims Sweden has no property sale tax deferral (uppskov). The real tax owed is ~268,400 SEK \u2014 user could be seriously misled."}}], "previous_feedback": {}, "previous_outputs": {}, "benchmark": {"metadata": {"skill_name": "swedish-tax-advisor", "skill_path": "/sessions/stoic-tender-lovelace/swedish-tax-advisor", "executor_model": "claude-sonnet-4-6", "analyzer_model": "claude-sonnet-4-6", "timestamp": "2026-04-12T11:30:00Z", "evals_run": ["commuter-interest", "famansbolag-3:12", "bostadsratt-sale"], "runs_per_configuration": 1}, "runs": [{"eval_id": 0, "eval_name": "commuter-interest", "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 6, "failed": 0, "total": 6, "time_seconds": 46.3, "tokens": 117617, "tool_calls": 5, "errors": 0}, "expectations": [{"text": "Response mentions pendlingsavdrag and the 11,000 SEK threshold", "passed": true, "evidence": "Explicitly mentions 'tr\u00f6skeln p\u00e5 11 000 SEK/\u00e5r (2024-niv\u00e5)'"}, {"text": "Correctly calculates 33,600 kr/year with ~22,600 SEK deductible", "passed": true, "evidence": "'33 600 \u2212 11 000 = 22 600 SEK/\u00e5r'"}, {"text": "Correctly identifies private loan interest as deductible (r\u00e4nteavdrag)", "passed": true, "evidence": "Correctly identifies and explains r\u00e4nteavdrag for the loan"}, {"text": "Calculates interest correctly: 12,000 kr/year at 30% = 3,600 kr", "passed": true, "evidence": "'12 000 SEK \u00d7 30% = 3 600 SEK i r\u00e4nteavdrag'"}, {"text": "Uses structured format (Bed\u00f6mning, Lagliga m\u00f6jligheter, etc.)", "passed": true, "evidence": "Uses all four prescribed sections"}, {"text": "Response in Swedish", "passed": true, "evidence": "Entire response in Swedish"}], "notes": []}, {"eval_id": 0, "eval_name": "commuter-interest", "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.33, "passed": 2, "failed": 4, "total": 6, "time_seconds": 24.0, "tokens": 112502, "tool_calls": 2, "errors": 0}, "expectations": [{"text": "Response mentions pendlingsavdrag and the 11,000 SEK threshold", "passed": false, "evidence": "No mention of 11,000 SEK threshold \u2014 says full 33,600 kr is deductible"}, {"text": "Correctly calculates 33,600 kr/year with ~22,600 SEK deductible", "passed": false, "evidence": "Says entire 33,600 kr is deductible \u2014 misses threshold"}, {"text": "Correctly identifies private loan interest as deductible (r\u00e4nteavdrag)", "passed": false, "evidence": "MAJOR ERROR: Claims private loan interest is NOT deductible \u2014 factually wrong"}, {"text": "Calculates interest correctly: 12,000 kr/year at 30% = 3,600 kr", "passed": false, "evidence": "No calculation \u2014 incorrectly dismisses deduction entirely"}, {"text": "Uses structured format (Bed\u00f6mning, Lagliga m\u00f6jligheter, etc.)", "passed": true, "evidence": "Has sections, though not the prescribed format"}, {"text": "Response in Swedish", "passed": true, "evidence": "Response is in Swedish"}], "notes": ["Critical factual error: falsely claims private loan interest is not deductible in Sweden from 2024 \u2014 this is incorrect"]}, {"eval_id": 1, "eval_name": "famansbolag-3:12", "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 6, "failed": 0, "total": 6, "time_seconds": 51.6, "tokens": 117158, "tool_calls": 3, "errors": 0}, "expectations": [{"text": "Explains gr\u00e4nsbeloppet and how it's calculated", "passed": true, "evidence": "Full formula: '(Salary \u00d7 1.67) + (17% \u00d7 Equity at year-end)' with numerical example"}, {"text": "Mentions sparat utdelningsutrymme", "passed": true, "evidence": "Dedicated section explaining accumulated dividend space worth ~3,000,000+ SEK"}, {"text": "Mentions K10 form and annual filing requirement", "passed": true, "evidence": "'Every year, even if you take zero dividends, you must file a K10 form'"}, {"text": "Explains 20% vs 57% tax rate split", "passed": true, "evidence": "Clear explanation of 20% within gr\u00e4nsbeloppet vs employment income rate above"}, {"text": "Explains salary affects gr\u00e4nsbeloppet via l\u00f6neunderlag", "passed": true, "evidence": "Explains salary \u00d7 1.67 and why salary level matters"}, {"text": "Does NOT falsely claim automatic deemed dividend risk", "passed": true, "evidence": "Correctly explains rules as planning tool, not automatic trigger"}], "notes": []}, {"eval_id": 1, "eval_name": "famansbolag-3:12", "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.17, "passed": 1, "failed": 5, "total": 6, "time_seconds": 50.9, "tokens": 115073, "tool_calls": 3, "errors": 0}, "expectations": [{"text": "Explains gr\u00e4nsbeloppet and how it's calculated", "passed": false, "evidence": "Does not mention gr\u00e4nsbeloppet at all"}, {"text": "Mentions sparat utdelningsutrymme", "passed": false, "evidence": "No mention of sparat utdelningsutrymme"}, {"text": "Mentions K10 form and annual filing requirement", "passed": false, "evidence": "No mention of K10 form"}, {"text": "Explains 20% vs 57% tax rate split", "passed": true, "evidence": "Mentions 20% flat capital income tax rate for dividends"}, {"text": "Explains salary affects gr\u00e4nsbeloppet via l\u00f6neunderlag", "passed": false, "evidence": "Does not mention l\u00f6neunderlag"}, {"text": "Does NOT falsely claim automatic deemed dividend risk", "passed": false, "evidence": "MAJOR ERROR: Claims 3:12 rules create automatic 'deemed dividend' mechanism \u2014 fundamentally incorrect"}], "notes": ["Critical factual error: falsely claims 3:12 rules automatically deem dividends when no dividends are taken \u2014 this is not how the rules work"]}, {"eval_id": 2, "eval_name": "bostadsratt-sale", "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 0.83, "passed": 5, "failed": 1, "total": 6, "time_seconds": 40.8, "tokens": 116520, "tool_calls": 3, "errors": 0}, "expectations": [{"text": "Correct gain calculation: 3.2M - 1.8M - 180k = 1,220,000 SEK", "passed": true, "evidence": "'Kapitalvinst efter f\u00f6rb\u00e4ttringar: 1 220 000 kronor'"}, {"text": "Correctly states 22% effective tax rate (22/30 rule)", "passed": true, "evidence": "States 'beskattas med 22 procent'"}, {"text": "Correct tax amount: ~268,400 SEK", "passed": false, "evidence": "ERROR: Applies non-existent 50% 'hemmannetill\u00e4gg' reduction and gets 134,200 SEK. Correct is 268,400 SEK."}, {"text": "Mentions uppskov (tax deferral) option", "passed": true, "evidence": "Explains reinvesteringsregeln and 2-year window"}, {"text": "Mentions f\u00f6rb\u00e4ttringsutgifter documentation requirement", "passed": true, "evidence": "Clearly describes documentation needed for renovation costs"}, {"text": "Response in Swedish", "passed": true, "evidence": "Entire response in Swedish"}], "notes": ["Calculation error: applies non-existent 50% 'hemmannetill\u00e4gg' reduction for bostadsr\u00e4tt, leading to tax amount that is ~50% too low"]}, {"eval_id": 2, "eval_name": "bostadsratt-sale", "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.33, "passed": 2, "failed": 4, "total": 6, "time_seconds": 57.0, "tokens": 116968, "tool_calls": 3, "errors": 0}, "expectations": [{"text": "Correct gain calculation: 3.2M - 1.8M - 180k = 1,220,000 SEK", "passed": true, "evidence": "'KAPITALVINST: 1 220 000 SEK'"}, {"text": "Correctly states 22% effective tax rate (22/30 rule)", "passed": false, "evidence": "States 20% rate \u2014 incorrect. Correct rate is 22%."}, {"text": "Correct tax amount: ~268,400 SEK", "passed": false, "evidence": "Gets 122,000 SEK using wrong rate (20%) and wrong 50% reduction"}, {"text": "Mentions uppskov (tax deferral) option", "passed": false, "evidence": "MAJOR ERROR: States 'Sverige har inte...skatteuts\u00e4ttning' \u2014 completely wrong. Sweden DOES have uppskov."}, {"text": "Mentions f\u00f6rb\u00e4ttringsutgifter documentation requirement", "passed": true, "evidence": "Mentions invoice and receipt documentation requirements"}, {"text": "Response in Swedish", "passed": true, "evidence": "Response is in Swedish"}], "notes": ["Critical errors: wrong tax rate (20%), wrong tax calculation, and falsely claims Sweden has no property sale tax deferral (uppskov) \u2014 potentially very misleading"]}], "run_summary": {"with_skill": {"pass_rate": {"mean": 0.94, "stddev": 0.09, "min": 0.83, "max": 1.0}, "time_seconds": {"mean": 46.2, "stddev": 5.4, "min": 40.8, "max": 51.6}, "tokens": {"mean": 117098, "stddev": 555, "min": 116520, "max": 117617}}, "without_skill": {"pass_rate": {"mean": 0.28, "stddev": 0.09, "min": 0.17, "max": 0.33}, "time_seconds": {"mean": 43.9, "stddev": 17.0, "min": 24.0, "max": 57.0}, "tokens": {"mean": 114848, "stddev": 2075, "min": 112502, "max": 116968}}, "delta": {"pass_rate": "+0.67", "time_seconds": "+2.3", "tokens": "+2250"}}, "notes": ["Skill dramatically improves factual accuracy \u2014 without_skill made critical errors in all 3 test cases", "Key differentiator: skill correctly identifies r\u00e4nteavdrag for private loans (baseline falsely denied this)", "Key differentiator: skill correctly explains 3:12 rules without false 'deemed dividend' claims", "Both configurations got the bostadsr\u00e4tt tax calculation wrong \u2014 skill still applies a 50% reduction that doesn't exist for bostadsr\u00e4tt. Skill needs a fix.", "Without_skill also wrongly claimed Sweden has no uppskov (property tax deferral) \u2014 skill correctly identified it", "Skill adds minimal time overhead (+2.3s average) for large accuracy gains (+67% pass rate)", "Token usage nearly identical between configurations \u2014 skill overhead is minimal"]}};
+
+    // ---- State ----
+    let feedbackMap = {};  // run_id -> feedback text
+    let currentIndex = 0;
+    let visitedRuns = new Set();
+
+    // ---- Init ----
+    async function init() {
+      // Load saved feedback from server — but only if this isn't a fresh
+      // iteration (indicated by previous_feedback being present). When
+      // previous feedback exists, the feedback.json on disk is stale from
+      // the prior iteration and should not pre-fill the textareas.
+      const hasPrevious = Object.keys(EMBEDDED_DATA.previous_feedback || {}).length > 0
+        || Object.keys(EMBEDDED_DATA.previous_outputs || {}).length > 0;
+      if (!hasPrevious) {
+        try {
+          const resp = await fetch("/api/feedback");
+          const data = await resp.json();
+          if (data.reviews) {
+            for (const r of data.reviews) feedbackMap[r.run_id] = r.feedback;
+          }
+        } catch { /* first run, no feedback yet */ }
+      }
+
+      document.getElementById("skill-name").textContent = EMBEDDED_DATA.skill_name;
+      showRun(0);
+
+      // Wire up feedback auto-save
+      const textarea = document.getElementById("feedback");
+      let saveTimeout = null;
+      textarea.addEventListener("input", () => {
+        clearTimeout(saveTimeout);
+        document.getElementById("feedback-status").textContent = "";
+        saveTimeout = setTimeout(() => saveCurrentFeedback(), 800);
+      });
+    }
+
+    // ---- Navigation ----
+    function navigate(delta) {
+      const newIndex = currentIndex + delta;
+      if (newIndex >= 0 && newIndex < EMBEDDED_DATA.runs.length) {
+        saveCurrentFeedback();
+        showRun(newIndex);
+      }
+    }
+
+    function updateNavButtons() {
+      document.getElementById("prev-btn").disabled = currentIndex === 0;
+      document.getElementById("next-btn").disabled =
+        currentIndex === EMBEDDED_DATA.runs.length - 1;
+    }
+
+    // ---- Show a run ----
+    function showRun(index) {
+      currentIndex = index;
+      const run = EMBEDDED_DATA.runs[index];
+
+      // Progress
+      document.getElementById("progress").textContent =
+        `${index + 1} of ${EMBEDDED_DATA.runs.length}`;
+
+      // Prompt
+      document.getElementById("prompt-text").textContent = run.prompt;
+
+      // Config badge
+      const badge = document.getElementById("config-badge");
+      const configMatch = run.id.match(/(with_skill|without_skill|new_skill|old_skill)/);
+      if (configMatch) {
+        const config = configMatch[1];
+        const isBaseline = config === "without_skill" || config === "old_skill";
+        badge.textContent = config.replace(/_/g, " ");
+        badge.className = "config-badge " + (isBaseline ? "config-baseline" : "config-primary");
+        badge.style.display = "inline-block";
+      } else {
+        badge.style.display = "none";
+      }
+
+      // Outputs
+      renderOutputs(run);
+
+      // Previous outputs
+      renderPrevOutputs(run);
+
+      // Grades
+      renderGrades(run);
+
+      // Previous feedback
+      const prevFb = (EMBEDDED_DATA.previous_feedback || {})[run.id];
+      const prevEl = document.getElementById("prev-feedback");
+      if (prevFb) {
+        document.getElementById("prev-feedback-text").textContent = prevFb;
+        prevEl.style.display = "block";
+      } else {
+        prevEl.style.display = "none";
+      }
+
+      // Feedback
+      document.getElementById("feedback").value = feedbackMap[run.id] || "";
+      document.getElementById("feedback-status").textContent = "";
+
+      updateNavButtons();
+
+      // Track visited runs and promote done button when all visited
+      visitedRuns.add(index);
+      const doneBtn = document.getElementById("done-btn");
+      if (visitedRuns.size >= EMBEDDED_DATA.runs.length) {
+        doneBtn.classList.add("ready");
+      }
+
+      // Scroll main content to top
+      document.querySelector(".main").scrollTop = 0;
+    }
+
+    // ---- Render outputs ----
+    function renderOutputs(run) {
+      const container = document.getElementById("outputs-body");
+      container.innerHTML = "";
+
+      const outputs = run.outputs || [];
+      if (outputs.length === 0) {
+        container.innerHTML = '<div class="empty-state">No output files</div>';
+        return;
+      }
+
+      for (const file of outputs) {
+        const fileDiv = document.createElement("div");
+        fileDiv.className = "output-file";
+
+        // Always show file header with download link
+        const header = document.createElement("div");
+        header.className = "output-file-header";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = file.name;
+        header.appendChild(nameSpan);
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "dl-btn";
+        dlBtn.textContent = "Download";
+        dlBtn.download = file.name;
+        dlBtn.href = getDownloadUri(file);
+        header.appendChild(dlBtn);
+        fileDiv.appendChild(header);
+
+        const content = document.createElement("div");
+        content.className = "output-file-content";
+
+        if (file.type === "text") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          content.appendChild(pre);
+        } else if (file.type === "image") {
+          const img = document.createElement("img");
+          img.src = file.data_uri;
+          img.alt = file.name;
+          content.appendChild(img);
+        } else if (file.type === "pdf") {
+          const iframe = document.createElement("iframe");
+          iframe.src = file.data_uri;
+          content.appendChild(iframe);
+        } else if (file.type === "xlsx") {
+          renderXlsx(content, file.data_b64);
+        } else if (file.type === "binary") {
+          const a = document.createElement("a");
+          a.className = "download-link";
+          a.href = file.data_uri;
+          a.download = file.name;
+          a.textContent = "Download " + file.name;
+          content.appendChild(a);
+        } else if (file.type === "error") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          pre.style.color = "var(--red)";
+          content.appendChild(pre);
+        }
+
+        fileDiv.appendChild(content);
+        container.appendChild(fileDiv);
+      }
+    }
+
+    // ---- XLSX rendering via SheetJS ----
+    function renderXlsx(container, b64Data) {
+      try {
+        const raw = Uint8Array.from(atob(b64Data), c => c.charCodeAt(0));
+        const wb = XLSX.read(raw, { type: "array" });
+
+        for (let i = 0; i < wb.SheetNames.length; i++) {
+          const sheetName = wb.SheetNames[i];
+          const ws = wb.Sheets[sheetName];
+
+          if (wb.SheetNames.length > 1) {
+            const sheetLabel = document.createElement("div");
+            sheetLabel.style.cssText =
+              "font-weight:600; font-size:0.8rem; color:#b0aea5; margin-top:0.5rem; margin-bottom:0.25rem;";
+            sheetLabel.textContent = "Sheet: " + sheetName;
+            container.appendChild(sheetLabel);
+          }
+
+          const htmlStr = XLSX.utils.sheet_to_html(ws, { editable: false });
+          const wrapper = document.createElement("div");
+          wrapper.innerHTML = htmlStr;
+          container.appendChild(wrapper);
+        }
+      } catch (err) {
+        container.textContent = "Error rendering spreadsheet: " + err.message;
+      }
+    }
+
+    // ---- Grades ----
+    function renderGrades(run) {
+      const section = document.getElementById("grades-section");
+      const content = document.getElementById("grades-content");
+
+      if (!run.grading) {
+        section.style.display = "none";
+        return;
+      }
+
+      const grading = run.grading;
+      section.style.display = "block";
+      // Reset to collapsed
+      content.classList.remove("open");
+      document.getElementById("grades-arrow").classList.remove("open");
+
+      const summary = grading.summary || {};
+      const expectations = grading.expectations || [];
+
+      let html = '<div style="padding: 1rem;">';
+
+      // Summary line
+      const passRate = summary.pass_rate != null
+        ? Math.round(summary.pass_rate * 100) + "%"
+        : "?";
+      const badgeClass = summary.pass_rate >= 0.8 ? "grade-pass" : summary.pass_rate >= 0.5 ? "" : "grade-fail";
+      html += '<div class="grades-summary">';
+      html += '<span class="grade-badge ' + badgeClass + '">' + passRate + '</span>';
+      html += '<span>' + (summary.passed || 0) + ' passed, ' + (summary.failed || 0) + ' failed of ' + (summary.total || 0) + '</span>';
+      html += '</div>';
+
+      // Assertions list
+      html += '<ul class="assertion-list">';
+      for (const exp of expectations) {
+        const statusClass = exp.passed ? "pass" : "fail";
+        const statusIcon = exp.passed ? "\u2713" : "\u2717";
+        html += '<li class="assertion-item">';
+        html += '<span class="assertion-status ' + statusClass + '">' + statusIcon + '</span>';
+        html += '<span>' + escapeHtml(exp.text) + '</span>';
+        if (exp.evidence) {
+          html += '<div class="assertion-evidence">' + escapeHtml(exp.evidence) + '</div>';
+        }
+        html += '</li>';
+      }
+      html += '</ul>';
+
+      html += '</div>';
+      content.innerHTML = html;
+    }
+
+    function toggleGrades() {
+      const content = document.getElementById("grades-content");
+      const arrow = document.getElementById("grades-arrow");
+      content.classList.toggle("open");
+      arrow.classList.toggle("open");
+    }
+
+    // ---- Previous outputs (collapsible) ----
+    function renderPrevOutputs(run) {
+      const section = document.getElementById("prev-outputs-section");
+      const content = document.getElementById("prev-outputs-content");
+      const prevOutputs = (EMBEDDED_DATA.previous_outputs || {})[run.id];
+
+      if (!prevOutputs || prevOutputs.length === 0) {
+        section.style.display = "none";
+        return;
+      }
+
+      section.style.display = "block";
+      // Reset to collapsed
+      content.classList.remove("open");
+      document.getElementById("prev-outputs-arrow").classList.remove("open");
+
+      // Render the files into the content area
+      content.innerHTML = "";
+      const wrapper = document.createElement("div");
+      wrapper.style.padding = "1rem";
+
+      for (const file of prevOutputs) {
+        const fileDiv = document.createElement("div");
+        fileDiv.className = "output-file";
+
+        const header = document.createElement("div");
+        header.className = "output-file-header";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = file.name;
+        header.appendChild(nameSpan);
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "dl-btn";
+        dlBtn.textContent = "Download";
+        dlBtn.download = file.name;
+        dlBtn.href = getDownloadUri(file);
+        header.appendChild(dlBtn);
+        fileDiv.appendChild(header);
+
+        const fc = document.createElement("div");
+        fc.className = "output-file-content";
+
+        if (file.type === "text") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          fc.appendChild(pre);
+        } else if (file.type === "image") {
+          const img = document.createElement("img");
+          img.src = file.data_uri;
+          img.alt = file.name;
+          fc.appendChild(img);
+        } else if (file.type === "pdf") {
+          const iframe = document.createElement("iframe");
+          iframe.src = file.data_uri;
+          fc.appendChild(iframe);
+        } else if (file.type === "xlsx") {
+          renderXlsx(fc, file.data_b64);
+        } else if (file.type === "binary") {
+          const a = document.createElement("a");
+          a.className = "download-link";
+          a.href = file.data_uri;
+          a.download = file.name;
+          a.textContent = "Download " + file.name;
+          fc.appendChild(a);
+        }
+
+        fileDiv.appendChild(fc);
+        wrapper.appendChild(fileDiv);
+      }
+
+      content.appendChild(wrapper);
+    }
+
+    function togglePrevOutputs() {
+      const content = document.getElementById("prev-outputs-content");
+      const arrow = document.getElementById("prev-outputs-arrow");
+      content.classList.toggle("open");
+      arrow.classList.toggle("open");
+    }
+
+    // ---- Feedback (saved to server -> feedback.json) ----
+    function saveCurrentFeedback() {
+      const run = EMBEDDED_DATA.runs[currentIndex];
+      const text = document.getElementById("feedback").value;
+
+      if (text.trim() === "") {
+        delete feedbackMap[run.id];
+      } else {
+        feedbackMap[run.id] = text;
+      }
+
+      // Build reviews array from map
+      const reviews = [];
+      for (const [run_id, feedback] of Object.entries(feedbackMap)) {
+        if (feedback.trim()) {
+          reviews.push({ run_id, feedback, timestamp: new Date().toISOString() });
+        }
+      }
+
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reviews, status: "in_progress" }),
+      }).then(() => {
+        document.getElementById("feedback-status").textContent = "Saved";
+      }).catch(() => {
+        // Static mode or server unavailable — no-op on auto-save,
+        // feedback will be downloaded on final submit
+        document.getElementById("feedback-status").textContent = "Will download on submit";
+      });
+    }
+
+    // ---- Done ----
+    function showDoneDialog() {
+      // Save current textarea to feedbackMap (but don't POST yet)
+      const run = EMBEDDED_DATA.runs[currentIndex];
+      const text = document.getElementById("feedback").value;
+      if (text.trim() === "") {
+        delete feedbackMap[run.id];
+      } else {
+        feedbackMap[run.id] = text;
+      }
+
+      // POST once with status: complete — include ALL runs so the model
+      // can distinguish "no feedback" (looks good) from "not reviewed"
+      const reviews = [];
+      const ts = new Date().toISOString();
+      for (const r of EMBEDDED_DATA.runs) {
+        reviews.push({ run_id: r.id, feedback: feedbackMap[r.id] || "", timestamp: ts });
+      }
+      const payload = JSON.stringify({ reviews, status: "complete" }, null, 2);
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+      }).then(() => {
+        document.getElementById("done-overlay").classList.add("visible");
+      }).catch(() => {
+        // Server not available (static mode) — download as file
+        const blob = new Blob([payload], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "feedback.json";
+        a.click();
+        URL.revokeObjectURL(url);
+        document.getElementById("done-overlay").classList.add("visible");
+      });
+    }
+
+    function closeDoneDialog() {
+      // Reset status back to in_progress
+      saveCurrentFeedback();
+      document.getElementById("done-overlay").classList.remove("visible");
+    }
+
+    // ---- Toast ----
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("visible");
+      setTimeout(() => toast.classList.remove("visible"), 2000);
+    }
+
+    // ---- Keyboard nav ----
+    document.addEventListener("keydown", (e) => {
+      // Don't capture when typing in textarea
+      if (e.target.tagName === "TEXTAREA") return;
+
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        e.preventDefault();
+        navigate(-1);
+      } else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        e.preventDefault();
+        navigate(1);
+      }
+    });
+
+    // ---- Util ----
+    function getDownloadUri(file) {
+      if (file.data_uri) return file.data_uri;
+      if (file.data_b64) return "data:application/octet-stream;base64," + file.data_b64;
+      if (file.type === "text") return "data:text/plain;charset=utf-8," + encodeURIComponent(file.content);
+      return "#";
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // ---- View switching ----
+    function switchView(view) {
+      document.querySelectorAll(".view-tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".view-panel").forEach(p => p.classList.remove("active"));
+      document.querySelector(`[onclick="switchView('${view}')"]`).classList.add("active");
+      document.getElementById("panel-" + view).classList.add("active");
+    }
+
+    // ---- Benchmark rendering ----
+    function renderBenchmark() {
+      const data = EMBEDDED_DATA.benchmark;
+      if (!data) return;
+
+      // Show the tabs
+      document.getElementById("view-tabs").style.display = "flex";
+
+      const container = document.getElementById("benchmark-content");
+      const summary = data.run_summary || {};
+      const metadata = data.metadata || {};
+      const notes = data.notes || [];
+
+      let html = "";
+
+      // Header
+      html += "<h2 style='font-family: Poppins, sans-serif; margin-bottom: 0.5rem;'>Benchmark Results</h2>";
+      html += "<p style='color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.25rem;'>";
+      if (metadata.skill_name) html += "<strong>" + escapeHtml(metadata.skill_name) + "</strong> &mdash; ";
+      if (metadata.timestamp) html += metadata.timestamp + " &mdash; ";
+      if (metadata.evals_run) html += "Evals: " + metadata.evals_run.join(", ") + " &mdash; ";
+      html += (metadata.runs_per_configuration || "?") + " runs per configuration";
+      html += "</p>";
+
+      // Summary table
+      html += '<table class="benchmark-table">';
+
+      function fmtStat(stat, pct) {
+        if (!stat) return "—";
+        const suffix = pct ? "%" : "";
+        const m = pct ? (stat.mean * 100).toFixed(0) : stat.mean.toFixed(1);
+        const s = pct ? (stat.stddev * 100).toFixed(0) : stat.stddev.toFixed(1);
+        return m + suffix + " ± " + s + suffix;
+      }
+
+      function deltaClass(val) {
+        if (!val) return "";
+        const n = parseFloat(val);
+        if (n > 0) return "benchmark-delta-positive";
+        if (n < 0) return "benchmark-delta-negative";
+        return "";
+      }
+
+      // Discover config names dynamically (everything except "delta")
+      const configs = Object.keys(summary).filter(k => k !== "delta");
+      const configA = configs[0] || "config_a";
+      const configB = configs[1] || "config_b";
+      const labelA = configA.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      const labelB = configB.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      const a = summary[configA] || {};
+      const b = summary[configB] || {};
+      const delta = summary.delta || {};
+
+      html += "<thead><tr><th>Metric</th><th>" + escapeHtml(labelA) + "</th><th>" + escapeHtml(labelB) + "</th><th>Delta</th></tr></thead>";
+      html += "<tbody>";
+
+      html += "<tr><td><strong>Pass Rate</strong></td>";
+      html += "<td>" + fmtStat(a.pass_rate, true) + "</td>";
+      html += "<td>" + fmtStat(b.pass_rate, true) + "</td>";
+      html += '<td class="' + deltaClass(delta.pass_rate) + '">' + (delta.pass_rate || "—") + "</td></tr>";
+
+      // Time (only show row if data exists)
+      if (a.time_seconds || b.time_seconds) {
+        html += "<tr><td><strong>Time (s)</strong></td>";
+        html += "<td>" + fmtStat(a.time_seconds, false) + "</td>";
+        html += "<td>" + fmtStat(b.time_seconds, false) + "</td>";
+        html += '<td class="' + deltaClass(delta.time_seconds) + '">' + (delta.time_seconds ? delta.time_seconds + "s" : "—") + "</td></tr>";
+      }
+
+      // Tokens (only show row if data exists)
+      if (a.tokens || b.tokens) {
+        html += "<tr><td><strong>Tokens</strong></td>";
+        html += "<td>" + fmtStat(a.tokens, false) + "</td>";
+        html += "<td>" + fmtStat(b.tokens, false) + "</td>";
+        html += '<td class="' + deltaClass(delta.tokens) + '">' + (delta.tokens || "—") + "</td></tr>";
+      }
+
+      html += "</tbody></table>";
+
+      // Per-eval breakdown (if runs data available)
+      const runs = data.runs || [];
+      if (runs.length > 0) {
+        const evalIds = [...new Set(runs.map(r => r.eval_id))].sort((a, b) => a - b);
+
+        html += "<h3 style='font-family: Poppins, sans-serif; margin-bottom: 0.75rem;'>Per-Eval Breakdown</h3>";
+
+        const hasTime = runs.some(r => r.result && r.result.time_seconds != null);
+        const hasErrors = runs.some(r => r.result && r.result.errors > 0);
+
+        for (const evalId of evalIds) {
+          const evalRuns = runs.filter(r => r.eval_id === evalId);
+          const evalName = evalRuns[0] && evalRuns[0].eval_name ? evalRuns[0].eval_name : "Eval " + evalId;
+
+          html += "<h4 style='font-family: Poppins, sans-serif; margin: 1rem 0 0.5rem; color: var(--text);'>" + escapeHtml(evalName) + "</h4>";
+          html += '<table class="benchmark-table">';
+          html += "<thead><tr><th>Config</th><th>Run</th><th>Pass Rate</th>";
+          if (hasTime) html += "<th>Time (s)</th>";
+          if (hasErrors) html += "<th>Crashes During Execution</th>";
+          html += "</tr></thead>";
+          html += "<tbody>";
+
+          // Group by config and render with average rows
+          const configGroups = [...new Set(evalRuns.map(r => r.configuration))];
+          for (let ci = 0; ci < configGroups.length; ci++) {
+            const config = configGroups[ci];
+            const configRuns = evalRuns.filter(r => r.configuration === config);
+            if (configRuns.length === 0) continue;
+
+            const rowClass = ci === 0 ? "benchmark-row-with" : "benchmark-row-without";
+            const configLabel = config.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+
+            for (const run of configRuns) {
+              const r = run.result || {};
+              const prClass = r.pass_rate >= 0.8 ? "benchmark-delta-positive" : r.pass_rate < 0.5 ? "benchmark-delta-negative" : "";
+              html += '<tr class="' + rowClass + '">';
+              html += "<td>" + configLabel + "</td>";
+              html += "<td>" + run.run_number + "</td>";
+              html += '<td class="' + prClass + '">' + ((r.pass_rate || 0) * 100).toFixed(0) + "% (" + (r.passed || 0) + "/" + (r.total || 0) + ")</td>";
+              if (hasTime) html += "<td>" + (r.time_seconds != null ? r.time_seconds.toFixed(1) : "—") + "</td>";
+              if (hasErrors) html += "<td>" + (r.errors || 0) + "</td>";
+              html += "</tr>";
+            }
+
+            // Average row
+            const rates = configRuns.map(r => (r.result || {}).pass_rate || 0);
+            const avgRate = rates.reduce((a, b) => a + b, 0) / rates.length;
+            const avgPrClass = avgRate >= 0.8 ? "benchmark-delta-positive" : avgRate < 0.5 ? "benchmark-delta-negative" : "";
+            html += '<tr class="benchmark-row-avg ' + rowClass + '">';
+            html += "<td>" + configLabel + "</td>";
+            html += "<td>Avg</td>";
+            html += '<td class="' + avgPrClass + '">' + (avgRate * 100).toFixed(0) + "%</td>";
+            if (hasTime) {
+              const times = configRuns.map(r => (r.result || {}).time_seconds).filter(t => t != null);
+              html += "<td>" + (times.length ? (times.reduce((a, b) => a + b, 0) / times.length).toFixed(1) : "—") + "</td>";
+            }
+            if (hasErrors) html += "<td></td>";
+            html += "</tr>";
+          }
+          html += "</tbody></table>";
+
+          // Per-assertion detail for this eval
+          const runsWithExpectations = {};
+          for (const config of configGroups) {
+            runsWithExpectations[config] = evalRuns.filter(r => r.configuration === config && r.expectations && r.expectations.length > 0);
+          }
+          const hasAnyExpectations = Object.values(runsWithExpectations).some(runs => runs.length > 0);
+          if (hasAnyExpectations) {
+            // Collect all unique assertion texts across all configs
+            const allAssertions = [];
+            const seen = new Set();
+            for (const config of configGroups) {
+              for (const run of runsWithExpectations[config]) {
+                for (const exp of (run.expectations || [])) {
+                  if (!seen.has(exp.text)) {
+                    seen.add(exp.text);
+                    allAssertions.push(exp.text);
+                  }
+                }
+              }
+            }
+
+            html += '<table class="benchmark-table" style="margin-top: 0.5rem;">';
+            html += "<thead><tr><th>Assertion</th>";
+            for (const config of configGroups) {
+              const label = config.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+              html += "<th>" + escapeHtml(label) + "</th>";
+            }
+            html += "</tr></thead><tbody>";
+
+            for (const assertionText of allAssertions) {
+              html += "<tr><td>" + escapeHtml(assertionText) + "</td>";
+
+              for (const config of configGroups) {
+                html += "<td>";
+                for (const run of runsWithExpectations[config]) {
+                  const exp = (run.expectations || []).find(e => e.text === assertionText);
+                  if (exp) {
+                    const cls = exp.passed ? "benchmark-delta-positive" : "benchmark-delta-negative";
+                    const icon = exp.passed ? "\u2713" : "\u2717";
+                    html += '<span class="' + cls + '" title="Run ' + run.run_number + ': ' + escapeHtml(exp.evidence || "") + '">' + icon + "</span> ";
+                  } else {
+                    html += "— ";
+                  }
+                }
+                html += "</td>";
+              }
+              html += "</tr>";
+            }
+            html += "</tbody></table>";
+          }
+        }
+      }
+
+      // Notes
+      if (notes.length > 0) {
+        html += '<div class="benchmark-notes">';
+        html += "<h3>Analysis Notes</h3>";
+        html += "<ul>";
+        for (const note of notes) {
+          html += "<li>" + escapeHtml(note) + "</li>";
+        }
+        html += "</ul></div>";
+      }
+
+      container.innerHTML = html;
+    }
+
+    // ---- Start ----
+    init();
+    renderBenchmark();
+  </script>
+</body>
+</html>
